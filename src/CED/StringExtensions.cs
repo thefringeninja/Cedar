@@ -1,4 +1,4 @@
-﻿namespace CED.Hosting
+﻿namespace CED
 {
     using System.Globalization;
 
