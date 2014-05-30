@@ -55,14 +55,7 @@
                     return Negotiate
                         .WithStatusCode(HttpStatusCode.BadRequest)
                         .WithReasonPhrase("Command validation failed")
-                        .WithModel(ex.ToErrorResponse());
-                }
-                catch (ErrorException ex)
-                {
-                    return Negotiate
-                        .WithStatusCode(HttpStatusCode.InternalServerError)
-                        .WithReasonPhrase(ex.Message)
-                        .WithModel(ex.ToErrorResponse());
+                        .WithModel(ex.ToExceptionResponse());
                 }
                 catch (Exception ex)
                 {
