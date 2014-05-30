@@ -53,16 +53,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CED.Framework\CED.Framework.csproj">
+    <ProjectReference Include="..\CED\CED.csproj">
       <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
-      <Name>CED.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CED.Hosting\CED.Hosting.csproj">
-      <Project>{24629CD6-1E86-4F18-AB86-2DAC6EE43BB2}</Project>
-      <Name>CED.Hosting</Name>
+      <Name>CED</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

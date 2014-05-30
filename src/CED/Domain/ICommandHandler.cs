@@ -1,4 +1,4 @@
-﻿namespace CED.Framework.Domain
+﻿namespace CED.Domain
 {
     using System.Threading.Tasks;
 

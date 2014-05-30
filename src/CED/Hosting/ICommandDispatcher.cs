@@ -1,7 +1,7 @@
 ﻿namespace CED.Hosting
 {
     using System.Threading.Tasks;
-    using CED.Framework.Domain;
+    using CED.Domain;
 
     public interface ICommandDispatcher
     {

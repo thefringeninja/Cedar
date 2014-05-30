@@ -2,7 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
-    using CED.Framework.Domain;
+    using CED.Domain;
     using CED.Hosting;
     using FakeItEasy;
     using FluentAssertions;

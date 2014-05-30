@@ -4,8 +4,8 @@
     using System.Reflection;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
-    using CED.Framework.Domain;
-    using CED.Hosting.Annotations;
+    using CED.Annotations;
+    using CED.Domain;
 
     public class CommandDispatcher : ICommandDispatcher
     {
