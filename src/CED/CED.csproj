@@ -45,6 +45,8 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Hosting\StringExtensions.cs" />
+    <Compile Include="Hosting\SystemClock.cs" />
+    <Compile Include="ISystemClock.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILogProvider.cs" />
     <Compile Include="Logging\LogExtensions.cs" />
