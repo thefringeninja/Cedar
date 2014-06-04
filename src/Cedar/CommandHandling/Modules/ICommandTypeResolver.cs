@@ -4,6 +4,6 @@
 
     public interface ICommandTypeResolver
     {
-        Type GetCommandType(string commandType);
+        Type GetCommandType(string contentType);
     }
 }

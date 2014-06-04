@@ -5,7 +5,7 @@
     using Nancy;
     using Nancy.Responses.Negotiation;
 
-    public class HeaderBasedCommandHandlerTests
+    public class CommandHandlerTests
     {
         public class CustomException : Exception
         {}

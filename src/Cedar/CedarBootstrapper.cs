@@ -71,5 +71,10 @@
         {
             get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfInterface<ICommandDeserializer>()); }
         }
+
+        public virtual void Initialize()
+        {
+            
+        }
     }
 }

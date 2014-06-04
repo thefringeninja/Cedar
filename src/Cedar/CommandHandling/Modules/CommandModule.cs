@@ -16,9 +16,8 @@
             ICommandTypeResolver commandTypeResolver,
             ICommandDispatcher commandDispatcher,
             IEnumerable<ICommandExceptionHandler> exceptionHandlers,
-            IEnumerable<ICommandDeserializer> commandDeserializers,
-            string modulePath = "/commands")
-            : base(modulePath)
+            IEnumerable<ICommandDeserializer> commandDeserializers)
+            : base("/commands")
         {
             Put["/{Id}", true] = async (parameters, ct) =>
             {
