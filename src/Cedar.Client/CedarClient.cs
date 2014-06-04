@@ -4,11 +4,11 @@
     using System.Net;
     using System.Net.Http;
 
-    public class CEDClient : IDisposable
+    public class CedarClient : IDisposable
     {
         private readonly HttpClient _httpClient;
 
-        public CEDClient(Uri baseAddress, HttpMessageHandler handler = null)
+        public CedarClient(Uri baseAddress, HttpMessageHandler handler = null)
         {
             if (handler == null)
             {
