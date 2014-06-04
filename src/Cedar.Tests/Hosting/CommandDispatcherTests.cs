@@ -3,6 +3,9 @@
     using System;
     using System.Threading.Tasks;
     using Cedar.Domain;
+    using FakeItEasy;
+    using FluentAssertions;
+    using Xunit;
 
     public class CommandDispatcherTests
     {

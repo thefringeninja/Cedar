@@ -2,9 +2,12 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Security.Claims;
     using System.Threading;
     using Cedar.Domain;
+    using Nancy;
+    using Nancy.Security;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
