@@ -1,4 +1,4 @@
-﻿namespace CED
+﻿namespace Cedar
 {
     using System;
 

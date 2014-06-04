@@ -1,13 +1,10 @@
-﻿namespace CED.Hosting
+﻿namespace Cedar.Hosting
 {
     using System;
     using System.IO;
-    using System.Linq;
     using System.Security.Claims;
     using System.Threading;
-    using CED.Domain;
-    using Nancy;
-    using Nancy.Security;
+    using Cedar.Domain;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 

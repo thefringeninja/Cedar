@@ -1,4 +1,4 @@
-﻿namespace CED.Logging
+﻿namespace Cedar.Logging
 {
     public enum LogLevel
     {

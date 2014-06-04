@@ -1,7 +1,7 @@
-﻿namespace CED.Hosting
+﻿namespace Cedar.Hosting
 {
     using System;
-    using CED.Annotations;
+    using Cedar.Properties;
     using FluentAssertions;
     using Xunit;
 

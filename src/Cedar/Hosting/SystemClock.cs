@@ -1,7 +1,6 @@
-﻿namespace CED.Hosting
+﻿namespace Cedar.Hosting
 {
     using System;
-    using CED;
 
     public class SystemClock : ISystemClock
     {

@@ -1,3 +1,6 @@
 ﻿using System;
 
-public class CommandValidationException : Exception { }
+namespace Cedar.Domain
+{
+    public class CommandValidationException : Exception { }
+}

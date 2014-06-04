@@ -1,11 +1,11 @@
-﻿namespace CED.Hosting
+﻿namespace Cedar.Hosting
 {
     using System;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
-    using CED.Annotations;
-    using CED.Domain;
+    using Cedar.Domain;
+    using Cedar.Properties;
 
     public class CommandDispatcher : ICommandDispatcher
     {

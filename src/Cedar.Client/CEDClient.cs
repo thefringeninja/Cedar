@@ -1,4 +1,4 @@
-﻿namespace CED
+﻿namespace Cedar.Client
 {
     using System;
     using System.Net;

@@ -1,4 +1,4 @@
-namespace CED.Serialization
+namespace Cedar.Client
 {
     using System.Globalization;
 

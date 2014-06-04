@@ -1,6 +1,6 @@
 ﻿// https://github.com/damianh/DH.Logging
 
-namespace CED.Logging
+namespace Cedar.Logging
 {
     public interface ILogProvider
     {

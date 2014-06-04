@@ -1,6 +1,7 @@
-namespace CED.Hosting
+namespace Cedar.Hosting
 {
     using System;
+    using Cedar.Client;
 
     internal static class ExceptionExtensions
     {

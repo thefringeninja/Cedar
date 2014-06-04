@@ -1,4 +1,4 @@
-﻿namespace CED.Domain
+﻿namespace Cedar.Domain
 {
     using System;
 

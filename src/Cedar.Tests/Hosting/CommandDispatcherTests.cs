@@ -1,12 +1,8 @@
-﻿namespace CED
+﻿namespace Cedar.Hosting
 {
     using System;
     using System.Threading.Tasks;
-    using CED.Domain;
-    using CED.Hosting;
-    using FakeItEasy;
-    using FluentAssertions;
-    using Xunit;
+    using Cedar.Domain;
 
     public class CommandDispatcherTests
     {

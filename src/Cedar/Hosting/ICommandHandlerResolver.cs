@@ -1,6 +1,6 @@
-﻿namespace CED.Hosting
+﻿namespace Cedar.Hosting
 {
-    using CED.Domain;
+    using Cedar.Domain;
 
     public interface ICommandHandlerResolver
     {
