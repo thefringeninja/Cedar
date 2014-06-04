@@ -60,6 +60,7 @@
     <Compile Include="CommandHandling\Dispatching\CommandDispatcherTests.cs" />
     <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandlerTests.cs" />
     <Compile Include="CommandHandling\Modules\CommandHandlerTests.cs" />
+    <Compile Include="CommandHandling\Modules\CommandTypeResolverTests.cs" />
     <Compile Include="CommandHandling\Serialization\XmlCommandDeserializerTests.cs" />
     <Compile Include="CommandHandling\Serialization\JsonCommandDeserializerTests.cs" />
     <Compile Include="Hosting\SystemClockTests.cs" />
