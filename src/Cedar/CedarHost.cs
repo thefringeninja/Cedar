@@ -35,6 +35,7 @@ namespace Cedar
             _container.Register<ICommandHandlerResolver, TinyIoCCommandHandlerResolver>();
             _container.RegisterMultiple(typeof(ICommandDeserializer), _bootstrapper.CommandDeserializers);
 
+            var commandTypes = new List<Type>();
             MethodInfo registerCommandHandlerMethod = GetType().GetMethod("RegisterCommandHander", BindingFlags.NonPublic | BindingFlags.Static);
             foreach (Type commandHandler in _bootstrapper.CommandHandlerTypes)
             {
@@ -42,7 +43,9 @@ namespace Cedar
                 registerCommandHandlerMethod
                     .MakeGenericMethod(commandType, commandHandler)
                     .Invoke(this, new object[] { _container });
+                commandTypes.Add(commandType);
             }
+            _container.Register<ICommandTypeResolver>(new CommandTypeResolver(bootstrapper.VendorName, commandTypes));
 
             _owinEmbeddedHost = OwinEmbeddedHost.Create(app =>
                 app.UseNancy(opt => opt.Bootstrapper = new CedarNancyBootstrapper(_container, _bootstrapper.NancyModulesTypes)));
@@ -84,7 +87,7 @@ namespace Cedar
                 get
                 {
                     IEnumerable<ModuleRegistration> moduleRegistrations = _nancyModulesTypes.Select(t => new ModuleRegistration(t));
-                    return new[] {new ModuleRegistration(typeof (CommandModule))}.Concat(moduleRegistrations);
+                    return new[] {new ModuleRegistration(typeof(CommandModule))}.Concat(moduleRegistrations);
                 }
             }
 

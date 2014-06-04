@@ -37,20 +37,6 @@
         }
 
         /// <summary>
-        ///     Gets the command module path.
-        /// </summary>
-        /// <value>
-        ///     The command module path. Default value is '/commands'
-        /// </value>
-        public virtual string CommandModulePath
-        {
-            get
-            {
-                return "/commands";
-            }
-        }
-
-        /// <summary>
         ///     Gets the nancy modules types.
         /// </summary>
         /// <value>
@@ -72,9 +58,6 @@
             get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfInterface<ICommandDeserializer>()); }
         }
 
-        public virtual void Initialize()
-        {
-            
-        }
+        public abstract string VendorName { get; } 
     }
 }
