@@ -1,4 +1,4 @@
-﻿namespace Cedar
+﻿namespace Cedar.Hosting
 {
     using System;
 

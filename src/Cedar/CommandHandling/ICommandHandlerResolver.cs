@@ -1,7 +1,5 @@
-﻿namespace Cedar.Hosting
+﻿namespace Cedar.CommandHandling
 {
-    using Cedar.Domain;
-
     public interface ICommandHandlerResolver
     {
         ICommandHandler<T> Resolve<T>()

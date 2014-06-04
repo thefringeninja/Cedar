@@ -39,6 +39,10 @@
     <Reference Include="FluentAssertions.Core">
       <HintPath>..\packages\FluentAssertions.3.0.107\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Nancy, Version=0.22.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Nancy.0.22.2\lib\net40\Nancy.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.XML" />
@@ -49,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Hosting\CommandDispatcherTests.cs" />
+    <Compile Include="Hosting\HeaderBasedCommandHandlerTests.cs" />
     <Compile Include="Hosting\SystemClockTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -57,6 +62,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
+      <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>
+      <Name>Cedar.Client</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cedar\Cedar.csproj">
       <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
       <Name>Cedar</Name>

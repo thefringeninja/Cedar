@@ -1,11 +1,11 @@
-namespace Cedar.Hosting
+namespace Cedar.CommandHandling.ExceptionHandling
 {
     using System;
     using Cedar.Client;
 
-    internal static class ExceptionExtensions
+    public static class ExceptionExtensions
     {
-        internal static ExceptionResponse ToExceptionResponse(this Exception ex)
+        public static ExceptionResponse ToExceptionResponse(this Exception ex)
         {
             return new ExceptionResponse
             {

@@ -2,7 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Cedar.Domain;
+    using Cedar.CommandHandling;
+    using Cedar.CommandHandling.Dispatching;
     using FakeItEasy;
     using FluentAssertions;
     using Xunit;
@@ -41,7 +42,7 @@
         }
 
         [Fact]
-        public async Task When_handler_not_found_then_should_throw()
+        public void When_handler_not_found_then_should_throw()
         {
             A.CallTo(() => _fakeHandlerResolver.Resolve<object>()).Returns(null);
             var fakeCommandContext = A.Fake<ICommandContext>();

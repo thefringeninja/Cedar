@@ -1,4 +1,4 @@
-﻿namespace Cedar.Domain
+﻿namespace Cedar.CommandHandling.Dispatching
 {
     using System;
     using System.Security.Claims;

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -49,17 +49,25 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Hosting\CommandModule.cs" />
-    <Compile Include="Domain\ICommandContext.cs" />
-    <Compile Include="Domain\ICommandHandler.cs" />
-    <Compile Include="Domain\CommandValidationException.cs" />
-    <Compile Include="Domain\ICommandTypeResolver.cs" />
-    <Compile Include="Hosting\CommandDispatcher.cs" />
-    <Compile Include="Hosting\ExceptionExtensions.cs" />
-    <Compile Include="Hosting\ICommandDispatcher.cs" />
-    <Compile Include="Hosting\ICommandHandlerResolver.cs" />
+    <Compile Include="CommandHandling\Serialization\ICommandDeserializer.cs" />
+    <Compile Include="CommandHandling\Serialization\JsonCommandDeserializer.cs" />
+    <Compile Include="CommandHandling\Dispatching\CommandContext.cs" />
+    <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandler.cs" />
+    <Compile Include="CommandHandling\Serialization\XmlCommandDeserializer.cs" />
+    <Compile Include="Hosting\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="CommandHandling\Modules\HeaderBasedCommandModule.cs" />
+    <Compile Include="CommandHandling\Dispatching\ICommandContext.cs" />
+    <Compile Include="CommandHandling\ICommandHandler.cs" />
+    <Compile Include="CommandHandling\Modules\ICommandTypeResolver.cs" />
+    <Compile Include="CommandHandling\Dispatching\CommandDispatcher.cs" />
+    <Compile Include="CommandHandling\ExceptionHandling\ExceptionExtensions.cs" />
+    <Compile Include="CommandHandling\Dispatching\ICommandDispatcher.cs" />
+    <Compile Include="CommandHandling\ExceptionHandling\ICommandExceptionHandler.cs" />
+    <Compile Include="CommandHandling\ICommandHandlerResolver.cs" />
     <Compile Include="Hosting\Messages.Designer.cs">
       <DependentUpon>Messages.resx</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -90,6 +98,9 @@
       <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
       <Name>Cedar.Client</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Domain\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
