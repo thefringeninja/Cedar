@@ -1,13 +1,13 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CED.Tests", "CED.Tests\CED.Tests.csproj", "{F286E287-573F-495E-804A-6278C9B7BEB8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cedar.Tests", "Cedar.Tests\Cedar.Tests.csproj", "{F286E287-573F-495E-804A-6278C9B7BEB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CED", "CED\CED.csproj", "{DCFCD369-4580-42D4-8F26-A071B9D17680}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cedar", "Cedar\Cedar.csproj", "{DCFCD369-4580-42D4-8F26-A071B9D17680}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CED.Client", "CED.Client\CED.Client.csproj", "{772D0367-FF5A-430C-BC63-A40F5E48F247}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cedar.Client", "Cedar.Client\Cedar.Client.csproj", "{772D0367-FF5A-430C-BC63-A40F5E48F247}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
