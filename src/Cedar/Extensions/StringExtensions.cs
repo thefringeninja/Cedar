@@ -1,4 +1,4 @@
-﻿namespace Cedar
+﻿namespace Cedar.Extensions
 {
     using System.Globalization;
 

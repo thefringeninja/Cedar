@@ -54,42 +54,85 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bootstrapper.cs" />
-    <Compile Include="CommandHandling\Modules\ICommandTypeResolver.cs" />
-    <Compile Include="CommandHandling\Serialization\ICommandDeserializer.cs" />
-    <Compile Include="CommandHandling\Serialization\JsonCommandDeserializer.cs" />
-    <Compile Include="CommandHandling\Dispatching\CommandContext.cs" />
-    <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandler.cs" />
-    <Compile Include="CommandHandling\Serialization\XmlCommandDeserializer.cs" />
-    <Compile Include="Hosting\DefaultJsonSerializerSettings.cs" />
-    <Compile Include="CommandHandling\Modules\CommandModule.cs" />
-    <Compile Include="CommandHandling\Dispatching\ICommandContext.cs" />
-    <Compile Include="CommandHandling\ICommandHandler.cs" />
-    <Compile Include="CommandHandling\Dispatching\CommandDispatcher.cs" />
-    <Compile Include="CommandHandling\ExceptionHandling\ExceptionExtensions.cs" />
-    <Compile Include="CommandHandling\Dispatching\ICommandDispatcher.cs" />
-    <Compile Include="CommandHandling\ExceptionHandling\ICommandExceptionHandler.cs" />
-    <Compile Include="CommandHandling\ICommandHandlerResolver.cs" />
+    <Compile Include="CedarBootstrapper.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CedarEngine.cs" />
+    <Compile Include="CommandHandling\Dispatching\CommandContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Dispatching\CommandDispatcher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Dispatching\ICommandContext.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Dispatching\ICommandDispatcher.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\ExceptionHandling\ExceptionExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\ExceptionHandling\ICommandExceptionHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\ICommandHandler.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\ICommandHandlerResolver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Modules\CommandModule.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Modules\ICommandTypeResolver.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Serialization\ICommandDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Serialization\JsonCommandDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="CommandHandling\Serialization\XmlCommandDeserializer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\DefaultJsonSerializerSettings.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\Guard.cs" />
+    <Compile Include="Hosting\ISystemClock.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Hosting\Messages.Designer.cs">
       <DependentUpon>Messages.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
-    <Compile Include="StringExtensions.cs" />
-    <Compile Include="Hosting\SystemClock.cs" />
-    <Compile Include="Hosting\ISystemClock.cs" />
-    <Compile Include="Logging\ILog.cs" />
-    <Compile Include="Logging\ILogProvider.cs" />
-    <Compile Include="Logging\LogExtensions.cs" />
-    <Compile Include="Logging\LogLevel.cs" />
+    <Compile Include="Hosting\SystemClock.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Hosting\AssemblyExtensions.cs" />
+    <Compile Include="Logging\ILog.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Logging\ILogProvider.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Logging\LogExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Logging\LogLevel.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Hosting\Messages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Compile Include="Extensions\StringExtensions.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -100,6 +143,12 @@
       <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
       <Name>Cedar.Client</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Hosting\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Domain\" />
