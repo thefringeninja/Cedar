@@ -2,50 +2,33 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Security.Claims;
     using Cedar.CommandHandling.Dispatching;
     using Cedar.CommandHandling.ExceptionHandling;
     using Cedar.CommandHandling.Serialization;
-    using Cedar.Hosting;
     using Nancy;
     using Nancy.Security;
-    using Newtonsoft.Json;
 
-    public class HeaderBasedCommandModule : NancyModule
+    public class CommandModule : NancyModule
     {
-        public HeaderBasedCommandModule(
+        public CommandModule(
             ICommandTypeResolver commandTypeResolver,
             ICommandDispatcher commandDispatcher,
             IEnumerable<ICommandExceptionHandler> exceptionHandlers,
             IEnumerable<ICommandDeserializer> commandDeserializers,
-            string commandNameHeaderKey)
-            : base("/commands")
+            string modulePath = "/commands")
+            : base(modulePath)
         {
             Put["/{Id}", true] = async (parameters, ct) =>
             {
                 try
                 {
                     Guid commandId = parameters.Id;
-                    string commandName = Request.Headers[commandNameHeaderKey].Single();
-                    Type commandType = commandTypeResolver.GetCommandType(commandName);
-                    if (commandType == null)
-                    {
-                        throw new InvalidOperationException("No command handler found for {0}".FormatWith(commandName));
-                    }
                     string contentType = Request.Headers["Content-Type"].Single();
+                    Type commandType = commandTypeResolver.GetCommandType(contentType);
                     ICommandDeserializer commandDeserializer = commandDeserializers.Single(s => s.Handles(contentType));
-                    commandDeserializer.Deserialize(Context.Request.Body, commandType);
-
-                    //TODO Support custom (de)serializers? 
-                    string jsonBody;
-                    using (var streamReader = new StreamReader(Context.Request.Body))
-                    {
-                        jsonBody = await streamReader.ReadToEndAsync();
-                    }
-                   
-                    object command = JsonConvert.DeserializeObject(jsonBody, commandType, DefaultJsonSerializerSettings.Settings);
+                    object command = await commandDeserializer.Deserialize(Context.Request.Body, commandType);
                     ClaimsPrincipal user = Context.GetAuthenticationManager().User;
                     var commandContext = new CommandContext(commandId, ct, user);
                     await commandDispatcher.Dispatch(commandContext, command);

@@ -1,9 +1,8 @@
-﻿namespace Cedar.Hosting
+﻿namespace Cedar.CommandHandling.Dispatching
 {
     using System;
     using System.Threading.Tasks;
     using Cedar.CommandHandling;
-    using Cedar.CommandHandling.Dispatching;
     using FakeItEasy;
     using FluentAssertions;
     using Xunit;

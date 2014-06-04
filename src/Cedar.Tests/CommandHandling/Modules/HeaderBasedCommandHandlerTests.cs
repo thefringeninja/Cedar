@@ -1,7 +1,6 @@
-﻿namespace Cedar.Hosting
+﻿namespace Cedar.CommandHandling.Modules
 {
     using System;
-    using Cedar.CommandHandling;
     using Cedar.CommandHandling.ExceptionHandling;
     using Nancy;
     using Nancy.Responses.Negotiation;
