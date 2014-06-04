@@ -1,11 +1,11 @@
-﻿namespace Cedar.Hosting
+﻿namespace Cedar.Client
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
-    internal static class DefaultJsonSerializerSettings
+    public static class DefaultJsonSerializerSettings
     {
-        internal static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver()
         };

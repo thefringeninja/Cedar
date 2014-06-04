@@ -5,18 +5,12 @@
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Serialization;
 
     public static class CedarClientExtensions
     {
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
-        };
-
         public static Task ExecuteCommand(this CedarClient client, object command, Guid commandId)
         {
-            return ExecuteCommand(client, command, commandId, GetJsonCommandHttpContent("cedar"));
+            return ExecuteCommand(client, command, commandId, GetJsonCommandHttpContent("cedar", client.SerializerSettings));
         }
 
         public static async Task ExecuteCommand(this CedarClient client, object command, Guid commandId, Func<object, HttpContent> createHttpContent)
@@ -24,11 +18,11 @@
             HttpResponseMessage response = await client.HttpClient.PutAsync("/commands/{0}".FormatWith(commandId), createHttpContent(command));
         }
 
-        public static Func<object, HttpContent> GetJsonCommandHttpContent(string vendor)
+        public static Func<object, HttpContent> GetJsonCommandHttpContent(string vendor, JsonSerializerSettings serializerSettings)
         {
             return command =>
             {
-                string commandJson = JsonConvert.SerializeObject(command, SerializerSettings);
+                string commandJson = JsonConvert.SerializeObject(command, serializerSettings);
                 var httpContent = new StringContent(commandJson);
                 httpContent.Headers.ContentType =
                     MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(vendor, command.GetType().Name));

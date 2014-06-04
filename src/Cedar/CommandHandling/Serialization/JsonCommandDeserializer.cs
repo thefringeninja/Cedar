@@ -3,7 +3,7 @@ namespace Cedar.CommandHandling.Serialization
     using System;
     using System.IO;
     using System.Threading.Tasks;
-    using Cedar.Hosting;
+    using Cedar.Client;
     using Newtonsoft.Json;
 
     public class JsonCommandDeserializer : ICommandDeserializer

@@ -100,9 +100,6 @@
     <Compile Include="CommandHandling\Serialization\XmlCommandDeserializer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Hosting\DefaultJsonSerializerSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Hosting\Guard.cs" />
     <Compile Include="Hosting\ISystemClock.cs">
       <SubType>Code</SubType>

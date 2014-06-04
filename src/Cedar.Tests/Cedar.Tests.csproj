@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandHandling\Dispatching\CommandDispatcherTests.cs" />
+    <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandlerTests.cs" />
     <Compile Include="CommandHandling\Modules\HeaderBasedCommandHandlerTests.cs" />
     <Compile Include="CommandHandling\Serialization\XmlCommandDeserializerTests.cs" />
     <Compile Include="CommandHandling\Serialization\JsonCommandDeserializerTests.cs" />
@@ -78,9 +79,7 @@
       <Name>Cedar</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="CommandHandling\ExceptionHandling\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

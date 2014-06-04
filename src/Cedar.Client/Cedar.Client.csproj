@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="CedarClient.cs" />
     <Compile Include="CedarClientExtensions.cs" />
+    <Compile Include="DefaultJsonSerializerSettings.cs" />
     <Compile Include="ExceptionResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringExtensions.cs" />

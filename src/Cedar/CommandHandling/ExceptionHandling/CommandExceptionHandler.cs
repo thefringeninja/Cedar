@@ -11,7 +11,7 @@ namespace Cedar.CommandHandling.ExceptionHandling
             return ex.GetType() == typeof (TException);
         }
 
-        public Negotiator Handle(Exception ex, Negotiator negotiator)
+        Negotiator ICommandExceptionHandler.Handle(Exception ex, Negotiator negotiator)
         {
             return Handle((TException)ex, negotiator);
         }
