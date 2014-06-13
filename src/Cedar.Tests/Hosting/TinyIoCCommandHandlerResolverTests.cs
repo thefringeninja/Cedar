@@ -24,8 +24,8 @@ namespace Cedar.Hosting
         [Fact]
         public void More_that_one_handler_registered_throws_an_exception()
         {
-            CedarHost.RegisterCommandHander<Test, TestCommandHandler>(_container);
-            CedarHost.RegisterCommandHander<Test, AnotherTestCommandHandler>(_container);
+            _container.RegisterCommandHander<Test, TestCommandHandler>();
+            _container.RegisterCommandHander<Test, AnotherTestCommandHandler>();
 
             Action act = () => _sut.Resolve<Test>();
 

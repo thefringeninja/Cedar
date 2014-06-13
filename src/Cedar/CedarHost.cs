@@ -62,14 +62,6 @@ namespace Cedar
             _container.Dispose();
         }
 
-        public static void RegisterCommandHander<TCommand, TCommandHandler>(TinyIoCContainer container)
-            where TCommand : class
-            where TCommandHandler : class, ICommandHandler<TCommand>
-        {
-            container.RegisterMultiple<ICommandHandler<TCommand>>(new[]{typeof(TCommandHandler)});
-            container.Register<TCommandHandler>();  
-        }
-
         private class CedarNancyBootstrapper : DefaultNancyBootstrapper
         {
             private readonly TinyIoCContainer _container;
