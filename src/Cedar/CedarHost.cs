@@ -20,7 +20,6 @@ namespace Cedar
     public class CedarHost : IDisposable
     {
         private readonly CedarBootstrapper _bootstrapper;
-        private readonly TinyIoCContainer _container;
         private readonly OwinEmbeddedHost _owinEmbeddedHost;
 
         public CedarHost(CedarBootstrapper bootstrapper)
@@ -28,27 +27,29 @@ namespace Cedar
             Guard.EnsureNotNull(bootstrapper, "bootstrapper");
 
             _bootstrapper = bootstrapper;
-            _container = new TinyIoCContainer();
 
-            _container.Register<ISystemClock, SystemClock>().AsSingleton();
-            _container.Register<ICommandDispatcher, CommandDispatcher>();
-            _container.Register<ICommandHandlerResolver, TinyIoCCommandHandlerResolver>();
-            _container.RegisterMultiple(typeof(ICommandDeserializer), _bootstrapper.CommandDeserializers);
-
-            var commandTypes = new List<Type>();
-            MethodInfo registerCommandHandlerMethod = GetType().GetMethod("RegisterCommandHander", BindingFlags.NonPublic | BindingFlags.Static);
-            foreach (Type commandHandler in _bootstrapper.CommandHandlerTypes)
+            Action<TinyIoCContainer> registerDependencies = container =>
             {
-                Type commandType = commandHandler.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0];
-                registerCommandHandlerMethod
-                    .MakeGenericMethod(commandType, commandHandler)
-                    .Invoke(this, new object[] { _container });
-                commandTypes.Add(commandType);
-            }
-            _container.Register<ICommandTypeResolver>(new CommandTypeResolver(bootstrapper.VendorName, commandTypes));
+                container.Register<ISystemClock, SystemClock>().AsSingleton();
+                container.Register<ICommandDispatcher, CommandDispatcher>();
+                container.Register<ICommandHandlerResolver, TinyIoCCommandHandlerResolver>();
+                container.RegisterMultiple(typeof (ICommandDeserializer), _bootstrapper.CommandDeserializers);
+
+                var commandTypes = new List<Type>();
+                MethodInfo registerCommandHandlerMethod = GetType().GetMethod("RegisterCommandHander", BindingFlags.NonPublic | BindingFlags.Static);
+                foreach (Type commandHandler in _bootstrapper.CommandHandlerTypes)
+                {
+                    Type commandType = commandHandler.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0];
+                    registerCommandHandlerMethod
+                        .MakeGenericMethod(commandType, commandHandler)
+                        .Invoke(this, new object[] { container });
+                    commandTypes.Add(commandType);
+                }
+                container.Register<ICommandTypeResolver>(new CommandTypeResolver(bootstrapper.VendorName, commandTypes));
+            };
 
             _owinEmbeddedHost = OwinEmbeddedHost.Create(app =>
-                app.UseNancy(opt => opt.Bootstrapper = new CedarNancyBootstrapper(_container, _bootstrapper.NancyModulesTypes)));
+                app.UseNancy(opt => opt.Bootstrapper = new CedarNancyBootstrapper(registerDependencies, _bootstrapper.NancyModulesTypes)));
         }
 
         public Func<IDictionary<string, object>, Task> AppFunc
@@ -59,7 +60,6 @@ namespace Cedar
         public void Dispose()
         {
             _owinEmbeddedHost.Dispose();
-            _container.Dispose();
         }
 
         [UsedImplicitly]
@@ -73,13 +73,18 @@ namespace Cedar
 
         private class CedarNancyBootstrapper : DefaultNancyBootstrapper
         {
-            private readonly TinyIoCContainer _container;
+            private readonly Action<TinyIoCContainer> _registerDependencies;
             private readonly IEnumerable<Type> _nancyModulesTypes;
 
-            public CedarNancyBootstrapper(TinyIoCContainer container, IEnumerable<Type> nancyModulesTypes)
+            public CedarNancyBootstrapper(Action<TinyIoCContainer> registerDependencies, IEnumerable<Type> nancyModulesTypes)
             {
-                _container = container;
+                _registerDependencies = registerDependencies;
                 _nancyModulesTypes = nancyModulesTypes;
+            }
+
+            protected override void ConfigureApplicationContainer(TinyIoCContainer container)
+            {
+                _registerDependencies(container);
             }
 
             protected override IEnumerable<ModuleRegistration> Modules
@@ -89,11 +94,6 @@ namespace Cedar
                     IEnumerable<ModuleRegistration> moduleRegistrations = _nancyModulesTypes.Select(t => new ModuleRegistration(t));
                     return new[] {new ModuleRegistration(typeof(CommandModule))}.Concat(moduleRegistrations);
                 }
-            }
-
-            protected override TinyIoCContainer GetApplicationContainer()
-            {
-                return _container;
             }
         }
 

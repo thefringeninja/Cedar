@@ -45,6 +45,10 @@
                 }
                 return HttpStatusCode.Accepted;
             };
+
+            // Get["/{Id"] // todo
+
+            // Get["/{Id}/status"]
         }
     }
 }
