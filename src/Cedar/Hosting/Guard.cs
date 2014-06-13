@@ -5,6 +5,13 @@
 
     internal static class Guard
     {
+        internal static void Ensure(bool value, string message)
+        {
+            if (!value)
+            {
+                throw new InvalidOperationException(message);
+            }
+        }
         internal static void Ensure(bool value, string argumentName, string message)
         {
             if (!value)

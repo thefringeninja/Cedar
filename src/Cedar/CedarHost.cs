@@ -66,7 +66,7 @@ namespace Cedar
             where TCommand : class
             where TCommandHandler : class, ICommandHandler<TCommand>
         {
-            container.Register<ICommandHandler<TCommand>, TCommandHandler>();
+            container.RegisterMultiple<ICommandHandler<TCommand>>(new[]{typeof(TCommandHandler)});
             container.Register<TCommandHandler>();  
         }
 
