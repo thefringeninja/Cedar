@@ -46,6 +46,8 @@ namespace Cedar
                     commandTypes.Add(commandType);
                 }
                 container.Register<ICommandTypeResolver>(new CommandTypeResolver(bootstrapper.VendorName, commandTypes));
+
+                bootstrapper.ConfigureApplicationContainer(container);
             };
 
             _owinEmbeddedHost = OwinEmbeddedHost.Create(app =>
