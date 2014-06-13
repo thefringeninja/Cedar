@@ -1,6 +1,7 @@
 ﻿namespace Cedar.Client
 {
     using System;
+    using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
@@ -16,6 +17,11 @@
         public static async Task ExecuteCommand(this CedarClient client, object command, Guid commandId, Func<object, HttpContent> createHttpContent)
         {
             HttpResponseMessage response = await client.HttpClient.PutAsync("/commands/{0}".FormatWith(commandId), createHttpContent(command));
+            //TODO deserialize exception and throw appropriate one
+            if (response.StatusCode == HttpStatusCode.InternalServerError)
+            {
+                throw new InvalidOperationException(response.ReasonPhrase);
+            }
         }
 
         public static Func<object, HttpContent> GetJsonCommandHttpContent(string vendor, JsonSerializerSettings serializerSettings)
@@ -25,7 +31,7 @@
                 string commandJson = JsonConvert.SerializeObject(command, serializerSettings);
                 var httpContent = new StringContent(commandJson);
                 httpContent.Headers.ContentType =
-                    MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(vendor, command.GetType().Name));
+                    MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(vendor, command.GetType().Name.ToLower()));
                 return httpContent;
             };
         }

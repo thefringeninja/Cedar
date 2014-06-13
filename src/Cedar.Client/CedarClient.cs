@@ -10,7 +10,9 @@
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerSettings _serializerSettings;
 
-        public CedarClient(Uri baseAddress, HttpMessageHandler handler = null,
+        public CedarClient(
+            Uri baseAddress,
+            HttpMessageHandler handler = null,
             JsonSerializerSettings serializerSettings = null)
         {
             if (handler == null)

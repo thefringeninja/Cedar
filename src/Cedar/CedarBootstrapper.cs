@@ -8,6 +8,7 @@
     using Cedar.CommandHandling.Serialization;
     using Cedar.Hosting;
     using Nancy;
+    using Nancy.TinyIoc;
 
     public abstract class CedarBootstrapper
     {
@@ -57,6 +58,8 @@
         {
             get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfInterface<ICommandDeserializer>()); }
         }
+
+        public virtual void ConfigureApplicationContainer(TinyIoCContainer container) { }
 
         public abstract string VendorName { get; } 
     }
