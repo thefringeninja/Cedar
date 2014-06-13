@@ -62,8 +62,7 @@ namespace Cedar
             _container.Dispose();
         }
 
-        [UsedImplicitly]
-        private static void RegisterCommandHander<TCommand, TCommandHandler>(TinyIoCContainer container)
+        public static void RegisterCommandHander<TCommand, TCommandHandler>(TinyIoCContainer container)
             where TCommand : class
             where TCommandHandler : class, ICommandHandler<TCommand>
         {
@@ -94,22 +93,6 @@ namespace Cedar
             protected override TinyIoCContainer GetApplicationContainer()
             {
                 return _container;
-            }
-        }
-
-        [UsedImplicitly]
-        private class TinyIoCCommandHandlerResolver : ICommandHandlerResolver
-        {
-            private readonly TinyIoCContainer _container;
-
-            public TinyIoCCommandHandlerResolver(TinyIoCContainer container)
-            {
-                _container = container;
-            }
-
-            public ICommandHandler<T> Resolve<T>() where T : class
-            {
-                return _container.Resolve<ICommandHandler<T>>();
             }
         }
     }
