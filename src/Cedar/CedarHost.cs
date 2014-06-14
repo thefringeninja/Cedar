@@ -28,6 +28,8 @@ namespace Cedar
 
             _bootstrapper = bootstrapper;
 
+            MethodInfo registerCommandHandlerMethod = typeof(TinyIoCExtensions).GetMethod("RegisterCommandHandler", BindingFlags.Public | BindingFlags.Static);
+            
             Action<TinyIoCContainer> registerDependencies = container =>
             {
                 container.Register<ISystemClock, SystemClock>().AsSingleton();
@@ -36,7 +38,6 @@ namespace Cedar
                 container.RegisterMultiple(typeof (ICommandDeserializer), _bootstrapper.CommandDeserializers);
 
                 var commandTypes = new List<Type>();
-                MethodInfo registerCommandHandlerMethod = GetType().GetMethod("RegisterCommandHander", BindingFlags.NonPublic | BindingFlags.Static);
                 foreach (Type commandHandler in _bootstrapper.CommandHandlerTypes)
                 {
                     Type commandType = commandHandler.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0];

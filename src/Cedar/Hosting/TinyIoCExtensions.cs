@@ -5,7 +5,7 @@
 
     public static class TinyIoCExtensions
     {
-        public static void RegisterCommandHander<TCommand, TCommandHandler>(this TinyIoCContainer container)
+        public static void RegisterCommandHandler<TCommand, TCommandHandler>(this TinyIoCContainer container)
             where TCommand : class
             where TCommandHandler : class, ICommandHandler<TCommand>
         {
