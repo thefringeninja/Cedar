@@ -126,6 +126,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Hosting\AssemblyExtensions.cs" />
+    <Compile Include="Hosting\TinyIoCCommandHandlerResolver.cs" />
+    <Compile Include="Hosting\TinyIoCExtensions.cs" />
     <Compile Include="Logging\ILog.cs">
       <SubType>Code</SubType>
     </Compile>

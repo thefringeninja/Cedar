@@ -1,16 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F286E287-573F-495E-804A-6278C9B7BEB8}</ProjectGuid>
+    <ProjectGuid>{9D62B0C5-F282-4679-ACD1-CDCB80B9D44B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cedar</RootNamespace>
-    <AssemblyName>Cedar.Tests</AssemblyName>
+    <RootNamespace>Cedar.Example.Tests</RootNamespace>
+    <AssemblyName>Cedar.Example.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,9 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FakeItEasy">
-      <HintPath>..\packages\FakeItEasy.1.21.0\lib\net40\FakeItEasy.dll</HintPath>
-    </Reference>
     <Reference Include="FluentAssertions">
       <HintPath>..\packages\FluentAssertions.3.0.107\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
@@ -46,20 +44,13 @@
     <Reference Include="Microsoft.Owin.Hosting">
       <HintPath>..\packages\Microsoft.Owin.Hosting.2.1.0\lib\net45\Microsoft.Owin.Hosting.dll</HintPath>
     </Reference>
-    <Reference Include="Nancy, Version=0.22.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Nancy.0.22.2\lib\net40\Nancy.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.Extensions">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.22\lib\net45\System.Net.Http.Extensions.dll</HintPath>
@@ -68,23 +59,26 @@
       <HintPath>..\packages\Microsoft.Net.Http.2.2.22\lib\net45\System.Net.Http.Primitives.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.XML" />
+    <Reference Include="System.Reactive.Core">
+      <HintPath>..\packages\Rx-Core.2.2.4\lib\net45\System.Reactive.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Interfaces">
+      <HintPath>..\packages\Rx-Interfaces.2.2.4\lib\net45\System.Reactive.Interfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.Linq">
+      <HintPath>..\packages\Rx-Linq.2.2.4\lib\net45\System.Reactive.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Reactive.PlatformServices">
+      <HintPath>..\packages\Rx-PlatformServices.2.2.4\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="xunit">
       <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CedarHostTests.cs" />
-    <Compile Include="CommandHandling\Dispatching\CommandDispatcherTests.cs" />
-    <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandlerTests.cs" />
-    <Compile Include="CommandHandling\Modules\CommandHandlerTests.cs" />
-    <Compile Include="CommandHandling\Modules\CommandTypeResolverTests.cs" />
-    <Compile Include="Hosting\TinyIoCCommandHandlerResolverTests.cs" />
-    <Compile Include="CommandHandling\Serialization\XmlCommandDeserializerTests.cs" />
-    <Compile Include="CommandHandling\Serialization\JsonCommandDeserializerTests.cs" />
-    <Compile Include="Hosting\SystemClockTests.cs" />
+    <Compile Include="CommandVersioning\CommandVersioningTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -93,15 +87,18 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
-      <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>
+      <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
       <Name>Cedar.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Cedar.Example\Cedar.Example.csproj">
+      <Project>{FB2353F1-8A9A-4BDF-83C9-D32F15557030}</Project>
+      <Name>Cedar.Example</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cedar\Cedar.csproj">
-      <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
+      <Project>{dcfcd369-4580-42d4-8f26-a071b9d17680}</Project>
       <Name>Cedar</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">

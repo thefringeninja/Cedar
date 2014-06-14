@@ -28,6 +28,8 @@ namespace Cedar
 
             _bootstrapper = bootstrapper;
 
+            MethodInfo registerCommandHandlerMethod = typeof(TinyIoCExtensions).GetMethod("RegisterCommandHandler", BindingFlags.Public | BindingFlags.Static);
+            
             Action<TinyIoCContainer> registerDependencies = container =>
             {
                 container.Register<ISystemClock, SystemClock>().AsSingleton();
@@ -36,7 +38,6 @@ namespace Cedar
                 container.RegisterMultiple(typeof (ICommandDeserializer), _bootstrapper.CommandDeserializers);
 
                 var commandTypes = new List<Type>();
-                MethodInfo registerCommandHandlerMethod = GetType().GetMethod("RegisterCommandHander", BindingFlags.NonPublic | BindingFlags.Static);
                 foreach (Type commandHandler in _bootstrapper.CommandHandlerTypes)
                 {
                     Type commandType = commandHandler.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0];
@@ -64,15 +65,6 @@ namespace Cedar
             _owinEmbeddedHost.Dispose();
         }
 
-        [UsedImplicitly]
-        private static void RegisterCommandHander<TCommand, TCommandHandler>(TinyIoCContainer container)
-            where TCommand : class
-            where TCommandHandler : class, ICommandHandler<TCommand>
-        {
-            container.Register<ICommandHandler<TCommand>, TCommandHandler>();
-            container.Register<TCommandHandler>();  
-        }
-
         private class CedarNancyBootstrapper : DefaultNancyBootstrapper
         {
             private readonly Action<TinyIoCContainer> _registerDependencies;
@@ -96,22 +88,6 @@ namespace Cedar
                     IEnumerable<ModuleRegistration> moduleRegistrations = _nancyModulesTypes.Select(t => new ModuleRegistration(t));
                     return new[] {new ModuleRegistration(typeof(CommandModule))}.Concat(moduleRegistrations);
                 }
-            }
-        }
-
-        [UsedImplicitly]
-        private class TinyIoCCommandHandlerResolver : ICommandHandlerResolver
-        {
-            private readonly TinyIoCContainer _container;
-
-            public TinyIoCCommandHandlerResolver(TinyIoCContainer container)
-            {
-                _container = container;
-            }
-
-            public ICommandHandler<T> Resolve<T>() where T : class
-            {
-                return _container.Resolve<ICommandHandler<T>>();
             }
         }
     }
