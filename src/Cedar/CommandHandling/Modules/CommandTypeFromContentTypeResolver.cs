@@ -5,12 +5,15 @@
     using System.Globalization;
     using System.Linq;
 
-    public class CommandTypeResolver : ICommandTypeResolver
+    /// <summary>
+    /// Resolves a command type from a http Content-Type
+    /// </summary>
+    public class CommandTypeFromContentTypeResolver : ICommandTypeFromHttpContentType
     {
         private readonly string _vendorName;
         private readonly Dictionary<string, Type> _commandTypes;
 
-        public CommandTypeResolver(string vendorName, IEnumerable<Type> commandTypes)
+        public CommandTypeFromContentTypeResolver(string vendorName, IEnumerable<Type> commandTypes)
         {
             _vendorName = vendorName;
             _commandTypes = commandTypes.ToDictionary(t => t.Name.ToLower(CultureInfo.InvariantCulture));

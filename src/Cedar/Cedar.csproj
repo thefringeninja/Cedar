@@ -69,7 +69,7 @@
     </Compile>
     <Compile Include="CedarHost.cs" />
     <Compile Include="CedarHostExtensions.cs" />
-    <Compile Include="CommandHandling\Modules\CommandTypeResolver.cs" />
+    <Compile Include="CommandHandling\Modules\CommandTypeFromContentTypeResolver.cs" />
     <Compile Include="CommandHandling\TypeExtensions.cs" />
     <Compile Include="CommandHandling\Dispatching\CommandContext.cs">
       <SubType>Code</SubType>
@@ -101,7 +101,7 @@
     <Compile Include="CommandHandling\Modules\CommandModule.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CommandHandling\Modules\ICommandTypeResolver.cs">
+    <Compile Include="CommandHandling\Modules\ICommandTypeFromHttpContentType.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CommandHandling\Serialization\ICommandDeserializer.cs">

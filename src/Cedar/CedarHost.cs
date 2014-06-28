@@ -5,7 +5,6 @@ namespace Cedar
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
-    using Cedar.Annotations;
     using Cedar.CommandHandling;
     using Cedar.CommandHandling.Dispatching;
     using Cedar.CommandHandling.Modules;
@@ -37,22 +36,26 @@ namespace Cedar
                 container.Register<ICommandHandlerResolver, TinyIoCCommandHandlerResolver>();
                 container.RegisterMultiple(typeof (ICommandDeserializer), _bootstrapper.CommandDeserializers);
 
-                var commandTypes = new List<Type>();
-                foreach (Type commandHandler in _bootstrapper.CommandHandlerTypes)
+                var commands = _bootstrapper.CommandHandlerTypes.Select(commandHandlerType => new
                 {
-                    Type commandType = commandHandler.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0];
+                    CommandHandlerType = commandHandlerType,
+                    CommandType = commandHandlerType.GetInterfaceGenericTypeArguments(typeof (ICommandHandler<>))[0]
+                }).ToArray();
+                foreach (var command in commands)
+                {
                     registerCommandHandlerMethod
-                        .MakeGenericMethod(commandType, commandHandler)
+                        .MakeGenericMethod(command.CommandType, command.CommandHandlerType)
                         .Invoke(this, new object[] { container });
-                    commandTypes.Add(commandType);
                 }
-                container.Register<ICommandTypeResolver>(new CommandTypeResolver(bootstrapper.VendorName, commandTypes));
+                container.Register<ICommandTypeFromHttpContentType>(
+                    new CommandTypeFromContentTypeResolver(bootstrapper.VendorName, commands.Select(c => c.CommandType)));
 
                 bootstrapper.ConfigureApplicationContainer(container);
             };
 
             _owinEmbeddedHost = OwinEmbeddedHost.Create(app =>
-                app.UseNancy(opt => opt.Bootstrapper = new CedarNancyBootstrapper(registerDependencies, _bootstrapper.NancyModulesTypes)));
+                app.Map("/commands", commandsApp => 
+                    commandsApp.UseNancy(opt => opt.Bootstrapper = new CommandHandlingNancyBootstrapper(registerDependencies))));
         }
 
         public Func<IDictionary<string, object>, Task> AppFunc
@@ -65,15 +68,13 @@ namespace Cedar
             _owinEmbeddedHost.Dispose();
         }
 
-        private class CedarNancyBootstrapper : DefaultNancyBootstrapper
+        private class CommandHandlingNancyBootstrapper : DefaultNancyBootstrapper
         {
             private readonly Action<TinyIoCContainer> _registerDependencies;
-            private readonly IEnumerable<Type> _nancyModulesTypes;
 
-            public CedarNancyBootstrapper(Action<TinyIoCContainer> registerDependencies, IEnumerable<Type> nancyModulesTypes)
+            public CommandHandlingNancyBootstrapper(Action<TinyIoCContainer> registerDependencies)
             {
                 _registerDependencies = registerDependencies;
-                _nancyModulesTypes = nancyModulesTypes;
             }
 
             protected override void ConfigureApplicationContainer(TinyIoCContainer container)
@@ -85,8 +86,7 @@ namespace Cedar
             {
                 get
                 {
-                    IEnumerable<ModuleRegistration> moduleRegistrations = _nancyModulesTypes.Select(t => new ModuleRegistration(t));
-                    return new[] {new ModuleRegistration(typeof(CommandModule))}.Concat(moduleRegistrations);
+                    return new[] {new ModuleRegistration(typeof(CommandModule))};
                 }
             }
         }

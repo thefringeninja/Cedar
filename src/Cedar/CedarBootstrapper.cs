@@ -38,17 +38,6 @@
         }
 
         /// <summary>
-        ///     Gets the nancy modules types.
-        /// </summary>
-        /// <value>
-        ///     The nancy modules types.
-        /// </value>
-        public virtual IEnumerable<Type> NancyModulesTypes
-        {
-            get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfInterface<INancyModule>()); }
-        }
-
-        /// <summary>
         ///     Gets the command deserializers.
         /// </summary>
         /// <value>

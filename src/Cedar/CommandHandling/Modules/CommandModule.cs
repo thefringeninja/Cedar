@@ -13,11 +13,10 @@
     public class CommandModule : NancyModule
     {
         public CommandModule(
-            ICommandTypeResolver commandTypeResolver,
+            ICommandTypeFromHttpContentType commandTypeFromHttpContentType,
             ICommandDispatcher commandDispatcher,
             IEnumerable<ICommandExceptionHandler> exceptionHandlers,
             IEnumerable<ICommandDeserializer> commandDeserializers)
-            : base("/commands")
         {
             Put["/{Id}", true] = async (parameters, ct) =>
             {
@@ -25,7 +24,7 @@
                 {
                     Guid commandId = parameters.Id;
                     string contentType = Request.Headers["Content-Type"].Single();
-                    Type commandType = commandTypeResolver.GetCommandType(contentType);
+                    Type commandType = commandTypeFromHttpContentType.GetCommandType(contentType);
                     ICommandDeserializer commandDeserializer = commandDeserializers.Single(s => s.Handles(contentType));
                     object command = await commandDeserializer.Deserialize(Context.Request.Body, commandType);
                     ClaimsPrincipal user = Context.GetAuthenticationManager().User;
