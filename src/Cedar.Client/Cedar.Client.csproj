@@ -47,6 +47,9 @@
     <Reference Include="System.Net.Http.WebRequest" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="CedarClient.cs" />
     <Compile Include="CedarClientExtensions.cs" />
     <Compile Include="DefaultJsonSerializerSettings.cs" />
