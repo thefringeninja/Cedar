@@ -1,4 +1,4 @@
-﻿namespace Cedar.CommandHandling.ExceptionHandling
+﻿namespace Cedar.CommandHandling
 {
     using System;
     using Nancy.Responses.Negotiation;

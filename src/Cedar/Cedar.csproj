@@ -92,7 +92,7 @@
     <Compile Include="CommandHandling\ExceptionHandling\ExceptionExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CommandHandling\ExceptionHandling\ICommandExceptionHandler.cs">
+    <Compile Include="CommandHandling\ICommandExceptionHandler.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CommandHandling\ICommandHandler.cs">
@@ -107,7 +107,7 @@
     <Compile Include="CommandHandling\Modules\ICommandTypeFromHttpContentType.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CommandHandling\Serialization\ICommandDeserializer.cs">
+    <Compile Include="CommandHandling\ICommandDeserializer.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CommandHandling\Serialization\JsonCommandDeserializer.cs">
