@@ -33,6 +33,10 @@
                 .Replace("+json", string.Empty)
                 .Replace("+xml", string.Empty);
 
+            if (!_commandTypes.ContainsKey(commandTypeName))
+            {
+                throw new NotSupportedException(string.Format("Command {0} is not supported.", commandTypeName));
+            }
             return _commandTypes[commandTypeName];
         }
     }

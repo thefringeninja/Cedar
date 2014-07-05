@@ -14,7 +14,8 @@
         public CommandModule(
             ICommandTypeFromHttpContentType commandTypeFromHttpContentType,
             ICommandDispatcher commandDispatcher,
-            IEnumerable<ICommandDeserializer> commandDeserializers)
+            IEnumerable<ICommandDeserializer> commandDeserializers,
+            IExceptionToModelConverter exceptionToModelConverter)
         {
             Put["/{Id}", true] = async (parameters, ct) =>
             {
@@ -31,13 +32,9 @@
                 }
                 catch (Exception ex)
                 {
-                    var exceptionResponse = new ExceptionResponse
-                    {
-                        ExeptionType = ex.GetType().Name,
-                        Message = ex.Message
-                    };
+                    object exceptionInfo = exceptionToModelConverter.Convert(ex);
                     return Negotiate
-                        .WithModel(exceptionResponse)
+                        .WithModel(exceptionInfo)
                         .WithStatusCode(500);
                 }
                 return HttpStatusCode.Accepted;

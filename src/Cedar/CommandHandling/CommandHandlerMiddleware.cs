@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Cedar.Annotations;
+    using Cedar.CommandHandling.Serialization;
     using Cedar.Hosting;
     using Nancy;
     using Nancy.Owin;
@@ -17,17 +17,20 @@
         public static MidFunc HandleCommands(
             [NotNull] string vendorName,
             [NotNull] IEnumerable<Type> commandTypes,
-            ICommandHandlerResolver handlerResolver)
+            ICommandHandlerResolver handlerResolver,
+            IExceptionToModelConverter exceptionToModelConverter = null)
         {
             Guard.EnsureNullOrWhiteSpace(vendorName, "vendorName");
             Guard.EnsureNotNull(commandTypes, "commandTypes");
             Guard.EnsureNotNull(handlerResolver, "handlerResolver");
 
+            exceptionToModelConverter = exceptionToModelConverter ?? new DefaultExceptionToModelConverter();
+
             return next => env =>
             {
                 var nancyMiddleware = new NancyOwinHost(next, new NancyOptions
                 {
-                    Bootstrapper = new CommandHandlingNancyBootstrapper(vendorName, commandTypes, handlerResolver),
+                    Bootstrapper = new CommandHandlingNancyBootstrapper(vendorName, commandTypes, handlerResolver, exceptionToModelConverter),
                     PerformPassThrough = ctx => ctx.Response.StatusCode == HttpStatusCode.NotFound
                 });
                 return nancyMiddleware.Invoke(env);

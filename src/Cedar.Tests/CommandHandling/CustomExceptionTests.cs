@@ -15,8 +15,8 @@ namespace Cedar.CommandHandling
         {
             using (var host = new CedarHost(new TestBootstrapper()))
             {
-                var exceptionFactory = new DelegateExceptionFactory(r =>
-                    r.ExeptionType == typeof (CustomException).Name ? new CustomException(r.Message) : null);
+                var exceptionFactory = new DelegateModelToExceptionConverter(r =>
+                    r.Type == typeof (CustomException).Name ? new CustomException(r.Message) : null);
                 using (CedarClient client = host.CreateClient(exceptionFactory))
                 {
                     Func<Task> act = () => client.ExecuteCommand("cedar", new TestCommand(), Guid.NewGuid());

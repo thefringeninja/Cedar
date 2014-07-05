@@ -25,15 +25,11 @@
             _client = _host.CreateClient();
         }
 
-        #region IDisposable Members
-
         public void Dispose()
         {
             _host.Dispose();
             _client.Dispose();
         }
-
-        #endregion
 
         [Fact]
         public void version_1_is_not_supported()
@@ -47,7 +43,7 @@
                     },
                     Guid.NewGuid());
 
-            act.ShouldThrow<InvalidOperationException>();
+            act.ShouldThrow<NotSupportedException>();
         }
 
         [Fact]
@@ -62,7 +58,7 @@
                     },
                     Guid.NewGuid());
 
-            act.ShouldThrow<InvalidOperationException>();
+            act.ShouldThrow<NotSupportedException>();
         }
 
         [Fact]

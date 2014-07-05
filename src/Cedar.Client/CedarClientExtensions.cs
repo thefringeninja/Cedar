@@ -5,6 +5,7 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
+    using Cedar.Client.ExceptionModels;
     using Newtonsoft.Json;
 
     public static class CedarClientExtensions
@@ -24,8 +25,8 @@
             HttpResponseMessage response = await client.HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                var exceptionResponse = await response.Content.ReadAs<ExceptionResponse>(client.SerializerSettings);
-                throw client.ExceptionFactory.Create(exceptionResponse);
+                var exceptionModel = await response.Content.ReadObject(client.SerializerSettings) as ExceptionModel;
+                throw client.ModelToExceptionConverter.Convert(exceptionModel);
             }
         }
 

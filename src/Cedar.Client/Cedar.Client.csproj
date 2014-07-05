@@ -52,12 +52,16 @@
     </Compile>
     <Compile Include="CedarClient.cs" />
     <Compile Include="CedarClientExtensions.cs" />
-    <Compile Include="DefaultExceptionFactory.cs" />
+    <Compile Include="Common\TypeSwitch.cs" />
+    <Compile Include="DefaultModelToExceptionConverter.cs" />
     <Compile Include="DefaultJsonSerializerSettings.cs" />
-    <Compile Include="DelegateExceptionFactory.cs" />
-    <Compile Include="ExceptionResponse.cs" />
+    <Compile Include="DelegateModelToExceptionConverter.cs" />
+    <Compile Include="ExceptionModels\ArgumentExceptionModel.cs" />
+    <Compile Include="ExceptionModels\ArgumentNullExceptionModel.cs" />
+    <Compile Include="ExceptionModels\ExceptionModel.cs" />
+    <Compile Include="ExceptionModels\NotSupportedExceptionModel.cs" />
     <Compile Include="HttpContentExtensions.cs" />
-    <Compile Include="IExceptionFactory.cs" />
+    <Compile Include="IModelToExceptionConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringExtensions.cs" />
   </ItemGroup>

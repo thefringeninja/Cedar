@@ -9,13 +9,13 @@
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerSettings _serializerSettings;
-        private readonly IExceptionFactory _exceptionFactory;
+        private readonly IModelToExceptionConverter _modelToExceptionConverter;
 
         public CedarClient(
             Uri baseAddress,
             HttpMessageHandler handler = null,
             JsonSerializerSettings serializerSettings = null,
-            IExceptionFactory exceptionFactory = null)
+            IModelToExceptionConverter modelToExceptionConverter = null)
         {
             if (handler == null)
             {
@@ -31,12 +31,12 @@
                 BaseAddress = baseAddress
             };
             _serializerSettings = serializerSettings ?? DefaultJsonSerializerSettings.Settings;
-            _exceptionFactory = exceptionFactory ?? new DefaultExceptionFactory();
+            _modelToExceptionConverter = modelToExceptionConverter ?? new DefaultModelToExceptionConverter();
         }
 
-        public IExceptionFactory ExceptionFactory
+        public IModelToExceptionConverter ModelToExceptionConverter
         {
-            get { return _exceptionFactory; }
+            get { return _modelToExceptionConverter; }
         }
 
         public JsonSerializerSettings SerializerSettings

@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Cedar.Client;
+    using Cedar.Client.ExceptionModels;
     using Cedar.CommandHandling.Dispatching;
     using FluentAssertions;
+    using Newtonsoft.Json;
     using Xunit;
 
     public class CommandHandlingTests
@@ -24,6 +26,14 @@
             }
         }
 
+
+        [Fact]
+        public void Blah()
+        {
+            var model = new NotSupportedExceptionModel();
+            string s = JsonConvert.SerializeObject(model, DefaultJsonSerializerSettings.Settings);
+        }
+
         [Fact]
         public void When_execute_command_without_handler_then_should_throw()
         {
@@ -33,7 +43,7 @@
                 {
                     Func<Task> act = () => client.ExecuteCommand("cedar", new TestCommandWithoutHandler(), Guid.NewGuid());
                     
-                    act.ShouldThrow<InvalidOperationException>();
+                    act.ShouldThrow<NotSupportedException>();
                 }
             }
         }
