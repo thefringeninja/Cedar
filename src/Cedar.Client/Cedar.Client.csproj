@@ -52,8 +52,12 @@
     </Compile>
     <Compile Include="CedarClient.cs" />
     <Compile Include="CedarClientExtensions.cs" />
+    <Compile Include="DefaultExceptionFactory.cs" />
     <Compile Include="DefaultJsonSerializerSettings.cs" />
+    <Compile Include="DelegateExceptionFactory.cs" />
     <Compile Include="ExceptionResponse.cs" />
+    <Compile Include="HttpContentExtensions.cs" />
+    <Compile Include="IExceptionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringExtensions.cs" />
   </ItemGroup>

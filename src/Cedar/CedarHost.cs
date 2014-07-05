@@ -7,9 +7,6 @@ namespace Cedar
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.CommandHandling;
-    using Cedar.CommandHandling.Dispatching;
-    using Cedar.CommandHandling.Modules;
-    using Cedar.CommandHandling.Serialization;
     using Cedar.Hosting;
     using Nancy.TinyIoc;
     using Owin;
@@ -17,16 +14,19 @@ namespace Cedar
 
     public class CedarHost : IDisposable
     {
+        private readonly CedarBootstrapper _bootstrapper;
         private readonly OwinEmbeddedHost _owinEmbeddedHost;
 
         public CedarHost([NotNull] CedarBootstrapper bootstrapper)
         {
             Guard.EnsureNotNull(bootstrapper, "bootstrapper");
 
+            _bootstrapper = bootstrapper;
+
             var commandsAndHandlers = bootstrapper.CommandHandlerTypes.Select(commandHandlerType => new
                 {
                     CommandHandlerType = commandHandlerType,
-                    CommandType = commandHandlerType.GetInterfaceGenericTypeArguments(typeof (ICommandHandler<>))[0]
+                    CommandType = commandHandlerType.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0]
                 }).ToArray();
 
             var container = new TinyIoCContainer();
@@ -52,7 +52,12 @@ namespace Cedar
         public Func<IDictionary<string, object>, Task> AppFunc
         {
             get { return _owinEmbeddedHost.Invoke; }
-        } 
+        }
+
+        internal CedarBootstrapper Bootstrapper
+        {
+            get { return _bootstrapper; }
+        }
 
         public void Dispose()
         {

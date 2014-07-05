@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Claims;
+    using Cedar.Client;
     using Cedar.CommandHandling.Dispatching;
     using Nancy;
-    using Nancy.Owin;
     using Nancy.Security;
 
     public class CommandModule : NancyModule
@@ -31,9 +31,14 @@
                 }
                 catch (Exception ex)
                 {
-                    //TODO do we want to serialize the exeption back to the client and if so, how?
-                    // Header or entity? What to include - message? stack trace etc?
-                    return HttpStatusCode.InternalServerError;
+                    var exceptionResponse = new ExceptionResponse
+                    {
+                        ExeptionType = ex.GetType().Name,
+                        Message = ex.Message
+                    };
+                    return Negotiate
+                        .WithModel(exceptionResponse)
+                        .WithStatusCode(500);
                 }
                 return HttpStatusCode.Accepted;
             };

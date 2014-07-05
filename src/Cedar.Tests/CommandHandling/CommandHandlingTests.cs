@@ -5,45 +5,62 @@
     using System.Threading.Tasks;
     using Cedar.Client;
     using Cedar.CommandHandling.Dispatching;
-    using Owin;
+    using FluentAssertions;
     using Xunit;
 
     public class CommandHandlingTests
     {
         [Fact]
-        public async Task Blah()
+        public void When_execute_valid_command_then_should_not_throw()
         {
             using (var host = new CedarHost(new TestBootstrapper()))
             {
-                using (var client = new CedarClient(new Uri("http://localhost"), new OwinHttpMessageHandler(host.AppFunc)))
+                using (var client = host.CreateClient())
                 {
-                    await client.ExecuteCommand(new TestCommand(), Guid.NewGuid());
+                    Func<Task> act = () => client.ExecuteCommand("cedar", new TestCommand(), Guid.NewGuid());
+                    
+                    act.ShouldNotThrow();
                 }
             }
         }
-    }
 
-    public class TestBootstrapper : CedarBootstrapper
-    {
-        public override IEnumerable<Type> CommandHandlerTypes
+        [Fact]
+        public void When_execute_command_without_handler_then_should_throw()
         {
-            get { return new[] {typeof (TestCommandHandler)}; }
+            using (var host = new CedarHost(new TestBootstrapper()))
+            {
+                using (var client = host.CreateClient())
+                {
+                    Func<Task> act = () => client.ExecuteCommand("cedar", new TestCommandWithoutHandler(), Guid.NewGuid());
+                    
+                    act.ShouldThrow<InvalidOperationException>();
+                }
+            }
         }
 
-        public override string VendorName
+        public class TestBootstrapper : CedarBootstrapper
         {
-            get { return "CommandHandlingTests"; }
+            public override string VendorName
+            {
+                get { return "cedar"; }
+            }
+
+            public override IEnumerable<Type> CommandHandlerTypes
+            {
+                get { return new [] { typeof(TestCommandHandler) }; }
+            }
         }
     }
-
-    public class TestCommand
-    {}
 
     public class TestCommandHandler : ICommandHandler<TestCommand>
     {
         public Task Handle(ICommandContext context, TestCommand command)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(0);
         }
     }
+
+    public class TestCommand { }
+
+    public class TestCommandWithoutHandler { }
 }
