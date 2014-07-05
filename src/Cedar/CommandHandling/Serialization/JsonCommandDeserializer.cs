@@ -6,6 +6,9 @@ namespace Cedar.CommandHandling.Serialization
     using Cedar.Client;
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Represents a command deserialize that support Json.
+    /// </summary>
     public class JsonCommandDeserializer : ICommandDeserializer
     {
         private readonly JsonSerializerSettings _jsonSettings;

@@ -4,17 +4,24 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using Cedar.Hosting;
 
     /// <summary>
-    /// Resolves a command type from a http Content-Type
+    /// Represents and way to get command type from a http Content-Type. ConentType is expected
+    /// to be in the form of 'application/vnd.{VendorName}.{CommandTypeName}+json' or 
+    /// 'application/vnd.{vendorName}.{commandtype}+xml' where CommanandTypeName ia a command's
+    /// type Name in lowercase.
     /// </summary>
-    public class CommandTypeFromContentTypeResolver : ICommandTypeFromHttpContentType
+    public class DefaultCommandTypeFromContentTypeResolver : ICommandTypeFromHttpContentType
     {
         private readonly string _vendorName;
         private readonly Dictionary<string, Type> _commandTypes;
 
-        public CommandTypeFromContentTypeResolver(string vendorName, IEnumerable<Type> commandTypes)
+        public DefaultCommandTypeFromContentTypeResolver(string vendorName, IEnumerable<Type> commandTypes)
         {
+            Guard.EnsureNullOrWhiteSpace(vendorName, "vendorName");
+            Guard.EnsureNotNull(commandTypes, "commandTypes");
+
             _vendorName = vendorName;
             _commandTypes = commandTypes.ToDictionary(t => t.Name.ToLower(CultureInfo.InvariantCulture));
         }

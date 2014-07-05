@@ -81,8 +81,6 @@
     </Compile>
     <Compile Include="CedarHostTests.cs" />
     <Compile Include="CommandHandling\Dispatching\CommandDispatcherTests.cs" />
-    <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandlerTests.cs" />
-    <Compile Include="CommandHandling\Modules\CommandHandlerTests.cs" />
     <Compile Include="CommandHandling\Modules\CommandTypeResolverTests.cs" />
     <Compile Include="Hosting\TinyIoCCommandHandlerResolverTests.cs" />
     <Compile Include="CommandHandling\Serialization\XmlCommandDeserializerTests.cs" />

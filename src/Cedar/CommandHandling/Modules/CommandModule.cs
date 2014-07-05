@@ -5,9 +5,8 @@
     using System.Linq;
     using System.Security.Claims;
     using Cedar.CommandHandling.Dispatching;
-    using Cedar.CommandHandling.ExceptionHandling;
-    using Cedar.CommandHandling.Serialization;
     using Nancy;
+    using Nancy.Owin;
     using Nancy.Security;
 
     public class CommandModule : NancyModule
@@ -15,7 +14,6 @@
         public CommandModule(
             ICommandTypeFromHttpContentType commandTypeFromHttpContentType,
             ICommandDispatcher commandDispatcher,
-            IEnumerable<ICommandExceptionHandler> exceptionHandlers,
             IEnumerable<ICommandDeserializer> commandDeserializers)
         {
             Put["/{Id}", true] = async (parameters, ct) =>
@@ -33,21 +31,12 @@
                 }
                 catch (Exception ex)
                 {
-                    ICommandExceptionHandler exceptionHandler = exceptionHandlers.SingleOrDefault(h => h.Handles(ex));
-                    if (exceptionHandler != null)
-                    {
-                        return exceptionHandler.Handle(ex, Negotiate);
-                    }
-                    return Negotiate
-                        .WithStatusCode(HttpStatusCode.InternalServerError)
-                        .WithReasonPhrase(ex.Message);
+                    //TODO do we want to serialize the exeption back to the client and if so, how?
+                    // Header or entity? What to include - message? stack trace etc?
+                    return HttpStatusCode.InternalServerError;
                 }
                 return HttpStatusCode.Accepted;
             };
-
-            // Get["/{Id"] // todo
-
-            // Get["/{Id}/status"]
         }
     }
 }

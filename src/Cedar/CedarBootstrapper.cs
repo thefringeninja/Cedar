@@ -37,17 +37,6 @@
             get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfOpenGenericInterface(typeof(ICommandHandler<>))); }
         }
 
-        /// <summary>
-        ///     Gets the command deserializers.
-        /// </summary>
-        /// <value>
-        ///     The command deserializers.
-        /// </value>
-        public virtual IEnumerable<Type> CommandDeserializers
-        {
-            get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfInterface<ICommandDeserializer>()); }
-        }
-
         public virtual void ConfigureApplicationContainer(TinyIoCContainer container) { }
 
         public abstract string VendorName { get; } 

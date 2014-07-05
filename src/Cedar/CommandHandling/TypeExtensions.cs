@@ -12,11 +12,5 @@
                 .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType)
                 .GetGenericArguments();
         }
-
-        internal static Type GetGenericInterfaceTypeDefinition(this Type type, Type interfaceType)
-        {
-            return type.GetInterfaces()
-                .Single(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType);
-        }
     }
 }

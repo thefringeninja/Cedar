@@ -72,7 +72,9 @@
     </Compile>
     <Compile Include="CedarHost.cs" />
     <Compile Include="CedarHostExtensions.cs" />
-    <Compile Include="CommandHandling\Modules\CommandTypeFromContentTypeResolver.cs" />
+    <Compile Include="CommandHandling\CommandHandlingNancyBootstrapper.cs" />
+    <Compile Include="CommandHandling\CommandHandlerMiddleware.cs" />
+    <Compile Include="CommandHandling\Modules\DefaultCommandTypeFromContentTypeResolver.cs" />
     <Compile Include="CommandHandling\TypeExtensions.cs" />
     <Compile Include="CommandHandling\Dispatching\CommandContext.cs">
       <SubType>Code</SubType>
@@ -84,15 +86,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CommandHandling\Dispatching\ICommandDispatcher.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\ExceptionHandling\CommandExceptionHandler.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\ExceptionHandling\ExceptionExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\ICommandExceptionHandler.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CommandHandling\ICommandHandler.cs">
