@@ -4,10 +4,8 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Cedar.Client;
-    using Cedar.Client.ExceptionModels;
     using Cedar.CommandHandling.Dispatching;
     using FluentAssertions;
-    using Newtonsoft.Json;
     using Xunit;
 
     public class CommandHandlingTests
@@ -24,14 +22,6 @@
                     act.ShouldNotThrow();
                 }
             }
-        }
-
-
-        [Fact]
-        public void Blah()
-        {
-            var model = new NotSupportedExceptionModel();
-            string s = JsonConvert.SerializeObject(model, DefaultJsonSerializerSettings.Settings);
         }
 
         [Fact]
