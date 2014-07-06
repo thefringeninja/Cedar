@@ -31,7 +31,7 @@
                 BaseAddress = baseAddress
             };
             _serializerSettings = serializerSettings ?? DefaultJsonSerializerSettings.Settings;
-            _modelToExceptionConverter = modelToExceptionConverter ?? new DefaultModelToExceptionConverter();
+            _modelToExceptionConverter = modelToExceptionConverter ?? new ModelToExceptionConverter();
         }
 
         public IModelToExceptionConverter ModelToExceptionConverter

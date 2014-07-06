@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Cedar.Annotations;
-    using Cedar.CommandHandling.Serialization;
+    using Cedar.Exceptions;
     using Cedar.Hosting;
     using Nancy;
     using Nancy.Owin;
@@ -18,13 +18,12 @@
             [NotNull] string vendorName,
             [NotNull] IEnumerable<Type> commandTypes,
             ICommandHandlerResolver handlerResolver,
-            IExceptionToModelConverter exceptionToModelConverter = null)
+            IExceptionToModelConverter exceptionToModelConverter)
         {
             Guard.EnsureNullOrWhiteSpace(vendorName, "vendorName");
             Guard.EnsureNotNull(commandTypes, "commandTypes");
             Guard.EnsureNotNull(handlerResolver, "handlerResolver");
-
-            exceptionToModelConverter = exceptionToModelConverter ?? new DefaultExceptionToModelConverter();
+            Guard.EnsureNotNull(exceptionToModelConverter, "exceptionToModelConverter");
 
             return next => env =>
             {

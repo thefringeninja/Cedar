@@ -1,5 +1,5 @@
 // ReSharper disable once CheckNamespace
-namespace Cedar.Common
+namespace Cedar.Utilities
 {
     using System;
 
@@ -27,7 +27,7 @@ namespace Cedar.Common
     ///     Created by Virtlink. Original source code on GitHub:
     ///     <see href="https://gist.github.com/Virtlink/8722649" />.
     /// </remarks>
-    internal static class TypeSwitch
+    public static class TypeSwitch
     {
         /// <summary>
         ///     Executes a particular piece of code based on the type of the argument.

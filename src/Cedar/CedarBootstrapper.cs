@@ -6,6 +6,7 @@
     using System.Reflection;
     using Cedar.CommandHandling;
     using Cedar.CommandHandling.Serialization;
+    using Cedar.Exceptions;
     using Cedar.Hosting;
     using Nancy.TinyIoc;
 
@@ -44,7 +45,7 @@
         {
             get
             {
-                return new DefaultExceptionToModelConverter();
+                return new ExceptionToModelConverter();
             }
         }
     }

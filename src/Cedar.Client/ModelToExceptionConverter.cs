@@ -2,14 +2,14 @@
 {
     using System;
     using Cedar.Client.ExceptionModels;
-    using Cedar.Common;
+    using Cedar.Utilities;
 
-    public class DefaultModelToExceptionConverter : IModelToExceptionConverter
+    public class ModelToExceptionConverter : IModelToExceptionConverter
     {
-        public virtual Exception Convert(ExceptionModel exceptionModel)
+        public virtual Exception Convert(ExceptionModel model)
         {
             Exception exception = null;
-            TypeSwitch.On(exceptionModel)
+            TypeSwitch.On(model)
                 .Case<ArgumentNullExceptionModel>(m => exception = new ArgumentNullException(m.ParamName, m.Message))
                 .Case<NotSupportedExceptionModel>(m => exception = new NotSupportedException(m.Message))
                 .Default(m => exception = new Exception(m.Message));

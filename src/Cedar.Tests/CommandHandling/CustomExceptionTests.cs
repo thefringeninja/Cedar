@@ -4,7 +4,10 @@ namespace Cedar.CommandHandling
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Cedar.Client;
+    using Cedar.Client.ExceptionModels;
     using Cedar.CommandHandling.Dispatching;
+    using Cedar.Exceptions;
+    using Cedar.Utilities;
     using FluentAssertions;
     using Xunit;
 
@@ -15,13 +18,12 @@ namespace Cedar.CommandHandling
         {
             using (var host = new CedarHost(new TestBootstrapper()))
             {
-                var converter = new DelegateModelToExceptionConverter(r =>
-                    r.Type == typeof (CustomException).Name ? new CustomException(r.Message) : null);
-                using (CedarClient client = host.CreateClient(converter))
+                using (CedarClient client = host.CreateClient(new CustomModelToExceptionConverter()))
                 {
                     Func<Task> act = () => client.ExecuteCommand("cedar", new TestCommand(), Guid.NewGuid());
 
-                    act.ShouldThrow<CustomException>();
+                    act.ShouldThrow<CustomException>()
+                        .Where(ex => ex.Message == "custom");
                 }
             }
         }
@@ -36,6 +38,11 @@ namespace Cedar.CommandHandling
             public override IEnumerable<Type> CommandHandlerTypes
             {
                 get { return new[] {typeof (TestCommandHandler)}; }
+            }
+
+            public override IExceptionToModelConverter ExceptionToModelConverter
+            {
+                get { return new CustomExceptionToModelConverter(); }
             }
         }
 
@@ -55,6 +62,37 @@ namespace Cedar.CommandHandling
             public CustomException(string message)
                 : base(message)
             {}
+        }
+
+        public class CustomExceptionModel : ExceptionModel
+        {}
+
+        public class CustomExceptionToModelConverter : ExceptionToModelConverter
+        {
+            public override ExceptionModel Convert(Exception exception)
+            {
+                ExceptionModel model = null;
+                TypeSwitch
+                    .On(exception)
+                    .Case<CustomException>(ex => model = new CustomExceptionModel())
+                    .Default(() => model = base.Convert(exception));
+                model.Message = exception.Message;
+                model.StackTrace = exception.StackTrace;
+                return model;
+            }
+        }
+
+        public class CustomModelToExceptionConverter : ModelToExceptionConverter
+        {
+            public override Exception Convert(ExceptionModel model)
+            {
+                Exception exception = null;
+                TypeSwitch.On(model)
+                    .Case<CustomExceptionModel>(m => exception = new CustomException(m.Message))
+                    .Default(m => exception = base.Convert(m));
+
+                return exception;
+            }
         }
     }
 }

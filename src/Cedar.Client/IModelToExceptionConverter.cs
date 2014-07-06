@@ -5,6 +5,6 @@
 
     public interface IModelToExceptionConverter
     {
-        Exception Convert(ExceptionModel exceptionModel);
+        Exception Convert(ExceptionModel model);
     }
 }

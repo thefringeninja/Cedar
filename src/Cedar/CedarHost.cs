@@ -44,9 +44,11 @@ namespace Cedar
 
             _owinEmbeddedHost = OwinEmbeddedHost.Create(app => 
                 app.Map("/commands", commandsApp =>
-                    commandsApp.Use(CommandHandlerMiddleware.HandleCommands(bootstrapper.VendorName,
-                    commandsAndHandlers.Select(c => c.CommandType),
-                    new TinyIoCCommandHandlerResolver(container)))));
+                    commandsApp.Use(CommandHandlerMiddleware.HandleCommands(
+                        bootstrapper.VendorName,
+                        commandsAndHandlers.Select(c => c.CommandType),
+                        new TinyIoCCommandHandlerResolver(container),
+                        bootstrapper.ExceptionToModelConverter))));
         }
 
         public Func<IDictionary<string, object>, Task> AppFunc

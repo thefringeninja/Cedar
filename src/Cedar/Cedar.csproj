@@ -78,9 +78,9 @@
     <Compile Include="CedarHostExtensions.cs" />
     <Compile Include="CommandHandling\CommandHandlingNancyBootstrapper.cs" />
     <Compile Include="CommandHandling\CommandHandlerMiddleware.cs" />
-    <Compile Include="CommandHandling\Serialization\DefaultExceptionToModelConverter.cs" />
+    <Compile Include="Exceptions\ExceptionToModelConverter.cs" />
     <Compile Include="CommandHandling\Modules\DefaultCommandTypeFromContentTypeResolver.cs" />
-    <Compile Include="CommandHandling\IExceptionToModelConverter.cs" />
+    <Compile Include="Exceptions\IExceptionToModelConverter.cs" />
     <Compile Include="CommandHandling\TypeExtensions.cs" />
     <Compile Include="CommandHandling\Dispatching\CommandContext.cs">
       <SubType>Code</SubType>

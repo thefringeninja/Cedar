@@ -6,6 +6,7 @@
     using System.Security.Claims;
     using Cedar.Client;
     using Cedar.CommandHandling.Dispatching;
+    using Cedar.Exceptions;
     using Nancy;
     using Nancy.Security;
 

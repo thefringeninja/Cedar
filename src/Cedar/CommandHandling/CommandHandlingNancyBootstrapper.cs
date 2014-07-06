@@ -7,6 +7,7 @@ namespace Cedar.CommandHandling
     using Cedar.CommandHandling.Dispatching;
     using Cedar.CommandHandling.Modules;
     using Cedar.CommandHandling.Serialization;
+    using Cedar.Exceptions;
     using Nancy;
     using Nancy.Bootstrapper;
     using Nancy.Responses;
