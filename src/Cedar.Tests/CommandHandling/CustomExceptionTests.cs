@@ -4,10 +4,8 @@ namespace Cedar.CommandHandling
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Cedar.Client;
-    using Cedar.Client.ExceptionModels;
     using Cedar.CommandHandling.Dispatching;
     using Cedar.Exceptions;
-    using Cedar.Utilities;
     using FluentAssertions;
     using Xunit;
 

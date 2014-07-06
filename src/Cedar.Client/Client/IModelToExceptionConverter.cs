@@ -1,7 +1,7 @@
 ﻿namespace Cedar.Client
 {
     using System;
-    using Cedar.Client.ExceptionModels;
+    using Cedar.Exceptions;
 
     public interface IModelToExceptionConverter
     {

@@ -1,8 +1,8 @@
-namespace Cedar.Exceptions
+namespace Cedar.CommandHandling
 {
     using System;
-    using Cedar.Client.ExceptionModels;
-    using Cedar.Utilities;
+    using Cedar.Client;
+    using Cedar.Exceptions;
 
     public class ExceptionToModelConverter : IExceptionToModelConverter
     {

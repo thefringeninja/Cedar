@@ -1,8 +1,7 @@
 ﻿namespace Cedar.Client
 {
     using System;
-    using Cedar.Client.ExceptionModels;
-    using Cedar.Utilities;
+    using Cedar.Exceptions;
 
     public class ModelToExceptionConverter : IModelToExceptionConverter
     {

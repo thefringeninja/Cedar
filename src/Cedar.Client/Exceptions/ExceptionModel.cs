@@ -1,4 +1,4 @@
-﻿namespace Cedar.Client.ExceptionModels
+﻿namespace Cedar.Exceptions
 {
     public class ExceptionModel
     {

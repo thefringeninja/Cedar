@@ -5,7 +5,7 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Cedar.Client.ExceptionModels;
+    using Cedar.Exceptions;
     using Newtonsoft.Json;
 
     public static class CedarClientExtensions
