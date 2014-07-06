@@ -1,19 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-using Cedar.CommandHandling;
-using Cedar.CommandHandling.Dispatching;
-using FakeItEasy;
-using FakeItEasy.ExtensionSyntax.Full;
-using FluentAssertions;
-using Nancy.TinyIoc;
-
-namespace Cedar.Hosting
+﻿namespace Cedar.Hosting
 {
+    using System;
+    using System.Threading.Tasks;
+    using Cedar.CommandHandling;
+    using Cedar.CommandHandling.Dispatching;
+    using FluentAssertions;
+    using TinyIoC;
     using Xunit;
+
     public class TinyIoCCommandHandlerResolverTests
     {
-        private TinyIoCCommandHandlerResolver _sut;
-        private TinyIoCContainer _container;
+        private readonly TinyIoCContainer _container;
+        private readonly TinyIoCCommandHandlerResolver _sut;
 
         public TinyIoCCommandHandlerResolverTests()
         {
@@ -32,19 +30,18 @@ namespace Cedar.Hosting
             act.ShouldThrow<InvalidOperationException>();
         }
 
-        class Test
-        {
-            
-        }
-
-        class TestCommandHandler : ICommandHandler<Test>
+        private class AnotherTestCommandHandler : ICommandHandler<Test>
         {
             public Task Handle(ICommandContext context, Test command)
             {
                 return Task.FromResult(true);
             }
         }
-        class AnotherTestCommandHandler : ICommandHandler<Test>
+
+        private class Test
+        {}
+
+        private class TestCommandHandler : ICommandHandler<Test>
         {
             public Task Handle(ICommandContext context, Test command)
             {

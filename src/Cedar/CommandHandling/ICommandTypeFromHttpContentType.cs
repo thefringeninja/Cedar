@@ -1,4 +1,4 @@
-﻿namespace Cedar.CommandHandling.Modules
+﻿namespace Cedar.CommandHandling
 {
     using System;
 

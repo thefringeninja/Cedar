@@ -1,6 +1,6 @@
 ﻿namespace Cedar.Example.CommandVersioning
 {
-    using Nancy.TinyIoc;
+    using TinyIoC;
 
     public class Bootstrapper : CedarBootstrapper
     {

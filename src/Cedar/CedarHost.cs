@@ -7,21 +7,19 @@ namespace Cedar
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.CommandHandling;
+    using Cedar.CommandHandling.Dispatching;
     using Cedar.Hosting;
-    using Nancy.TinyIoc;
     using Owin;
     using Owin.EmbeddedHost;
+    using TinyIoC;
 
     public class CedarHost : IDisposable
     {
-        private readonly CedarBootstrapper _bootstrapper;
         private readonly OwinEmbeddedHost _owinEmbeddedHost;
 
         public CedarHost([NotNull] CedarBootstrapper bootstrapper)
         {
             Guard.EnsureNotNull(bootstrapper, "bootstrapper");
-
-            _bootstrapper = bootstrapper;
 
             var commandsAndHandlers = bootstrapper.CommandHandlerTypes.Select(commandHandlerType => new
                 {
@@ -42,12 +40,13 @@ namespace Cedar
                     .Invoke(this, new object[] { container });
             }
 
+            Type[] commandTypes = commandsAndHandlers.Select(c => c.CommandType).ToArray();
+
             _owinEmbeddedHost = OwinEmbeddedHost.Create(app => 
                 app.Map("/commands", commandsApp =>
                     commandsApp.Use(CommandHandlerMiddleware.HandleCommands(
-                        bootstrapper.VendorName,
-                        commandsAndHandlers.Select(c => c.CommandType),
-                        new TinyIoCCommandHandlerResolver(container),
+                        new DefaultCommandTypeFromContentTypeResolver(bootstrapper.VendorName, commandTypes),
+                        new CommandDispatcher(new TinyIoCCommandHandlerResolver(container)), 
                         bootstrapper.ExceptionToModelConverter))));
         }
 
