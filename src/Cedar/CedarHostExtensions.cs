@@ -10,7 +10,7 @@ namespace Cedar
         {
             return new CedarClient(
                 new Uri("http://localhost"),
-                new OwinHttpMessageHandler(host.AppFunc),
+                new OwinHttpMessageHandler(host.OwinAppFunc),
                 modelToExceptionConverter: modelToExceptionConverter);
         }
     }

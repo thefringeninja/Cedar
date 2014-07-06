@@ -51,14 +51,15 @@ namespace Cedar
                         bootstrapper.ExceptionToModelConverter))));
         }
 
-        public Func<IDictionary<string, object>, Task> AppFunc
+        /// <summary>
+        /// Gets the owin application function.
+        /// </summary>
+        /// <value>
+        /// The owin application function.
+        /// </value>
+        public Func<IDictionary<string, object>, Task> OwinAppFunc
         {
             get { return _owinEmbeddedHost.Invoke; }
-        }
-
-        internal CedarBootstrapper Bootstrapper
-        {
-            get { return _bootstrapper; }
         }
 
         public void Dispose()
