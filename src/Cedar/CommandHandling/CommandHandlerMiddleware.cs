@@ -9,7 +9,6 @@
     using Cedar.Hosting;
     using Microsoft.Owin;
     using Newtonsoft.Json;
-    using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;

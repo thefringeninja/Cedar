@@ -1,7 +1,6 @@
 namespace Cedar
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
@@ -9,13 +8,16 @@ namespace Cedar
     using Cedar.CommandHandling;
     using Cedar.CommandHandling.Dispatching;
     using Cedar.Hosting;
-    using Owin;
-    using Owin.EmbeddedHost;
     using TinyIoC;
+
+    using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
+    using MidFunc = System.Func<
+       System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
+       System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
 
     public class CedarHost : IDisposable
     {
-        private readonly OwinEmbeddedHost _owinEmbeddedHost;
+        private readonly AppFunc _owinAppFunc;
 
         public CedarHost([NotNull] CedarBootstrapper bootstrapper)
         {
@@ -42,12 +44,12 @@ namespace Cedar
 
             Type[] commandTypes = commandsAndHandlers.Select(c => c.CommandType).ToArray();
 
-            _owinEmbeddedHost = OwinEmbeddedHost.Create(app => 
-                app.Map("/commands", commandsApp =>
-                    commandsApp.Use(CommandHandlerMiddleware.HandleCommands(
-                        new DefaultCommandTypeFromContentTypeResolver(bootstrapper.VendorName, commandTypes),
-                        new CommandDispatcher(new TinyIoCCommandHandlerResolver(container)), 
-                        bootstrapper.ExceptionToModelConverter))));
+            MidFunc commandHandlerMidFunc = CommandHandlerMiddleware.HandleCommands(
+                new DefaultCommandTypeFromContentTypeResolver(bootstrapper.VendorName, commandTypes),
+                new CommandDispatcher(new TinyIoCCommandHandlerResolver(container)),
+                bootstrapper.ExceptionToModelConverter);
+
+            _owinAppFunc = Middleware.MapPath("/commands", commandHandlerMidFunc(_ => Task.FromResult(0)))(_ => Task.FromResult(0));
         }
 
         /// <summary>
@@ -56,14 +58,12 @@ namespace Cedar
         /// <value>
         /// The owin application function.
         /// </value>
-        public Func<IDictionary<string, object>, Task> OwinAppFunc
+        public AppFunc OwinAppFunc
         {
-            get { return _owinEmbeddedHost.Invoke; }
+            get { return _owinAppFunc; }
         }
 
         public void Dispose()
-        {
-            _owinEmbeddedHost.Dispose();
-        }
+        {}
     }
 }
