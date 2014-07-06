@@ -1,0 +1,25 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>Cedar</id>
+        <version>0.0.0.0</version>
+        <authors>Damian Hickey</authors>
+        <owners>Damian Hickey</owners>
+        <projectUrl>https://github.com/damianh/Cedar</projectUrl>
+        <licenseUrl>https://github.com/damianh/Cedar/blob/master/LICENSE</licenseUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <title>Cedar</title>
+        <description/>
+        <tags>cqrs event-sourcing domain-driven-design</tags>
+        <frameworkAssemblies />
+        <releaseNotes/>
+		<dependencies>
+			<dependency id="Cedar.Client"/>
+		</dependencies>
+    </metadata>
+    <files>
+        <file src="..\..\build\Cedar.dll" target="lib\net45" />
+        <file src="..\..\build\Cedar.pdb" target="lib\net45" />
+        <file src="bin\Release\Cedar.xml" target="lib\net45" />
+    </files>
+</package>
