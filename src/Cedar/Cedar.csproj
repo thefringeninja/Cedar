@@ -58,8 +58,8 @@
     <Reference Include="Owin.EmbeddedHost">
       <HintPath>..\packages\Owin.EmbeddedHost.1.0.1\lib\net45\Owin.EmbeddedHost.dll</HintPath>
     </Reference>
-    <Reference Include="Owin.HttpMessageHandler">
-      <HintPath>..\packages\Owin.HttpMessageHandler.0.6.0.0\lib\portable-net45+win8\Owin.HttpMessageHandler.dll</HintPath>
+    <Reference Include="OwinHttpMessageHandler">
+      <HintPath>..\packages\OwinHttpMessageHandler.1.0.0\lib\net45\OwinHttpMessageHandler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

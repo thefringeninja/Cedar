@@ -1,8 +1,8 @@
 namespace Cedar
 {
     using System;
+    using System.Net.Http;
     using Cedar.Client;
-    using Owin;
 
     public static class CedarHostExtensions
     {

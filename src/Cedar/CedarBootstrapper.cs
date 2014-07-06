@@ -7,7 +7,6 @@
     using Cedar.CommandHandling;
     using Cedar.CommandHandling.Serialization;
     using Cedar.Hosting;
-    using Nancy;
     using Nancy.TinyIoc;
 
     public abstract class CedarBootstrapper
@@ -40,5 +39,13 @@
         public virtual void ConfigureApplicationContainer(TinyIoCContainer container) { }
 
         public abstract string VendorName { get; } 
+
+        public virtual IExceptionToModelConverter ExceptionToModelConverter
+        {
+            get
+            {
+                return new DefaultExceptionToModelConverter();
+            }
+        }
     }
 }
