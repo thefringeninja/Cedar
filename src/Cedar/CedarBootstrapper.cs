@@ -37,7 +37,8 @@
 
         public virtual void ConfigureApplicationContainer(TinyIoCContainer container)
         {
-            container.Register(SystemClock);
+            container.Register(GetSystemClock());
+            container.Register(GetExceptionToModelConverter());
 
             var commandsAndHandlers = CommandHandlerTypes.Select(commandHandlerType => new
             {
@@ -56,20 +57,14 @@
 
         public abstract string VendorName { get; } 
 
-        public virtual IExceptionToModelConverter ExceptionToModelConverter
+        protected virtual ISystemClock GetSystemClock()
         {
-            get
-            {
-                return new ExceptionToModelConverter();
-            }
+            return new SystemClock(DateTimeOffset.UtcNow);
         }
 
-        public virtual ISystemClock SystemClock
+        protected virtual IExceptionToModelConverter GetExceptionToModelConverter()
         {
-            get
-            {
-                return new SystemClock(DateTimeOffset.UtcNow);
-            }       
+            return new ExceptionToModelConverter();
         }
 
         internal IEnumerable<Type> GetCommandTypes()

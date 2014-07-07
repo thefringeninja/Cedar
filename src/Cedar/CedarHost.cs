@@ -1,12 +1,9 @@
 namespace Cedar
 {
     using System;
-    using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.CommandHandling;
-    using Cedar.CommandHandling.Dispatching;
     using Cedar.Hosting;
     using TinyIoC;
 
@@ -30,7 +27,7 @@ namespace Cedar
             MidFunc commandHandlerMidFunc = CommandHandlerMiddleware.HandleCommands(
                 new DefaultCommandTypeFromContentTypeResolver(bootstrapper.VendorName, bootstrapper.GetCommandTypes()),
                 new TinyIoCCommandHandlerResolver(_container),
-                bootstrapper.ExceptionToModelConverter);
+                _container.Resolve<IExceptionToModelConverter>());
 
             _owinAppFunc = Middleware.MapPath("/commands", commandHandlerMidFunc(_ => Task.FromResult(0)))(_ => Task.FromResult(0));
         }
