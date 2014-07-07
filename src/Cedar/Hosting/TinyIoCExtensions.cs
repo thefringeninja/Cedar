@@ -1,7 +1,7 @@
 ﻿namespace Cedar.Hosting
 {
     using Cedar.CommandHandling;
-    using Nancy.TinyIoc;
+    using TinyIoC;
 
     public static class TinyIoCExtensions
     {

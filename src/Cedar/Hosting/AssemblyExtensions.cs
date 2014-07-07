@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Reflection;
 
-    public static class AssemblyExtensions
+    internal static class AssemblyExtensions
     {
         /// <summary>
         /// Gets all non-abstract classes that immplement a generic interface i.e. IHandler&lt;&gt;

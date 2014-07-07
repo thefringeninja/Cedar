@@ -1,4 +1,4 @@
-﻿namespace Cedar.Client
+﻿namespace Cedar
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
@@ -7,7 +7,8 @@
     {
         public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            TypeNameHandling = TypeNameHandling.All
         };
     }
 }

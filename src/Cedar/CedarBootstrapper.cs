@@ -5,10 +5,8 @@
     using System.Linq;
     using System.Reflection;
     using Cedar.CommandHandling;
-    using Cedar.CommandHandling.Serialization;
     using Cedar.Hosting;
-    using Nancy;
-    using Nancy.TinyIoc;
+    using TinyIoC;
 
     public abstract class CedarBootstrapper
     {
@@ -37,19 +35,16 @@
             get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfOpenGenericInterface(typeof(ICommandHandler<>))); }
         }
 
-        /// <summary>
-        ///     Gets the command deserializers.
-        /// </summary>
-        /// <value>
-        ///     The command deserializers.
-        /// </value>
-        public virtual IEnumerable<Type> CommandDeserializers
-        {
-            get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfInterface<ICommandDeserializer>()); }
-        }
-
         public virtual void ConfigureApplicationContainer(TinyIoCContainer container) { }
 
         public abstract string VendorName { get; } 
+
+        public virtual IExceptionToModelConverter ExceptionToModelConverter
+        {
+            get
+            {
+                return new ExceptionToModelConverter();
+            }
+        }
     }
 }

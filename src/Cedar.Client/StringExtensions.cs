@@ -1,4 +1,4 @@
-namespace Cedar.Client
+namespace Cedar
 {
     using System.Globalization;
 

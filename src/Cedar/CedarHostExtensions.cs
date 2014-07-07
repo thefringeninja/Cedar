@@ -6,9 +6,12 @@ namespace Cedar
 
     public static class CedarHostExtensions
     {
-        public static CedarClient CreateClient(this CedarHost host)
+        public static CedarClient CreateClient(this CedarHost host, IModelToExceptionConverter modelToExceptionConverter = null)
         {
-            return new CedarClient(new Uri("http://localhost"), new OwinHttpMessageHandler(host.AppFunc));
+            return new CedarClient(
+                new Uri("http://localhost"),
+                new OwinHttpMessageHandler(host.OwinAppFunc),
+                modelToExceptionConverter: modelToExceptionConverter);
         }
     }
 }

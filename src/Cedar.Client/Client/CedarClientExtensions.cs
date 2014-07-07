@@ -5,26 +5,32 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
+    using Cedar.Exceptions;
     using Newtonsoft.Json;
 
     public static class CedarClientExtensions
     {
-        public static Task ExecuteCommand(this CedarClient client, object command, Guid commandId)
+        public static Task ExecuteCommand(this CedarClient client, string vendor, object command, Guid commandId)
         {
-            return ExecuteCommand(client, command, commandId, GetJsonCommandHttpContent("cedar", client.SerializerSettings));
+            return ExecuteCommand(client, command, commandId, GetJsonCommandHttpContent(vendor, client.SerializerSettings));
         }
 
         public static async Task ExecuteCommand(this CedarClient client, object command, Guid commandId, Func<object, HttpContent> createHttpContent)
         {
-            HttpResponseMessage response = await client.HttpClient.PutAsync("/commands/{0}".FormatWith(commandId), createHttpContent(command));
-            //TODO deserialize exception and throw appropriate one
+            var request = new HttpRequestMessage(HttpMethod.Put, "/commands/{0}".FormatWith(commandId))
+            {
+                Content = createHttpContent(command),
+            };
+            request.Headers.Accept.ParseAdd("application/json");
+            HttpResponseMessage response = await client.HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                throw new InvalidOperationException(response.ReasonPhrase);
+                var exceptionModel = await response.Content.ReadObject(client.SerializerSettings) as ExceptionModel;
+                throw client.ModelToExceptionConverter.Convert(exceptionModel);
             }
         }
 
-        public static Func<object, HttpContent> GetJsonCommandHttpContent(string vendor, JsonSerializerSettings serializerSettings)
+        private static Func<object, HttpContent> GetJsonCommandHttpContent(string vendor, JsonSerializerSettings serializerSettings)
         {
             return command =>
             {

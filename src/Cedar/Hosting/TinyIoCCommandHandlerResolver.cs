@@ -1,9 +1,10 @@
-using System.Linq;
-using Cedar.CommandHandling;
-using Nancy.TinyIoc;
-
 namespace Cedar.Hosting
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Cedar.CommandHandling;
+    using TinyIoC;
+
     public class TinyIoCCommandHandlerResolver : ICommandHandlerResolver
     {
         private readonly TinyIoCContainer _container;
@@ -15,8 +16,8 @@ namespace Cedar.Hosting
 
         public ICommandHandler<T> Resolve<T>() where T : class
         {
-            var handlers = _container.ResolveAll<ICommandHandler<T>>().ToList();
-            
+            List<ICommandHandler<T>> handlers = _container.ResolveAll<ICommandHandler<T>>().ToList();
+
             Guard.Ensure(handlers.Count() == 1, "");
 
             return handlers.Single();

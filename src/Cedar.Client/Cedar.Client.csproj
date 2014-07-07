@@ -7,7 +7,7 @@
     <ProjectGuid>{772D0367-FF5A-430C-BC63-A40F5E48F247}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cedar.Client</RootNamespace>
+    <RootNamespace>Cedar</RootNamespace>
     <AssemblyName>Cedar.Client</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -50,10 +50,17 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CedarClient.cs" />
-    <Compile Include="CedarClientExtensions.cs" />
+    <Compile Include="Client\CedarClient.cs" />
+    <Compile Include="Client\CedarClientExtensions.cs" />
+    <Compile Include="Client\TypeSwitch.cs" />
+    <Compile Include="Client\ModelToExceptionConverter.cs" />
     <Compile Include="DefaultJsonSerializerSettings.cs" />
-    <Compile Include="ExceptionResponse.cs" />
+    <Compile Include="Exceptions\ArgumentExceptionModel.cs" />
+    <Compile Include="Exceptions\ArgumentNullExceptionModel.cs" />
+    <Compile Include="Exceptions\ExceptionModel.cs" />
+    <Compile Include="Exceptions\NotSupportedExceptionModel.cs" />
+    <Compile Include="Client\HttpContentExtensions.cs" />
+    <Compile Include="Client\IModelToExceptionConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringExtensions.cs" />
   </ItemGroup>

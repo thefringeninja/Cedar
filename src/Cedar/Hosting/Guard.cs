@@ -28,7 +28,7 @@
             }
         }
 
-        internal static void EnsureNotEmpty(string argument, string argumentName)
+        internal static void EnsureNullOrWhiteSpace(string argument, string argumentName)
         {
             if (string.IsNullOrWhiteSpace(argument))
             {
