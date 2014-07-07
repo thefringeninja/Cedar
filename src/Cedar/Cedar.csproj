@@ -45,9 +45,6 @@
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
-    <Reference Include="Owin.EmbeddedHost">
-      <HintPath>..\packages\Owin.EmbeddedHost.1.0.1\lib\net45\Owin.EmbeddedHost.dll</HintPath>
-    </Reference>
     <Reference Include="OwinHttpMessageHandler">
       <HintPath>..\packages\OwinHttpMessageHandler.1.0.0\lib\net45\OwinHttpMessageHandler.dll</HintPath>
     </Reference>
