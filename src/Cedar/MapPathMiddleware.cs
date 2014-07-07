@@ -8,7 +8,7 @@ namespace Cedar
        System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
        System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
 
-    internal static class Middleware
+    internal static class MapPathMiddleware
     {
         internal static MidFunc MapPath(string pathMatch, AppFunc branch)
         {

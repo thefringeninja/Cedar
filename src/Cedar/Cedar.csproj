@@ -67,18 +67,12 @@
     <Compile Include="CommandHandling\ExceptionToModelConverter.cs" />
     <Compile Include="CommandHandling\DefaultCommandTypeFromContentTypeResolver.cs" />
     <Compile Include="CommandHandling\IExceptionToModelConverter.cs" />
-    <Compile Include="Middleware.cs" />
+    <Compile Include="Hosting\Middleware.cs" />
     <Compile Include="CommandHandling\TypeExtensions.cs" />
     <Compile Include="CommandHandling\Dispatching\CommandContext.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CommandHandling\Dispatching\CommandDispatcher.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="CommandHandling\Dispatching\ICommandContext.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\Dispatching\ICommandDispatcher.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="CommandHandling\ICommandHandler.cs">

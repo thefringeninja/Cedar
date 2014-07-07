@@ -2,8 +2,12 @@
 {
     using System;
     using System.IO;
+    using System.Reflection;
+    using System.Runtime.ExceptionServices;
     using System.Security.Claims;
     using System.Text;
+    using System.Threading.Tasks;
+    using Cedar.Annotations;
     using Cedar.CommandHandling.Dispatching;
     using Cedar.Exceptions;
     using Cedar.Hosting;
@@ -17,14 +21,15 @@
     {
         public static MidFunc HandleCommands(
             ICommandTypeFromHttpContentType commandTypeFromHttpContentType,
-            ICommandDispatcher commandDispatcher,
+            ICommandHandlerResolver handlerResolver,
             IExceptionToModelConverter exceptionToModelConverter)
         {
             Guard.EnsureNotNull(commandTypeFromHttpContentType, "commandTypeFromHttpContentType");
-            Guard.EnsureNotNull(commandDispatcher, "commandDispatcher");
+            Guard.EnsureNotNull(handlerResolver, "handlerResolver");
             Guard.EnsureNotNull(exceptionToModelConverter, "exceptionToModelConverter");
 
             JsonSerializer jsonSerializer = JsonSerializer.Create(DefaultJsonSerializerSettings.Settings);
+            var commandDispatcher = new CommandDispatcher(handlerResolver);
 
             return next => async env =>
             {
@@ -85,6 +90,45 @@
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
             context.Response.Write(exceptionBytes);
+        }
+
+        private class CommandDispatcher
+        {
+            private readonly ICommandHandlerResolver _handlerResolver;
+            private readonly MethodInfo _dispatchMethodInfo;
+
+            public CommandDispatcher(ICommandHandlerResolver handlerResolver)
+            {
+                _handlerResolver = handlerResolver;
+                _dispatchMethodInfo = GetType()
+                    .GetMethod("DispatchGeneric", BindingFlags.Instance | BindingFlags.NonPublic);
+            }
+
+            public async Task Dispatch(ICommandContext commandContext, object command)
+            {
+                try
+                {
+                    await (Task)_dispatchMethodInfo
+                        .MakeGenericMethod(command.GetType())
+                        .Invoke(this, new[] { commandContext, command });
+                }
+                catch (TargetInvocationException ex)
+                {
+                    ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+                }
+            }
+
+            [UsedImplicitly]
+            private Task DispatchGeneric<T>(ICommandContext commandContext, T command)
+                where T : class
+            {
+                ICommandHandler<T> commandHandler = _handlerResolver.Resolve<T>();
+                if (commandHandler == null)
+                {
+                    throw new InvalidOperationException(Messages.CommandHandlerNotFound.FormatWith(typeof(T).FullName));
+                }
+                return commandHandler.Handle(commandContext, command);
+            }
         }
     }
 }

@@ -19,7 +19,7 @@
             get
             {
                 // Accessing DateTimeOffset.UtcNow is suprisingly costly. This
-                // is a an optimization.
+                // is an optimization.
                 int tickCount = Environment.TickCount;
                 if (tickCount == _lastTicks)
                 {

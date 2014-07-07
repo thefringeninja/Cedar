@@ -79,7 +79,6 @@
     </Compile>
     <Compile Include="CommandHandling\CommandHandlingTests.cs" />
     <Compile Include="CommandHandling\CustomExceptionTests.cs" />
-    <Compile Include="CommandHandling\Dispatching\CommandDispatcherTests.cs" />
     <Compile Include="CommandHandling\Modules\CommandTypeResolverTests.cs" />
     <Compile Include="Hosting\TinyIoCCommandHandlerResolverTests.cs" />
     <Compile Include="Hosting\SystemClockTests.cs" />

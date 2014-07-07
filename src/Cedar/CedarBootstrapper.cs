@@ -35,7 +35,24 @@
             get { return AssembliesToScan.SelectMany(assembly => assembly.GetImplementorsOfOpenGenericInterface(typeof(ICommandHandler<>))); }
         }
 
-        public virtual void ConfigureApplicationContainer(TinyIoCContainer container) { }
+        public virtual void ConfigureApplicationContainer(TinyIoCContainer container)
+        {
+            container.Register(SystemClock);
+
+            var commandsAndHandlers = CommandHandlerTypes.Select(commandHandlerType => new
+            {
+                CommandHandlerType = commandHandlerType,
+                CommandType = commandHandlerType.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0]
+            }).ToArray();
+            MethodInfo registerCommandHandlerMethod = typeof(TinyIoCExtensions)
+                .GetMethod("RegisterCommandHandler", BindingFlags.Public | BindingFlags.Static);
+            foreach (var c in commandsAndHandlers)
+            {
+                registerCommandHandlerMethod
+                    .MakeGenericMethod(c.CommandType, c.CommandHandlerType)
+                    .Invoke(this, new object[] { container });
+            }
+        }
 
         public abstract string VendorName { get; } 
 
@@ -45,6 +62,20 @@
             {
                 return new ExceptionToModelConverter();
             }
+        }
+
+        public virtual ISystemClock SystemClock
+        {
+            get
+            {
+                return new SystemClock(DateTimeOffset.UtcNow);
+            }       
+        }
+
+        internal IEnumerable<Type> GetCommandTypes()
+        {
+            return CommandHandlerTypes
+                .Select(commandHandlerType => commandHandlerType.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0]);
         }
     }
 }
