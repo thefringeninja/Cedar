@@ -1,6 +1,8 @@
 namespace Cedar
 {
     using System;
+    using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.CommandHandling;
@@ -22,6 +24,22 @@ namespace Cedar
             Guard.EnsureNotNull(bootstrapper, "bootstrapper");
 
             _container = new TinyIoCContainer();
+            _container.Register(bootstrapper.GetSystemClock());
+            _container.Register(bootstrapper.GetExceptionToModelConverter());
+
+            var commandsAndHandlers = bootstrapper.CommandHandlerTypes.Select(commandHandlerType => new
+            {
+                CommandHandlerType = commandHandlerType,
+                CommandType = commandHandlerType.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0]
+            }).ToArray();
+            MethodInfo registerCommandHandlerMethod = typeof(TinyIoCExtensions)
+                .GetMethod("RegisterCommandHandler", BindingFlags.Public | BindingFlags.Static);
+            foreach (var c in commandsAndHandlers)
+            {
+                registerCommandHandlerMethod
+                    .MakeGenericMethod(c.CommandType, c.CommandHandlerType)
+                    .Invoke(this, new object[] { _container });
+            }
             bootstrapper.ConfigureApplicationContainer(_container);
 
             MidFunc commandHandlerMidFunc = CommandHandlerMiddleware.HandleCommands(

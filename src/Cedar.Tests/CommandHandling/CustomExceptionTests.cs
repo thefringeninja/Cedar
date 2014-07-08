@@ -38,7 +38,7 @@ namespace Cedar.CommandHandling
                 get { return new[] {typeof (TestCommandHandler)}; }
             }
 
-            protected override IExceptionToModelConverter GetExceptionToModelConverter()
+            public override IExceptionToModelConverter GetExceptionToModelConverter()
             {
                 return new CustomExceptionToModelConverter();
             }

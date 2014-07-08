@@ -18,7 +18,14 @@
         /// </value>
         protected virtual IEnumerable<Assembly> AssembliesToScan
         {
-            get { return new[] { typeof(CedarBootstrapper).Assembly, GetType().Assembly }; }
+            get
+            {
+                return new[]
+                {
+                    typeof (CedarBootstrapper).Assembly,
+                    GetType().Assembly
+                };
+            }
         }
 
         /// <summary>
@@ -37,32 +44,16 @@
 
         public virtual void ConfigureApplicationContainer(TinyIoCContainer container)
         {
-            container.Register(GetSystemClock());
-            container.Register(GetExceptionToModelConverter());
-
-            var commandsAndHandlers = CommandHandlerTypes.Select(commandHandlerType => new
-            {
-                CommandHandlerType = commandHandlerType,
-                CommandType = commandHandlerType.GetInterfaceGenericTypeArguments(typeof(ICommandHandler<>))[0]
-            }).ToArray();
-            MethodInfo registerCommandHandlerMethod = typeof(TinyIoCExtensions)
-                .GetMethod("RegisterCommandHandler", BindingFlags.Public | BindingFlags.Static);
-            foreach (var c in commandsAndHandlers)
-            {
-                registerCommandHandlerMethod
-                    .MakeGenericMethod(c.CommandType, c.CommandHandlerType)
-                    .Invoke(this, new object[] { container });
-            }
         }
 
         public abstract string VendorName { get; } 
 
-        protected virtual ISystemClock GetSystemClock()
+        public virtual ISystemClock GetSystemClock()
         {
             return new SystemClock(DateTimeOffset.UtcNow);
         }
 
-        protected virtual IExceptionToModelConverter GetExceptionToModelConverter()
+        public virtual IExceptionToModelConverter GetExceptionToModelConverter()
         {
             return new ExceptionToModelConverter();
         }
