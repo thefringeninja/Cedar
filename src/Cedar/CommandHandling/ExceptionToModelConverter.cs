@@ -1,8 +1,8 @@
 namespace Cedar.CommandHandling
 {
     using System;
-    using Cedar.Client;
-    using Cedar.Exceptions;
+    using Cedar.CommandHandling.Client;
+    using Cedar.CommandHandling.ExceptionModels;
 
     public class ExceptionToModelConverter : IExceptionToModelConverter
     {
@@ -16,6 +16,7 @@ namespace Cedar.CommandHandling
                     ParamName = ex.ParamName,
                 })
                 .Case<NotSupportedException>(ex => model = new NotSupportedExceptionModel())
+                .Case<InvalidOperationException>(ex => model = new InvalidOperationExceptionModel())
                 .Default(() => model = new ExceptionModel
                 {
                     Message = string.Format("[No exception serializer found for {0}].{1}", exception.GetType(), Environment.NewLine)

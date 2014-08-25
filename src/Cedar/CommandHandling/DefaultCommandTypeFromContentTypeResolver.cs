@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
-    using Cedar.Hosting;
 
     /// <summary>
     /// Represents and way to get command type from a http Content-Type. ConentType is expected
@@ -12,21 +11,22 @@
     /// 'application/vnd.{vendorName}.{commandtype}+xml' where CommanandTypeName ia a command's
     /// type Name in lowercase.
     /// </summary>
-    public class DefaultCommandTypeFromContentTypeResolver : ICommandTypeFromHttpContentType
+    public class DefaultCommandTypeFromContentTypeResolver : ICommandTypeResolver
     {
         private readonly string _vendorName;
         private readonly Dictionary<string, Type> _commandTypes;
 
-        public DefaultCommandTypeFromContentTypeResolver(string vendorName, IEnumerable<Type> commandTypes)
+        public DefaultCommandTypeFromContentTypeResolver(string vendorName, IEnumerable<Type> knownCommandTypes)
         {
             Guard.EnsureNullOrWhiteSpace(vendorName, "vendorName");
-            Guard.EnsureNotNull(commandTypes, "commandTypes");
+            Guard.EnsureNotNull(knownCommandTypes, "knownCommandTypes");
 
             _vendorName = vendorName;
-            _commandTypes = commandTypes.ToDictionary(t => t.Name.ToLower(CultureInfo.InvariantCulture));
+            _commandTypes = knownCommandTypes
+                .ToDictionary(t => t.Name.ToLower(CultureInfo.InvariantCulture));
         }
 
-        public Type GetCommandType(string contentType)
+        public Type GetFromContentType(string contentType)
         {
             string commandTypeName = contentType
                 .Replace(@"application/vnd." + _vendorName + ".", string.Empty)

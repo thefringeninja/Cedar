@@ -15,13 +15,12 @@
         private readonly CedarClient _client;
         private readonly CedarHost _host;
         private readonly IList<object> _publishedEvents = new List<object>();
-        private ReplaySubject<object> _events;
 
         public CommandVersioningTests()
         {
-            _events = new ReplaySubject<object>();
-            _events.Subscribe(_publishedEvents.Add);
-            _host = new CedarHost(new Bootstrapper(new ObservableMessagePublisher(_events)));
+            var events = new ReplaySubject<object>();
+            events.Subscribe(_publishedEvents.Add);
+            _host = new CedarHost(new Bootstrapper(new ObservableMessagePublisher(events)));
             _client = _host.CreateClient();
         }
 

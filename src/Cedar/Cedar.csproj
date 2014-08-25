@@ -59,47 +59,18 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CedarBootstrapper.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CedarHost.cs" />
-    <Compile Include="CedarHostExtensions.cs" />
-    <Compile Include="CommandHandling\CommandHandlerMiddleware.cs" />
-    <Compile Include="CommandHandling\ExceptionToModelConverter.cs" />
+    <Compile Include="CommandHandling\CommandContext.cs" />
+    <Compile Include="CommandHandling\CommandDispatcher.cs" />
+    <Compile Include="CommandHandling\CommandHandlerSettings.cs" />
+    <Compile Include="CommandHandling\CommandHandlingMiddleware.cs" />
     <Compile Include="CommandHandling\DefaultCommandTypeFromContentTypeResolver.cs" />
+    <Compile Include="CommandHandling\ExceptionToModelConverter.cs" />
+    <Compile Include="CommandHandling\Guard.cs" />
+    <Compile Include="CommandHandling\ICommandContext.cs" />
+    <Compile Include="CommandHandling\ICommandHandler.cs" />
+    <Compile Include="CommandHandling\ICommandHandlerResolver.cs" />
+    <Compile Include="CommandHandling\ICommandTypeResolver.cs" />
     <Compile Include="CommandHandling\IExceptionToModelConverter.cs" />
-    <Compile Include="Hosting\Middleware.cs" />
-    <Compile Include="CommandHandling\TypeExtensions.cs" />
-    <Compile Include="CommandHandling\Dispatching\CommandContext.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\Dispatching\ICommandContext.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\ICommandHandler.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\ICommandHandlerResolver.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="CommandHandling\ICommandTypeFromHttpContentType.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hosting\Guard.cs" />
-    <Compile Include="Hosting\ISystemClock.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hosting\Messages.Designer.cs">
-      <DependentUpon>Messages.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Include="Hosting\SystemClock.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hosting\AssemblyExtensions.cs" />
-    <Compile Include="Hosting\TinyIoCCommandHandlerResolver.cs" />
-    <Compile Include="Hosting\TinyIoCExtensions.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Extensions\StringExtensions.cs">
@@ -109,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Cedar.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -116,12 +88,6 @@
       <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
       <Name>Cedar.Client</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Hosting\Messages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
