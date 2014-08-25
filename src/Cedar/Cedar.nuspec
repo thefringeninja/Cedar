@@ -9,12 +9,13 @@
         <licenseUrl>https://github.com/damianh/Cedar/blob/master/LICENSE</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <title>Cedar</title>
-        <description/>
+        <description>An opinionated libray to assist in building CQRS and Event Sourced applications on NEventStore</description>		
         <tags>cqrs event-sourcing domain-driven-design</tags>
         <frameworkAssemblies />
         <releaseNotes/>
 		<dependencies>
-			<dependency id="Cedar.Client"/>
+			<dependency id="Cedar.Client" version="[0.1,1)"/>
+			<dependency id="NEventStore" version="[5,6)"/>
 		</dependencies>
     </metadata>
     <files>

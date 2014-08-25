@@ -9,19 +9,19 @@
         <licenseUrl>https://github.com/damianh/Cedar/blob/master/LICENSE</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <title>Cedar</title>
-        <description/>
+        <description>An opinionated libray to assist in building CQRS and Event Sourced applications on NEventStore. This is the client libray to assist in invoking commands and other operations remotely and embedded.</description>
         <tags>cqrs event-sourcing domain-driven-design</tags>
         <frameworkAssemblies>
 			<frameworkAssembly assemblyName="System.Net.Http"/>
 		</frameworkAssemblies>
         <releaseNotes/>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" verions="version=[6,)"/>
+			<dependency id="Newtonsoft.Json" version="[6,7)"/>
 		</dependencies>
     </metadata>
     <files>
-        <file src="..\..\build\Cedar.Client.dll" target="lib\net45" />
-        <file src="..\..\build\Cedar.Client.pdb" target="lib\net45" />
+        <file src="bin\Release\Cedar.Client.dll" target="lib\net45" />
+        <file src="bin\Release\Cedar.Client.pdb" target="lib\net45" />
         <file src="bin\Release\Cedar.Client.xml" target="lib\net45" />
     </files>
 </package>

@@ -10,7 +10,7 @@ properties {
 	$ilmerge_path = "$srcDir\packages\ILMerge.2.13.0307\ILMerge.exe"
 }
 
-task default -depends Clean, UpdateVersion, RunTests
+task default -depends Clean, UpdateVersion, RunTests, CreateNuGetPackages
 
 task Clean {
 	Remove-Item $buildOutputDir -Force -Recurse -ErrorAction SilentlyContinue
@@ -39,10 +39,22 @@ task RunTests -depends Compile {
     }
 }
 
-task CreateNuGetPackages -depends Compile {
+task ILMerge -depends Compile {
+	$dllDir = "$srcDir\Cedar\bin\Release"
+	$input_dlls = "$dllDir\Cedar.dll "
+	@("Microsoft.Owin", "Owin", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
+		"System.Reactive.PlatformServices") |% { $input_dlls = "$input_dlls $dllDir\$_.dll" }
+		
+	$input_dlls
+	New-Item $buildOutputDir -Type Directory -ErrorAction SilentlyContinue
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /out:$buildOutputDir\$projectName.dll $input_dlls"
+}
+
+task CreateNuGetPackages -depends ILMerge {
 	$versionString = Get-Version $assemblyInfoFilePath
 	$version = New-Object Version $versionString
 	$packageVersion = $version.Major.ToString() + "." + $version.Minor.ToString() + "." + $version.Build.ToString() + "-build" + $buildNumber.ToString().PadLeft(5,'0')
+	$packageVersion
 	gci $srcDir -Recurse -Include *.nuspec | % {
 		exec { .$srcDir\.nuget\nuget.exe pack $_ -o $buildOutputDir -version $packageVersion }
 	}
