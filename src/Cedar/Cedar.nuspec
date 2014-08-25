@@ -14,7 +14,7 @@
         <frameworkAssemblies />
         <releaseNotes/>
 		<dependencies>
-			<dependency id="Cedar.Client" version="[0.0.1,1)"/>
+			<dependency id="Cedar.Client" version="[0.0.1,0.2)"/>
 			<dependency id="NEventStore" version="[5,6)"/>
 		</dependencies>
     </metadata>
