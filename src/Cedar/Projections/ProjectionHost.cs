@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Cedar.Projections.Storage;
     using NEventStore;
+    using NEventStore.Client;
     using TinyIoC;
 
     public class ProjectionHost : IDisposable
@@ -19,6 +20,7 @@
         private int _isStarted;
         private int _isDisposed;
         private readonly CommitDispatcher _commitDispatcher;
+        private IObserveCommits _commitStream;
 
         public ProjectionHost(
             IEventStoreClient eventStoreClient,
@@ -47,8 +49,8 @@
                 return;
             }
             string checkpointToken = await _checkpointRepository.Get();
-            var commitStream = _eventStoreClient.ObserveFrom(checkpointToken);
-            var subscription = commitStream
+            _commitStream = _eventStoreClient.ObserveFrom(checkpointToken);
+            var subscription = _commitStream
                 .Subscribe(commit => Task.Run(async () =>
                 {
                     //TODO Handle transient errors and consider cancellation
@@ -63,14 +65,22 @@
                         Console.WriteLine(ex);
                     }
                 }).Wait());
-            commitStream.Start();
-            _compositeDisposable.Add(commitStream);
+            _commitStream.Start();
+            _compositeDisposable.Add(_commitStream);
             _compositeDisposable.Add(subscription);
         }
 
-        public IObservable<ICommit> CommitsProjectedStreamSteam
+        public IObservable<ICommit> CommitsProjectedStream
         {
             get { return _commitsProjectedStream; }
+        }
+
+        public void PollNow()
+        {
+            if (_commitStream != null)
+            {
+                _commitStream.PollNow();
+            }
         }
 
         public void Dispose()

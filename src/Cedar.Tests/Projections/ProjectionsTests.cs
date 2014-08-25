@@ -2,8 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reactive.Linq;
+    using System.Reactive.Threading.Tasks;
     using System.Threading;
     using System.Threading.Tasks;
+    using FluentAssertions;
     using NEventStore;
     using NEventStore.Client;
     using TinyIoC;
@@ -12,7 +15,7 @@
     public class ProjectionsTests
     {
         [Fact]
-        public async Task Blah()
+        public async Task When_new_commit_create_Then_should_project_domain_event()
         {
             using (var eventStore = Wireup.Init().UsingInMemoryPersistence().Build())
             {
@@ -21,20 +24,33 @@
                     var projectedEvents = new List<Tuple<IDomainEventContext, TestEvent>>();
                     container.Register<IProjectDomainEvent<TestEvent>, TestEventProjector>();
                     container.Register<IList<Tuple<IDomainEventContext, TestEvent>>>(projectedEvents);
+
                     using(var host = new ProjectionHost(
-                        new EventStoreClient(new PollingClient(eventStore.Advanced, 10)), 
+                        new EventStoreClient(new PollingClient(eventStore.Advanced)), 
                         new InMemoryCheckpointRepository(),
                         new ProjectionResolver(container)))
                     {
-                        IObservable<ICommit> firstCommit = host.CommitsProjectedStreamSteam.FirstAsync();
-
+                        await host.Start();
                         Guid streamId = Guid.NewGuid();
                         Guid commitId = Guid.NewGuid();
+                        Task<ICommit> commitProjected = host
+                            .CommitsProjectedStream
+                            .Take(1)
+                            .ToTask();
+
                         using (var stream = eventStore.CreateStream(streamId))
                         {
                             stream.Add(new EventMessage{ Body = new TestEvent() });
                             stream.CommitChanges(commitId);
                         }
+                        host.PollNow();
+                        await commitProjected;
+
+                        projectedEvents.Count.Should().Be(1);
+                        projectedEvents[0].Item1.Commit.Should().NotBeNull();
+                        projectedEvents[0].Item1.EventHeaders.Should().NotBeNull();
+                        projectedEvents[0].Item1.Version.Should().Be(1);
+                        projectedEvents[0].Item2.Should().BeOfType<TestEvent>();
                     }
                 }
             }
@@ -53,7 +69,7 @@
 
             public Task Project(IDomainEventContext context, TestEvent domainEvent, CancellationToken cancellationToken)
             {
-                _eventsList.Add(new Tuple<IDomainEventContext, TestEvent>(context, domainEvent));
+                _eventsList.Add(Tuple.Create(context, domainEvent));
                 return Task.FromResult(0);
             }
         }

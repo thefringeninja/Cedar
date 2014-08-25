@@ -1,15 +1,14 @@
 ﻿namespace Cedar.Projections
 {
     using System.Collections.Generic;
+    using NEventStore;
 
     public interface IDomainEventContext
     {
-        string AggregateRootId { get; }
+        ICommit Commit { get; }
 
         int Version { get; }
 
         IDictionary<string, object> EventHeaders { get; }
-
-        IDictionary<string, object> CommitHeaders { get; }
     }
 }

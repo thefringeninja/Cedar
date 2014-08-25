@@ -35,7 +35,7 @@ namespace Cedar.Projections
             foreach (var eventMessage in commit.Events)
             {
                 var dispatchDelegate = GetDispatchDelegate(eventMessage.Body.GetType());
-                var domainEventInfo = new DomainEventContext(commit.StreamId, version, eventMessage.Headers, commit.Headers);
+                var domainEventInfo = new DomainEventContext(commit, version, eventMessage.Headers);
                 await dispatchDelegate(domainEventInfo, eventMessage.Body, CancellationToken.None);
                 version++;
             }
@@ -69,26 +69,23 @@ namespace Cedar.Projections
 
         private class DomainEventContext : IDomainEventContext
         {
-            private readonly string _aggregateRootId;
+            private readonly ICommit _commit;
             private readonly int _version;
             private readonly IDictionary<string, object> _eventHeaders;
-            private readonly IDictionary<string, object> _commitHeaders;
 
             public DomainEventContext(
-                string aggregateRootId,
+                ICommit commit,
                 int version,
-                IDictionary<string, object> eventHeaders,
-                IDictionary<string, object> commitHeaders)
+                IDictionary<string, object> eventHeaders)
             {
-                _aggregateRootId = aggregateRootId;
+                _commit = commit;
                 _version = version;
                 _eventHeaders = eventHeaders;
-                _commitHeaders = commitHeaders;
             }
 
-            public string AggregateRootId
+            public ICommit Commit
             {
-                get { return _aggregateRootId; }
+                get { return _commit; }
             }
 
             public int Version
@@ -99,11 +96,6 @@ namespace Cedar.Projections
             public IDictionary<string, object> EventHeaders
             {
                 get { return _eventHeaders; }
-            }
-
-            public IDictionary<string, object> CommitHeaders
-            {
-                get { return _commitHeaders; }
             }
         }
     }
