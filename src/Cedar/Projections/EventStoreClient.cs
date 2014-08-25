@@ -2,6 +2,7 @@ namespace Cedar.Projections
 {
     using NEventStore.Client;
 
+    // TO BE REMOVED WITH NES6
     public class EventStoreClient : IEventStoreClient
     {
         private readonly PollingClient _pollingClient;

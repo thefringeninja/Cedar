@@ -6,6 +6,6 @@
     public interface IProjectDomainEvent<TEvent>
         where TEvent : class
     {
-        Task Project(IDomainEventContext domainEventContext, TEvent domainEvent, CancellationToken cancellationToken);
+        Task Project(IDomainEventContext context, TEvent domainEvent, CancellationToken cancellationToken);
     }
 }

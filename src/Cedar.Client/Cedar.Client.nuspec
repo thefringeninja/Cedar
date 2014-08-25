@@ -16,7 +16,7 @@
 		</frameworkAssemblies>
         <releaseNotes/>
 		<dependencies>
-			<dependency id="Newtonsoft.Json" verions="version="[6,)""/>
+			<dependency id="Newtonsoft.Json" verions="version=[6,)"/>
 		</dependencies>
     </metadata>
     <files>
