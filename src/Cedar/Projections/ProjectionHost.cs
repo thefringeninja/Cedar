@@ -8,7 +8,6 @@
     using Cedar.Handlers;
     using NEventStore;
     using NEventStore.Client;
-    using TinyIoC;
 
     public class ProjectionHost : IDisposable
     {
@@ -16,7 +15,6 @@
         private readonly ICheckpointRepository _checkpointRepository;
         private readonly IDispatcher _dispatcher;
         private readonly Subject<ICommit> _commitsProjectedStream = new Subject<ICommit>();
-        private readonly TinyIoCContainer _container = new TinyIoCContainer();
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
         private int _isStarted;
         private int _isDisposed;
@@ -39,7 +37,6 @@
             _checkpointRepository = checkpointRepository;
             _dispatcher = dispatcher;
             _compositeDisposable.Add(_commitsProjectedStream);
-            _compositeDisposable.Add(_container);
         }
 
         public async Task Start()
