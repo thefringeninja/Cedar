@@ -39,7 +39,7 @@
             where TDomainEvent : class
         {
             var message = new DomainEventMessage<TDomainEvent>(commit, version, eventHeaders, domainEvent);
-            return dispatcher.Message(message, cancellationToken);
+            return dispatcher.Dispatch(message, cancellationToken);
         }
     }
 }

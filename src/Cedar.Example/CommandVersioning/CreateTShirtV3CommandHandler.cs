@@ -11,7 +11,7 @@ namespace Cedar.Example.CommandVersioning
 
         public CreateTShirtV3CommandHandler(CreateTShirtV4CommandHandler next)
         {
-            this._next = next;
+            _next = next;
         }
 
         public Task Handle(CommandMessage<CreateTShirtV3> commandMessage, CancellationToken cancellationToken)

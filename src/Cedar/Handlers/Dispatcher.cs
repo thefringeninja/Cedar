@@ -19,7 +19,7 @@ namespace Cedar.Handlers
             _handlerResolver = handlerResolver;
         }
 
-        public async Task<int> Message<TMessage>(TMessage message, CancellationToken cancellationToken)
+        public async Task<int> Dispatch<TMessage>(TMessage message, CancellationToken cancellationToken)
             where TMessage : class
         {
             IHandler<TMessage>[] handlers = _handlerResolver.ResolveAll<TMessage>().ToArray();

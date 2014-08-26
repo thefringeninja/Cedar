@@ -5,7 +5,7 @@ namespace Cedar.Handlers
 
     public interface IDispatcher
     {
-        Task<int> Message<TMessage>(TMessage message, CancellationToken cancellationToken)
+        Task<int> Dispatch<TMessage>(TMessage message, CancellationToken cancellationToken)
             where TMessage : class;
     }
 }

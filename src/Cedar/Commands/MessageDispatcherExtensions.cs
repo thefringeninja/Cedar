@@ -17,7 +17,7 @@
             where TCommand : class
         {
             var commandMessage = new CommandMessage<TCommand>(commandId, requstUser, command);
-            return dispatcher.Message(commandMessage, cancellationToken);
+            return dispatcher.Dispatch(commandMessage, cancellationToken);
         }
     }
 }

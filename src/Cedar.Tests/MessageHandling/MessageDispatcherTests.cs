@@ -19,7 +19,7 @@
                 .Returns(new[] {messageHandler});
             var messageDispatcher = new Dispatcher(messageHandlerResolver);
 
-            await messageDispatcher.Message("Test", CancellationToken.None);
+            await messageDispatcher.Dispatch("Test", CancellationToken.None);
 
             A.CallTo(() => messageHandler.Handle("Test", CancellationToken.None))
                 .MustHaveHappened(Repeated.Exactly.Once);
