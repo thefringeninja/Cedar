@@ -7,14 +7,14 @@
     using Cedar.Handlers;
     using NEventStore;
 
-    public static class MessageDispatcherExtensions
+    public static class DispatcherExtensions
     {
         public static async Task<int> DispatchCommit(
             this IDispatcher dispatcher,
             ICommit commit,
             CancellationToken cancellationToken)
         {
-            var methodInfo = typeof(MessageDispatcherExtensions).GetMethod("DispatchDomainEvent", BindingFlags.Static | BindingFlags.NonPublic);
+            var methodInfo = typeof(DispatcherExtensions).GetMethod("DispatchDomainEvent", BindingFlags.Static | BindingFlags.NonPublic);
             int version = commit.StreamRevision;
             int handlers = 0;
             foreach (var eventMessage in commit.Events)

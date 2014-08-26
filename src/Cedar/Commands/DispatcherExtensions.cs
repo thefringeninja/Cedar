@@ -4,12 +4,14 @@
     using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
+    using Cedar.Annotations;
     using Cedar.Handlers;
 
-    public static class MessageDispatcherExtensions
+    public static class DispatcherExtensions
     {
+        [UsedImplicitly]
         public static Task<int> DispatchCommand<TCommand>(
-            IDispatcher dispatcher,
+            this IDispatcher dispatcher,
             Guid commandId,
             ClaimsPrincipal requstUser,
             TCommand command,

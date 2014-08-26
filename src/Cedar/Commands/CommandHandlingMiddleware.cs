@@ -19,7 +19,7 @@
             Guard.EnsureNotNull(options, "options");
 
             JsonSerializer jsonSerializer = JsonSerializer.Create(options.SerializerSettings);
-            var dispatchCommandMethodInfo = typeof(MessageDispatcherExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
+            var dispatchCommandMethodInfo = typeof(DispatcherExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
             return next => async env =>
             {
