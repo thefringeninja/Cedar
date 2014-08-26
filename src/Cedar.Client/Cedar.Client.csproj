@@ -47,20 +47,20 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CommandHandling\Client\CommandExecutionSettings.cs" />
-    <Compile Include="CommandHandling\Client\DefaultJsonSerializerSettings.cs" />
-    <Compile Include="CommandHandling\Client\HttpClientExtensions.cs" />
-    <Compile Include="CommandHandling\Client\HttpContentExtensions.cs" />
-    <Compile Include="CommandHandling\Client\ICommandExecutionSettings.cs" />
-    <Compile Include="CommandHandling\Client\IModelToExceptionConverter.cs" />
-    <Compile Include="CommandHandling\Client\ModelToExceptionConverter.cs" />
-    <Compile Include="CommandHandling\Client\StringExtensions.cs" />
-    <Compile Include="CommandHandling\Client\TypeSwitch.cs" />
-    <Compile Include="CommandHandling\ExceptionModels\ArgumentExceptionModel.cs" />
-    <Compile Include="CommandHandling\ExceptionModels\ArgumentNullExceptionModel.cs" />
-    <Compile Include="CommandHandling\ExceptionModels\ExceptionModel.cs" />
-    <Compile Include="CommandHandling\ExceptionModels\InvalidOperationExceptionModel.cs" />
-    <Compile Include="CommandHandling\ExceptionModels\NotSupportedExceptionModel.cs" />
+    <Compile Include="Commands\Client\CommandExecutionSettings.cs" />
+    <Compile Include="Commands\Client\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="Commands\Client\HttpClientExtensions.cs" />
+    <Compile Include="Commands\Client\HttpContentExtensions.cs" />
+    <Compile Include="Commands\Client\ICommandExecutionSettings.cs" />
+    <Compile Include="Commands\Client\IModelToExceptionConverter.cs" />
+    <Compile Include="Commands\Client\ModelToExceptionConverter.cs" />
+    <Compile Include="Commands\Client\StringExtensions.cs" />
+    <Compile Include="Commands\Client\TypeSwitch.cs" />
+    <Compile Include="Commands\ExceptionModels\ArgumentExceptionModel.cs" />
+    <Compile Include="Commands\ExceptionModels\ArgumentNullExceptionModel.cs" />
+    <Compile Include="Commands\ExceptionModels\ExceptionModel.cs" />
+    <Compile Include="Commands\ExceptionModels\InvalidOperationExceptionModel.cs" />
+    <Compile Include="Commands\ExceptionModels\NotSupportedExceptionModel.cs" />
     <Compile Include="Extensions\System\StringExtensions.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILogProvider.cs" />

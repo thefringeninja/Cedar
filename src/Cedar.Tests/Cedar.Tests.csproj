@@ -104,17 +104,17 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CommandHandling\Client\ModelToExceptionConverterTests.cs" />
-    <Compile Include="CommandHandling\CommandHandlingTests.cs" />
-    <Compile Include="CommandHandling\CommandTypeResolverTests.cs" />
-    <Compile Include="CommandHandling\DefaultCommandTypeFromContentTypeResolverTests.cs" />
-    <Compile Include="CommandHandling\ExceptionToModelConverterTests.cs" />
-    <Compile Include="CommandHandling\Fixtures\CommandHandlingFixture.cs" />
-    <Compile Include="CommandHandling\Fixtures\TestCommand.cs" />
-    <Compile Include="CommandHandling\Fixtures\TestCommandHandler.cs" />
-    <Compile Include="CommandHandling\Fixtures\TestCommandWhoseHandlerThrows.cs" />
-    <Compile Include="CommandHandling\Fixtures\TestCommandWhoseHandlerThrowsHandler.cs" />
-    <Compile Include="CommandHandling\Fixtures\TestCommandWithoutHandler.cs" />
+    <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />
+    <Compile Include="Commands\CommandHandlingTests.cs" />
+    <Compile Include="Commands\CommandTypeResolverTests.cs" />
+    <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolverTests.cs" />
+    <Compile Include="Commands\ExceptionToModelConverterTests.cs" />
+    <Compile Include="Commands\Fixtures\CommandHandlingFixture.cs" />
+    <Compile Include="Commands\Fixtures\TestCommand.cs" />
+    <Compile Include="Commands\Fixtures\TestCommandHandler.cs" />
+    <Compile Include="Commands\Fixtures\TestCommandWhoseHandlerThrows.cs" />
+    <Compile Include="Commands\Fixtures\TestCommandWhoseHandlerThrowsHandler.cs" />
+    <Compile Include="Commands\Fixtures\TestCommandWithoutHandler.cs" />
     <Compile Include="Logging\LoggerExecutionWrapperTests.cs" />
     <Compile Include="Logging\LogProviders\Log4NetLogProviderLoggingDisabledTests.cs" />
     <Compile Include="Logging\LogProviders\Log4NetLogProviderLoggingEnabledTests.cs" />

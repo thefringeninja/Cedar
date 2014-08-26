@@ -1,12 +1,14 @@
 namespace Cedar.Example.CommandVersioning
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.CommandHandling;
+    using Cedar.Commands;
+    using Cedar.Handlers;
 
-    public class CreateTShirtV2CommandHandler : ICommandHandler<CreateTShirtV2>
+    public class CreateTShirtV2CommandHandler : IHandler<CommandMessage<CreateTShirtV2>>
     {
-        public Task Handle(ICommandContext context, CreateTShirtV2 command)
+        public Task Handle(CommandMessage<CreateTShirtV2> commandMessage, CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
         }

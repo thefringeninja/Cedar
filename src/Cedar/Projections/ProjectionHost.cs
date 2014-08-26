@@ -5,6 +5,7 @@
     using System.Reactive.Subjects;
     using System.Threading;
     using System.Threading.Tasks;
+    using Cedar.Handlers;
     using NEventStore;
     using NEventStore.Client;
     using TinyIoC;
@@ -13,19 +14,18 @@
     {
         private readonly IEventStoreClient _eventStoreClient;
         private readonly ICheckpointRepository _checkpointRepository;
-        private readonly Func<object, CancellationToken, Task> _dispatchMessage;
+        private readonly IDispatcher _dispatcher;
         private readonly Subject<ICommit> _commitsProjectedStream = new Subject<ICommit>();
         private readonly TinyIoCContainer _container = new TinyIoCContainer();
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
         private int _isStarted;
         private int _isDisposed;
         private IObserveCommits _commitStream;
-        private readonly CommitDispatcher _commitDispatcher;
 
         public ProjectionHost(
             IEventStoreClient eventStoreClient,
             ICheckpointRepository checkpointRepository,
-            Func<object, CancellationToken, Task> dispatchMessage)
+            IDispatcher dispatcher)
         {
             if (eventStoreClient == null)
             {
@@ -37,7 +37,7 @@
             }
             _eventStoreClient = eventStoreClient;
             _checkpointRepository = checkpointRepository;
-            _commitDispatcher = new CommitDispatcher(dispatchMessage);
+            _dispatcher = dispatcher;
             _compositeDisposable.Add(_commitsProjectedStream);
             _compositeDisposable.Add(_container);
         }
@@ -56,7 +56,7 @@
                     //TODO Handle transient errors and consider cancellation
                     try
                     {
-                        await _commitDispatcher.DispatchDomainEvent(commit);
+                        await _dispatcher.DispatchCommit(commit, CancellationToken.None);
                         await _checkpointRepository.Put(commit.CheckpointToken);
                         _commitsProjectedStream.OnNext(commit);
                     }

@@ -67,21 +67,18 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CommandHandling\CommandContext.cs" />
-    <Compile Include="CommandHandling\CommandDispatcher.cs" />
-    <Compile Include="CommandHandling\CommandHandlerSettings.cs" />
-    <Compile Include="CommandHandling\CommandHandlingMiddleware.cs" />
-    <Compile Include="CommandHandling\DefaultCommandTypeFromContentTypeResolver.cs" />
-    <Compile Include="CommandHandling\ExceptionToModelConverter.cs" />
-    <Compile Include="CommandHandling\Guard.cs" />
-    <Compile Include="CommandHandling\ICommandContext.cs" />
-    <Compile Include="CommandHandling\ICommandHandler.cs" />
-    <Compile Include="CommandHandling\ICommandHandlerResolver.cs" />
-    <Compile Include="CommandHandling\ICommandTypeResolver.cs" />
-    <Compile Include="CommandHandling\IExceptionToModelConverter.cs" />
-    <Compile Include="Projections\CommitDispatcher.cs" />
+    <Compile Include="Commands\CommandHandlerSettings.cs" />
+    <Compile Include="Commands\CommandHandlingMiddleware.cs" />
+    <Compile Include="Commands\CommandMessage.cs" />
+    <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolver.cs" />
+    <Compile Include="Commands\ExceptionToModelConverter.cs" />
+    <Compile Include="Commands\Guard.cs" />
+    <Compile Include="Commands\ICommandTypeResolver.cs" />
+    <Compile Include="Commands\IExceptionToModelConverter.cs" />
+    <Compile Include="Commands\MessageDispatcherExtensions.cs" />
+    <Compile Include="Handlers\IDispatcher.cs" />
     <Compile Include="Projections\DomainEventMessage.cs" />
-    <Compile Include="MessageHandling\MessageDispatcher.cs">
+    <Compile Include="Handlers\Dispatcher.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Projections\EventStoreClient.cs">
@@ -96,15 +93,16 @@
     <Compile Include="Projections\InMemoryCheckpointRepository.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MessageHandling\IMessageHandler.cs">
+    <Compile Include="Handlers\IHandler.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Projections\IProjectDomainEventResolver.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="MessageHandling\IMessageHandlerResolver.cs">
+    <Compile Include="Handlers\IHandlerResolver.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Projections\MessageDispatcherExtensions.cs" />
     <Compile Include="Projections\ProjectionHost.cs">
       <SubType>Code</SubType>
     </Compile>

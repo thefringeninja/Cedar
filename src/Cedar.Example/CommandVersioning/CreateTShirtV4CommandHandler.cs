@@ -1,9 +1,11 @@
 namespace Cedar.Example.CommandVersioning
 {
+    using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.CommandHandling;
+    using Cedar.Commands;
+    using Cedar.Handlers;
 
-    public class CreateTShirtV4CommandHandler : ICommandHandler<CreateTShirtV4>
+    public class CreateTShirtV4CommandHandler : IHandler<CommandMessage<CreateTShirtV4>>
     {
         private readonly IEventPublisher _publisher;
 
@@ -12,14 +14,14 @@ namespace Cedar.Example.CommandVersioning
             _publisher = publisher;
         }
 
-        public Task Handle(ICommandContext context, CreateTShirtV4 command)
+        public Task Handle(CommandMessage<CreateTShirtV4> commandMessage, CancellationToken cancellationToken)
         {
             _publisher.Publish(new TShirtCreatedV4
             {
-                BlankType = command.BlankType,
-                Name = command.Name,
-                Colors = command.Colors,
-                Sizes = command.Sizes
+                BlankType = commandMessage.Command.BlankType,
+                Name = commandMessage.Command.Name,
+                Colors = commandMessage.Command.Colors,
+                Sizes = commandMessage.Command.Sizes
             });
 
             return Task.FromResult(true);
