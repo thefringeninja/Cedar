@@ -2,7 +2,6 @@ namespace Cedar.Example.CommandVersioning
 {
     using System.Threading.Tasks;
     using Cedar.CommandHandling;
-    using Cedar.CommandHandling.Dispatching;
 
     public class CreateTShirtV4CommandHandler : ICommandHandler<CreateTShirtV4>
     {
@@ -12,8 +11,6 @@ namespace Cedar.Example.CommandVersioning
         {
             _publisher = publisher;
         }
-
-        #region ICommandHandler<CreateTShirtV4> Members
 
         public Task Handle(ICommandContext context, CreateTShirtV4 command)
         {
@@ -27,7 +24,5 @@ namespace Cedar.Example.CommandVersioning
 
             return Task.FromResult(true);
         }
-
-        #endregion
     }
 }

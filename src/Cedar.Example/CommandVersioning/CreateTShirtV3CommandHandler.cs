@@ -2,7 +2,6 @@ namespace Cedar.Example.CommandVersioning
 {
     using System.Threading.Tasks;
     using Cedar.CommandHandling;
-    using Cedar.CommandHandling.Dispatching;
     
     public class CreateTShirtV3CommandHandler : ICommandHandler<CreateTShirtV3>
     {
@@ -12,8 +11,6 @@ namespace Cedar.Example.CommandVersioning
         {
             this.next = next;
         }
-
-        #region ICommandHandler<CreateTShirtV3> Members
 
         public Task Handle(ICommandContext context, CreateTShirtV3 command)
         {
@@ -27,7 +24,5 @@ namespace Cedar.Example.CommandVersioning
                     BlankType = "Round"
                 });
         }
-
-        #endregion
     }
 }

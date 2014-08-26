@@ -2,7 +2,9 @@
 {
     using TinyIoC;
 
-    public class Bootstrapper : CedarBootstrapper
+    //TOFIX: DH
+
+    /*public class Bootstrapper : CedarBootstrapper
     {
         private readonly IEventPublisher _events;
 
@@ -22,5 +24,5 @@
 
             container.Register(_events);
         }
-    }
+    }*/
 }
