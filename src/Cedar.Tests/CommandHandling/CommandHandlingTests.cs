@@ -57,7 +57,6 @@
             {
                 var settings = new CommandExecutionSettings(
                     _fixture.CommandExecutionSettings.Vendor,
-                    _fixture.CommandExecutionSettings.SerializerSettings,
                     _fixture.CommandExecutionSettings.ModelToExceptionConverter,
                     "notfoundpath");
 

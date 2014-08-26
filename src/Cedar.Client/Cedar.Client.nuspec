@@ -15,13 +15,11 @@
 			<frameworkAssembly assemblyName="System.Net.Http"/>
 		</frameworkAssemblies>
         <releaseNotes/>
-		<dependencies>
-			<dependency id="Newtonsoft.Json" version="[6,7)"/>
-		</dependencies>
+		<dependencies/>
     </metadata>
     <files>
-        <file src="bin\Release\Cedar.Client.dll" target="lib\net45" />
-        <file src="bin\Release\Cedar.Client.pdb" target="lib\net45" />
+        <file src="..\..\build\Cedar.Client.dll" target="lib\net45" />
+        <file src="..\..\build\Cedar.Client.pdb" target="lib\net45" />
         <file src="bin\Release\Cedar.Client.xml" target="lib\net45" />
     </files>
 </package>

@@ -40,14 +40,16 @@ task RunTests -depends Compile {
 }
 
 task ILMerge -depends Compile {
-	$dllDir = "$srcDir\Cedar\bin\Release"
-	$input_dlls = "$dllDir\Cedar.dll "
-	@("Microsoft.Owin", "Owin", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
-		"System.Reactive.PlatformServices") |% { $input_dlls = "$input_dlls $dllDir\$_.dll" }
-		
-	$input_dlls
 	New-Item $buildOutputDir -Type Directory -ErrorAction SilentlyContinue
-	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /out:$buildOutputDir\$projectName.dll $input_dlls"
+	
+	$input_dlls = "$dllDir\Cedar.dll "
+	@("Microsoft.Owin", "NewtonSoft.Json", "Owin", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
+		"System.Reactive.PlatformServices") |% { $input_dlls = "$input_dlls $dllDir\$_.dll" }
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /out:$buildOutputDir\Cedar.dll $input_dlls"
+	
+	$input_dlls = "$dllDir\Cedar.Client.dll "
+	@("NewtonSoft.Json") |% { $input_dlls = "$input_dlls $dllDir\$_.dll" }
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /out:$buildOutputDir\Cedar.Client.dll $input_dlls"
 }
 
 task CreateNuGetPackages -depends ILMerge {

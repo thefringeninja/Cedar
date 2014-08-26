@@ -61,7 +61,6 @@
     <Compile Include="CommandHandling\ExceptionModels\ExceptionModel.cs" />
     <Compile Include="CommandHandling\ExceptionModels\InvalidOperationExceptionModel.cs" />
     <Compile Include="CommandHandling\ExceptionModels\NotSupportedExceptionModel.cs" />
-    <Compile Include="DefaultJsonSerializerSettings.cs" />
     <Compile Include="Extensions\System\StringExtensions.cs" />
     <Compile Include="Logging\ILog.cs" />
     <Compile Include="Logging\ILogProvider.cs" />

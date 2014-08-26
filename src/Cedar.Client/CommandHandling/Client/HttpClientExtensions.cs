@@ -13,7 +13,7 @@ namespace System.Net.Http
     {
         public static async Task ExecuteCommand(this HttpClient client, object command, Guid commandId, ICommandExecutionSettings settings)
         {
-            string commandJson = JsonConvert.SerializeObject(command, settings.SerializerSettings);
+            string commandJson = JsonConvert.SerializeObject(command, DefaultJsonSerializerSettings.Settings);
             var httpContent = new StringContent(commandJson);
             httpContent.Headers.ContentType =
                 MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, command.GetType().Name.ToLower()));
@@ -30,12 +30,12 @@ namespace System.Net.Http
             }
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var exceptionModel = await response.Content.ReadObject(settings.SerializerSettings) as ExceptionModel;
+                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                var exceptionModel = await response.Content.ReadObject(settings.SerializerSettings) as ExceptionModel;
+                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
         }
