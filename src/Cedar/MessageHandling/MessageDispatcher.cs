@@ -55,7 +55,7 @@ namespace Cedar.MessageHandling
             IEnumerable<IMessageHandler<TMessage>> messageHandlers = _messageHandlerResolver.ResolveAll<TMessage>();
             foreach (var projector in messageHandlers)
             {
-                await projector.Project(message, cancellationToken);
+                await projector.Handle(message, cancellationToken);
             }
         }
     }

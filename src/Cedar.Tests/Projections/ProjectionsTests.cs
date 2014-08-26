@@ -68,7 +68,7 @@
                 _eventsList = eventsList;
             }
 
-            public Task Project(DomainEventMessage<TestEvent> domainEventMessage, CancellationToken cancellationToken)
+            public Task Handle(DomainEventMessage<TestEvent> domainEventMessage, CancellationToken cancellationToken)
             {
                 _eventsList.Add(domainEventMessage);
                 return Task.FromResult(0);

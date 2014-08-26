@@ -6,6 +6,6 @@
     public interface IMessageHandler<TMessage>
         where TMessage : class
     {
-        Task Project(TMessage message, CancellationToken cancellationToken);
+        Task Handle(TMessage message, CancellationToken cancellationToken);
     }
 }

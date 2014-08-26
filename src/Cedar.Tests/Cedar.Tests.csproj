@@ -121,6 +121,7 @@
     <Compile Include="Logging\LogProviders\NLogLogProviderLoggingDisabedTests.cs" />
     <Compile Include="Logging\LogProviders\NLogLogProviderLoggingEnabledTests.cs" />
     <Compile Include="Logging\LogProviderTests.cs" />
+    <Compile Include="MessageHandling\MessageDispatcherTests.cs" />
     <Compile Include="Projections\ProjectionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TinyIoC.cs" />
