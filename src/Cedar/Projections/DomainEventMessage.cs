@@ -6,6 +6,20 @@ namespace Cedar.Projections
     public class DomainEventMessage<T>
     {
         private readonly ICommit _commit;
+        private readonly int _version;
+        private readonly IReadOnlyDictionary<string, object> _eventHeaders;
+        private readonly T _domainEvent;
+        public DomainEventMessage(
+            ICommit commit,
+            int version,
+            IReadOnlyDictionary<string, object> eventHeaders,
+            T domainEvent)
+        {
+            _commit = commit;
+            _version = version;
+            _eventHeaders = eventHeaders;
+            _domainEvent = domainEvent;
+        }
 
         public ICommit Commit
         {
@@ -25,22 +39,6 @@ namespace Cedar.Projections
         public T DomainEvent
         {
             get { return _domainEvent; }
-        }
-
-        private readonly int _version;
-        private readonly IReadOnlyDictionary<string, object> _eventHeaders;
-        private readonly T _domainEvent;
-
-        public DomainEventMessage(
-            ICommit commit,
-            int version,
-            IReadOnlyDictionary<string, object> eventHeaders,
-            T domainEvent)
-        {
-            _commit = commit;
-            _version = version;
-            _eventHeaders = eventHeaders;
-            _domainEvent = domainEvent;
         }
     }
 }
