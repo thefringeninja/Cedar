@@ -79,7 +79,9 @@
     <Compile Include="CommandHandling\ICommandHandlerResolver.cs" />
     <Compile Include="CommandHandling\ICommandTypeResolver.cs" />
     <Compile Include="CommandHandling\IExceptionToModelConverter.cs" />
-    <Compile Include="Projections\CommitDispatcher.cs">
+    <Compile Include="Projections\CommitDispatcher.cs" />
+    <Compile Include="Projections\DomainEventMessage.cs" />
+    <Compile Include="MessageHandling\MessageDispatcher.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Projections\EventStoreClient.cs">
@@ -88,22 +90,19 @@
     <Compile Include="Projections\ICheckpointRepository.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Projections\IDomainEventContext.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Projections\IEventStoreClient.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Projections\InMemoryCheckpointRepository.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Projections\IProjectDomainEvent.cs">
+    <Compile Include="MessageHandling\IMessageHandler.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Projections\IProjectDomainEventResolver.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Projections\IProjectionResolver.cs">
+    <Compile Include="MessageHandling\IMessageHandlerResolver.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Projections\ProjectionHost.cs">

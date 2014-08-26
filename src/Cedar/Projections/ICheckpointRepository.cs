@@ -1,4 +1,4 @@
-namespace Cedar.Projections.Storage
+namespace Cedar.Projections
 {
     using System.Threading.Tasks;
 

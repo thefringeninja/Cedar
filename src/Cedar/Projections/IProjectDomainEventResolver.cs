@@ -4,6 +4,6 @@
 
     public interface IProjectDomainEventResolver
     {
-        IEnumerable<IProjectDomainEvent<T>> ResolveAll<T>() where T : class;
+        IEnumerable<DomainEventMessage<T>> ResolveAll<T>() where T : class;
     }
 }

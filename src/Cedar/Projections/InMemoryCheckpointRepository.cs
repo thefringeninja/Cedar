@@ -1,7 +1,6 @@
 namespace Cedar.Projections
 {
     using System.Threading.Tasks;
-    using Cedar.Projections.Storage;
 
     public class InMemoryCheckpointRepository : ICheckpointRepository
     {

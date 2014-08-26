@@ -11,92 +11,61 @@ namespace Cedar.Projections
 
     public class CommitDispatcher
     {
-        private readonly IProjectionResolver _projectionResolver;
+        private delegate Task DispatchDomainEventDelegate(
+            ICommit commit,
+            int version,
+            IReadOnlyDictionary<string, object> eventHeaders,
+            object domainEvent,
+            CancellationToken cancellationToken);
 
-        private readonly Dictionary<Type, Func<IDomainEventContext, object, CancellationToken, Task>> _dispatcherDelegateCache
-            = new Dictionary<Type, Func<IDomainEventContext, object, CancellationToken, Task>>();
-        private readonly MethodInfo _dispatchEventMethod;
+        private readonly Func<object, CancellationToken, Task> _dispatchMessage;
+        private readonly Dictionary<Type, DispatchDomainEventDelegate> _dispatcherDelegateCache = new Dictionary<Type, DispatchDomainEventDelegate>();
+        private readonly MethodInfo _dispatchCommitMethod;
 
-        public CommitDispatcher(IProjectionResolver projectionResolver)
+        public CommitDispatcher(Func<object, CancellationToken, Task> dispatchMessage)
         {
-            if (projectionResolver == null)
-            {
-                throw new ArgumentNullException("projectionResolver");
-            }
-
-            _projectionResolver = projectionResolver;
-            _dispatchEventMethod = GetType().GetMethod("DispatchEvent", BindingFlags.Instance | BindingFlags.NonPublic);
-            Contract.Assert(_dispatchEventMethod != null);
+            _dispatchMessage = dispatchMessage;
+            _dispatchCommitMethod = GetType().GetMethod("DispatchDomainEvent", BindingFlags.Instance | BindingFlags.NonPublic);
+            Contract.Assert(_dispatchCommitMethod != null);
         }
 
-        public async Task DispatchCommit(ICommit commit)
+        public async Task DispatchDomainEvent(ICommit commit)
         {
             int version = commit.StreamRevision;
             foreach (var eventMessage in commit.Events)
             {
                 var dispatchDelegate = GetDispatchDelegate(eventMessage.Body.GetType());
-                var domainEventInfo = new DomainEventContext(commit, version, eventMessage.Headers);
-                await dispatchDelegate(domainEventInfo, eventMessage.Body, CancellationToken.None);
+                await dispatchDelegate(commit, version, eventMessage.Headers, eventMessage.Body, CancellationToken.None);
                 version++;
             }
         }
 
-        private Func<IDomainEventContext, object, CancellationToken, Task> GetDispatchDelegate(Type type)
+        private DispatchDomainEventDelegate GetDispatchDelegate(Type type)
         {
             // Cache dispatch delages - a bit of a perf optimization
-            Func<IDomainEventContext, object, CancellationToken, Task> dispatchDelegate;
+            DispatchDomainEventDelegate dispatchDelegate;
             if (_dispatcherDelegateCache.TryGetValue(type, out dispatchDelegate))
             {
                 return dispatchDelegate;
             }
-            var dispatchGenericMethod = _dispatchEventMethod.MakeGenericMethod(type);
-            dispatchDelegate = (domainEventInfo, @event, cancellationToken) =>
-                (Task)dispatchGenericMethod.Invoke(this, new[] { domainEventInfo, @event, cancellationToken });
+            var dispatchGenericMethod = _dispatchCommitMethod.MakeGenericMethod(type);
+            dispatchDelegate = (commit, version, eventHeaders, domainEvent, cancellationToken) =>
+                (Task)dispatchGenericMethod.Invoke(this, new[] { commit, version, eventHeaders, domainEvent, cancellationToken });
             _dispatcherDelegateCache.Add(type, dispatchDelegate);
             return dispatchDelegate;
         }
 
         [UsedImplicitly]
-        private async Task DispatchEvent<TEvent>(IDomainEventContext domainEventContext, TEvent @event, CancellationToken cancellationToken)
+        private Task DispatchDomainEvent<TEvent>(
+            ICommit commit,
+            int version,
+            IReadOnlyDictionary<string, object> eventHeaders,
+            TEvent @event,
+            CancellationToken cancellationToken)
             where TEvent : class
         {
-            IEnumerable<IProjectDomainEvent<TEvent>> projectors = _projectionResolver.ResolveAll<TEvent>();
-            foreach (var projector in projectors)
-            {
-                await projector.Project(domainEventContext, @event, cancellationToken);
-            }
-        }
-
-        private class DomainEventContext : IDomainEventContext
-        {
-            private readonly ICommit _commit;
-            private readonly int _version;
-            private readonly IDictionary<string, object> _eventHeaders;
-
-            public DomainEventContext(
-                ICommit commit,
-                int version,
-                IDictionary<string, object> eventHeaders)
-            {
-                _commit = commit;
-                _version = version;
-                _eventHeaders = eventHeaders;
-            }
-
-            public ICommit Commit
-            {
-                get { return _commit; }
-            }
-
-            public int Version
-            {
-                get { return _version; }
-            }
-
-            public IDictionary<string, object> EventHeaders
-            {
-                get { return _eventHeaders; }
-            }
+            var message = new DomainEventMessage<TEvent>(commit, version, eventHeaders, @event);
+            return _dispatchMessage(message, cancellationToken);
         }
     }
 }

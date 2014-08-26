@@ -6,6 +6,7 @@
     using System.Reactive.Threading.Tasks;
     using System.Threading;
     using System.Threading.Tasks;
+    using Cedar.MessageHandling;
     using FluentAssertions;
     using NEventStore;
     using NEventStore.Client;
@@ -21,14 +22,15 @@
             {
                 using (var container = new TinyIoCContainer())
                 {
-                    var projectedEvents = new List<Tuple<IDomainEventContext, TestEvent>>();
-                    container.Register<IProjectDomainEvent<TestEvent>, TestEventProjector>();
-                    container.Register<IList<Tuple<IDomainEventContext, TestEvent>>>(projectedEvents);
+                    var projectedEvents = new List<DomainEventMessage<TestEvent>>();
+                    container.Register<IMessageHandler<DomainEventMessage<TestEvent>>, TestMessageHandlerProjector>();
+                    container.Register<IList<DomainEventMessage<TestEvent>>>(projectedEvents);
+                    var messageDispatcher = new MessageDispatcher(new MessageHandlerResolver(container));
 
                     using(var host = new ProjectionHost(
                         new EventStoreClient(new PollingClient(eventStore.Advanced)), 
                         new InMemoryCheckpointRepository(),
-                        new ProjectionResolver(container)))
+                        messageDispatcher.DispatchMessage))
                     {
                         await host.Start();
                         Guid streamId = Guid.NewGuid();
@@ -47,10 +49,9 @@
                         await commitProjected;
 
                         projectedEvents.Count.Should().Be(1);
-                        projectedEvents[0].Item1.Commit.Should().NotBeNull();
-                        projectedEvents[0].Item1.EventHeaders.Should().NotBeNull();
-                        projectedEvents[0].Item1.Version.Should().Be(1);
-                        projectedEvents[0].Item2.Should().BeOfType<TestEvent>();
+                        projectedEvents[0].Commit.Should().NotBeNull();
+                        projectedEvents[0].EventHeaders.Should().NotBeNull();
+                        projectedEvents[0].Version.Should().Be(1);
                     }
                 }
             }
@@ -58,34 +59,34 @@
 
         public class TestEvent { }
 
-        public class TestEventProjector : IProjectDomainEvent<TestEvent>
+        public class TestMessageHandlerProjector : IMessageHandler<DomainEventMessage<TestEvent>>
         {
-            private readonly IList<Tuple<IDomainEventContext, TestEvent>> _eventsList;
+            private readonly IList<DomainEventMessage<TestEvent>> _eventsList;
 
-            public TestEventProjector(IList<Tuple<IDomainEventContext, TestEvent>> eventsList)
+            public TestMessageHandlerProjector(IList<DomainEventMessage<TestEvent>> eventsList)
             {
                 _eventsList = eventsList;
             }
 
-            public Task Project(IDomainEventContext context, TestEvent domainEvent, CancellationToken cancellationToken)
+            public Task Project(DomainEventMessage<TestEvent> domainEventMessage, CancellationToken cancellationToken)
             {
-                _eventsList.Add(Tuple.Create(context, domainEvent));
+                _eventsList.Add(domainEventMessage);
                 return Task.FromResult(0);
             }
         }
 
-        private class ProjectionResolver : IProjectionResolver
+        private class MessageHandlerResolver : IMessageHandlerResolver
         {
             private readonly TinyIoCContainer _container;
 
-            public ProjectionResolver(TinyIoCContainer container)
+            public MessageHandlerResolver(TinyIoCContainer container)
             {
                 _container = container;
             }
 
-            public IEnumerable<IProjectDomainEvent<TEvent>> ResolveAll<TEvent>() where TEvent : class
+            public IEnumerable<IMessageHandler<TEvent>> ResolveAll<TEvent>() where TEvent : class
             {
-                return _container.ResolveAll<IProjectDomainEvent<TEvent>>();
+                return _container.ResolveAll<IMessageHandler<TEvent>>();
             }
         }
     }
