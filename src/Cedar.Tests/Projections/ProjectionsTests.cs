@@ -52,6 +52,7 @@
                         projectedEvents[0].Commit.Should().NotBeNull();
                         projectedEvents[0].EventHeaders.Should().NotBeNull();
                         projectedEvents[0].Version.Should().Be(1);
+                        projectedEvents[0].DomainEvent.Should().BeOfType<TestEvent>();
                     }
                 }
             }
