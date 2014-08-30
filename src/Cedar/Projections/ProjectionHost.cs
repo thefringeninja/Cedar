@@ -54,7 +54,7 @@
             string checkpointToken = await _checkpointRepository.Get();
             _commitStream = _eventStoreClient.ObserveFrom(checkpointToken);
             var subscription = _commitStream
-                .Subscribe(commit => Task.Run(async () =>
+                .Subscribe(async commit => 
                 {
                     //TODO Handle transient errors and consider cancellation
                     try
@@ -67,7 +67,7 @@
                     {
                         Console.WriteLine(ex);
                     }
-                }).Wait());
+                });
             _commitStream.Start();
             _compositeDisposable.Add(_commitStream);
             _compositeDisposable.Add(subscription);

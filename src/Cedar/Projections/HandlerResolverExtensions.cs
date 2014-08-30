@@ -11,7 +11,7 @@
 
     public static class HandlerResolverExtensions
     {
-        public static async Task<int> DispatchCommit(
+        public static async Task DispatchCommit(
             [NotNull] this IHandlerResolver handlerResolver,
             [NotNull] ICommit commit,
             CancellationToken cancellationToken)
@@ -21,17 +21,14 @@
 
             var methodInfo = typeof(HandlerResolverExtensions).GetMethod("DispatchDomainEvent", BindingFlags.Static | BindingFlags.NonPublic);
             int version = commit.StreamRevision;
-            int handlers = 0;
             foreach (var eventMessage in commit.Events)
             {
                 var genericMethod = methodInfo.MakeGenericMethod(eventMessage.Body.GetType());
-                handlers += await (Task<int>)genericMethod.Invoke(null, new []
+                await (Task)genericMethod.Invoke(null, new []
                 {
                     handlerResolver, commit, version, eventMessage.Headers, eventMessage.Body, cancellationToken
                 });
-                version++;
             }
-            return handlers;
         }
 
         private static Task DispatchDomainEvent<TDomainEvent>(

@@ -2,7 +2,6 @@ namespace Cedar.Commands.Fixtures
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
@@ -19,12 +18,12 @@ namespace Cedar.Commands.Fixtures
         {
             const string vendor = "vendor";
             var handlerResolver = A.Fake<IHandlerResolver>();
-            A.CallTo(() => handlerResolver.ResolveAll<CommandMessage<TestCommand>>())
-                .Returns(new [] { new TestCommandHandler() });
-            A.CallTo(() => handlerResolver.ResolveAll<CommandMessage<TestCommandWhoseHandlerThrows>>())
-                .Returns(new [] { new TestCommandWhoseHandlerThrowsHandler() });
-            A.CallTo(() => handlerResolver.ResolveAll<CommandMessage<TestCommandWithoutHandler>>())
-                .Returns(Enumerable.Empty<IHandler<CommandMessage<TestCommandWithoutHandler>>>());
+            A.CallTo(() => handlerResolver.ResolveSingle<CommandMessage<TestCommand>>())
+                .Returns(new TestCommandHandler());
+            A.CallTo(() => handlerResolver.ResolveSingle<CommandMessage<TestCommandWhoseHandlerThrows>>())
+                .Returns(new TestCommandWhoseHandlerThrowsHandler());
+            A.CallTo(() => handlerResolver.ResolveSingle<CommandMessage<TestCommandWithoutHandler>>())
+                .Returns(null);
             var commandTypeFromContentTypeResolver = new DefaultCommandTypeFromContentTypeResolver(
                 vendor,
                 new[]

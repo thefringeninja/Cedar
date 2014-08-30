@@ -24,7 +24,7 @@ namespace Cedar.Example.CommandVersioning
                 BlankType = "Round"
             };
             return _next.Handle(
-                new CommandMessage<CreateTShirtV4>(commandMessage.CommandId, commandMessage.RequstUser, command),
+                new CommandMessage<CreateTShirtV4>(commandMessage.CommandId, commandMessage.RequestUser, command),
                 cancellationToken);
         }
     }

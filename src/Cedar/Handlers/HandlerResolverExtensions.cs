@@ -33,6 +33,10 @@ namespace Cedar.Handlers
             Guard.EnsureNotNull(message, "message");
 
             var handler = handlerResolver.ResolveSingle<TMessage>();
+            if (handler == null)
+            {
+                return;
+            }
             await handler.Handle(message, cancellationToken);
         }
     }

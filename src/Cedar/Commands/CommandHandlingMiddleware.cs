@@ -9,6 +9,7 @@
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
     using Cedar.Commands.ExceptionModels;
+    using Cedar.Handlers;
     using Microsoft.Owin;
     using Newtonsoft.Json;
 
@@ -20,7 +21,7 @@
 
             JsonSerializer jsonSerializer = JsonSerializer.Create(options.SerializerSettings);
             var dispatchCommandMethodInfo = typeof(HandlerResolverExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
-
+            var handlerResolver = new SafeHandlerResolver(options.HandlerResolver);
             return next => async env =>
             {
                 // PUT "/{guid}" with a Json body.
@@ -55,17 +56,12 @@
                     {
                         command = jsonSerializer.Deserialize(streamReader, commandType);
                     }
-                    var user = context.Request.User as ClaimsPrincipal;
+                    var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
                     var dispatchCommand = dispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
-                    var task = (Task<int>)dispatchCommand.Invoke(null, new[]
+                    await (Task)dispatchCommand.Invoke(null, new[]
                     {
-                        options.HandlerResolver, commandId, user, command, context.Request.CallCancelled
+                        handlerResolver, commandId, user, command, context.Request.CallCancelled
                     });
-                    var handled = await task > 0;
-                    if (!handled)
-                    {
-                        throw new InvalidOperationException("");
-                    }
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -103,6 +99,31 @@
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
             context.Response.Write(exceptionBytes);
+        }
+
+        private class SafeHandlerResolver : IHandlerResolver
+        {
+            private readonly IHandlerResolver _inner;
+
+            public SafeHandlerResolver(IHandlerResolver inner)
+            {
+                _inner = inner;
+            }
+
+            public IEnumerable<IHandler<T>> ResolveAll<T>() where T : class
+            {
+                return _inner.ResolveAll<T>();
+            }
+
+            public IHandler<T> ResolveSingle<T>() where T : class
+            {
+                var handler = _inner.ResolveSingle<T>();
+                if (handler == null)
+                {
+                    throw new InvalidOperationException(string.Format("A handler for {0} was not found.", typeof(T).Name));
+                }
+                return handler;
+            }
         }
     }
 }
