@@ -7,19 +7,23 @@
     using Cedar.Annotations;
     using Cedar.Handlers;
 
-    public static class DispatcherExtensions
+    public static class HandlerResolverExtensions
     {
         [UsedImplicitly]
-        public static Task<int> DispatchCommand<TCommand>(
-            this IDispatcher dispatcher,
+        public static Task DispatchCommand<TCommand>(
+            this IHandlerResolver handlerResolver,
             Guid commandId,
             ClaimsPrincipal requstUser,
             TCommand command,
             CancellationToken cancellationToken)
             where TCommand : class
         {
+            Guard.EnsureNotNull(handlerResolver, "handlerResolver");
+            Guard.EnsureNotNull(requstUser, "requstUser");
+            Guard.EnsureNotNull(command, "command");
+
             var commandMessage = new CommandMessage<TCommand>(commandId, requstUser, command);
-            return dispatcher.Dispatch(commandMessage, cancellationToken);
+            return handlerResolver.DispatchSingle(commandMessage, cancellationToken);
         }
     }
 }

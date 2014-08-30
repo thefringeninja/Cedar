@@ -19,7 +19,7 @@
             Guard.EnsureNotNull(options, "options");
 
             JsonSerializer jsonSerializer = JsonSerializer.Create(options.SerializerSettings);
-            var dispatchCommandMethodInfo = typeof(DispatcherExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
+            var dispatchCommandMethodInfo = typeof(HandlerResolverExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
             return next => async env =>
             {
@@ -59,7 +59,7 @@
                     var dispatchCommand = dispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
                     var task = (Task<int>)dispatchCommand.Invoke(null, new[]
                     {
-                        options.Dispatcher, commandId, user, command, context.Request.CallCancelled
+                        options.HandlerResolver, commandId, user, command, context.Request.CallCancelled
                     });
                     var handled = await task > 0;
                     if (!handled)

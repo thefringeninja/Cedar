@@ -7,29 +7,29 @@
 
     public class CommandHandlerSettings
     {
-        private readonly IDispatcher _dispatcher;
+        private readonly IHandlerResolver _handlerResolver;
         private readonly ICommandTypeResolver _commandTypeResolver;
         private readonly JsonSerializerSettings _serializerSettings;
         private readonly IExceptionToModelConverter _exceptionToModelConverter;
 
         public CommandHandlerSettings(
-            [NotNull] IDispatcher dispatchDispatcher,
+            [NotNull] IHandlerResolver handlerResolver,
             [NotNull] ICommandTypeResolver commandTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null,
             JsonSerializerSettings serializerSettings = null)
         {
-            Guard.EnsureNotNull(dispatchDispatcher, "dispatchMessage");
-            Guard.EnsureNotNull(commandTypeResolver, "commandTypeFromHttpContentType");
+            Guard.EnsureNotNull(handlerResolver, "dispatcher");
+            Guard.EnsureNotNull(commandTypeResolver, "commandTypeResolver");
 
-            _dispatcher = dispatchDispatcher;
+            _handlerResolver = handlerResolver;
             _commandTypeResolver = commandTypeResolver;
             _exceptionToModelConverter = exceptionToModelConverter ?? new ExceptionToModelConverter();
             _serializerSettings = serializerSettings ?? DefaultJsonSerializerSettings.Settings;
         }
 
-        public IDispatcher Dispatcher
+        public IHandlerResolver HandlerResolver
         {
-            get { return _dispatcher; }
+            get { return _handlerResolver; }
         }
 
         public ICommandTypeResolver CommandTypeResolver

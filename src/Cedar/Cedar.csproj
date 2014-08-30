@@ -75,12 +75,9 @@
     <Compile Include="Commands\Guard.cs" />
     <Compile Include="Commands\ICommandTypeResolver.cs" />
     <Compile Include="Commands\IExceptionToModelConverter.cs" />
-    <Compile Include="Commands\DispatcherExtensions.cs" />
-    <Compile Include="Handlers\IDispatcher.cs" />
+    <Compile Include="Commands\HandlerResolverExtensions.cs" />
+    <Compile Include="Handlers\HandlerResolverExtensions.cs" />
     <Compile Include="Projections\DomainEventMessage.cs" />
-    <Compile Include="Handlers\Dispatcher.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Projections\EventStoreClient.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -102,7 +99,7 @@
     <Compile Include="Handlers\IHandlerResolver.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Projections\DispatcherExtensions.cs" />
+    <Compile Include="Projections\HandlerResolverExtensions.cs" />
     <Compile Include="Projections\ProjectionHost.cs">
       <SubType>Code</SubType>
     </Compile>

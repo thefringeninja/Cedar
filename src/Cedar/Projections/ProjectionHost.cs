@@ -5,6 +5,7 @@
     using System.Reactive.Subjects;
     using System.Threading;
     using System.Threading.Tasks;
+    using Cedar.Annotations;
     using Cedar.Handlers;
     using NEventStore;
     using NEventStore.Client;
@@ -13,7 +14,7 @@
     {
         private readonly IEventStoreClient _eventStoreClient;
         private readonly ICheckpointRepository _checkpointRepository;
-        private readonly IDispatcher _dispatcher;
+        private readonly IHandlerResolver _handlerResolver;
         private readonly Subject<ICommit> _commitsProjectedStream = new Subject<ICommit>();
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
         private int _isStarted;
@@ -21,9 +22,9 @@
         private IObserveCommits _commitStream;
 
         public ProjectionHost(
-            IEventStoreClient eventStoreClient,
-            ICheckpointRepository checkpointRepository,
-            IDispatcher dispatcher)
+            [NotNull] IEventStoreClient eventStoreClient,
+            [NotNull] ICheckpointRepository checkpointRepository,
+            [NotNull] IHandlerResolver handlerResolver)
         {
             if (eventStoreClient == null)
             {
@@ -33,9 +34,14 @@
             {
                 throw new ArgumentNullException("checkpointRepository");
             }
+            if (handlerResolver == null)
+            {
+                throw new ArgumentNullException("handlerResolver");
+            }
+
             _eventStoreClient = eventStoreClient;
             _checkpointRepository = checkpointRepository;
-            _dispatcher = dispatcher;
+            _handlerResolver = handlerResolver;
             _compositeDisposable.Add(_commitsProjectedStream);
         }
 
@@ -53,7 +59,7 @@
                     //TODO Handle transient errors and consider cancellation
                     try
                     {
-                        await _dispatcher.DispatchCommit(commit, CancellationToken.None);
+                        await _handlerResolver.DispatchCommit(commit, CancellationToken.None);
                         await _checkpointRepository.Put(commit.CheckpointToken);
                         _commitsProjectedStream.OnNext(commit);
                     }

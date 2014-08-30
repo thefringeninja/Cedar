@@ -7,7 +7,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Handlers;
-    using Cedar.MessageHandling;
     using FluentAssertions;
     using NEventStore;
     using NEventStore.Client;
@@ -26,12 +25,12 @@
                     var projectedEvents = new List<DomainEventMessage<TestEvent>>();
                     container.Register<IHandler<DomainEventMessage<TestEvent>>, TestHandlerProjector>();
                     container.Register<IList<DomainEventMessage<TestEvent>>>(projectedEvents);
-                    var dispatcher = new Dispatcher(new HandlerResolver(container));
+                    var handlerResolver = new HandlerResolver(container);
 
                     using(var host = new ProjectionHost(
                         new EventStoreClient(new PollingClient(eventStore.Advanced)), 
                         new InMemoryCheckpointRepository(),
-                        dispatcher))
+                        handlerResolver))
                     {
                         await host.Start();
                         Guid streamId = Guid.NewGuid();
@@ -86,9 +85,14 @@
                 _container = container;
             }
 
-            public IEnumerable<IHandler<TEvent>> ResolveAll<TEvent>() where TEvent : class
+            public IEnumerable<IHandler<TMessage>> ResolveAll<TMessage>() where TMessage : class
             {
-                return _container.ResolveAll<IHandler<TEvent>>();
+                return _container.ResolveAll<IHandler<TMessage>>();
+            }
+
+            public IHandler<TMessage> ResolveSingle<TMessage>() where TMessage : class
+            {
+                return _container.Resolve<IHandler<TMessage>>();
             }
         }
     }

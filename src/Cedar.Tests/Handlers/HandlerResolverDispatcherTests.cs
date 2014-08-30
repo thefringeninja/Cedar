@@ -1,25 +1,23 @@
-﻿namespace Cedar.MessageHandling
+﻿namespace Cedar.Handlers
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.Handlers;
     using FakeItEasy;
     using Xunit;
 
-    public class MessageDispatcherTests
+    public class HandlerResolverDispatcherTests
     {
         [Fact]
         public async Task Should_dispatch_message_to_handler()
         {
-            var messageHandlerResolver = A.Fake<IHandlerResolver>();
+            var handlerResolver = A.Fake<IHandlerResolver>();
             var messageHandler = A.Fake<IHandler<string>>();
             A.CallTo(() => messageHandler.Handle("Test", CancellationToken.None))
                 .Returns(Task.FromResult(0));
-            A.CallTo(() => messageHandlerResolver.ResolveAll<string>())
+            A.CallTo(() => handlerResolver.ResolveAll<string>())
                 .Returns(new[] {messageHandler});
-            var messageDispatcher = new Dispatcher(messageHandlerResolver);
 
-            await messageDispatcher.Dispatch("Test", CancellationToken.None);
+            await handlerResolver.Dispatch("Test", CancellationToken.None);
 
             A.CallTo(() => messageHandler.Handle("Test", CancellationToken.None))
                 .MustHaveHappened(Repeated.Exactly.Once);
