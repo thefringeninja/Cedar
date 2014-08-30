@@ -22,6 +22,7 @@
             JsonSerializer jsonSerializer = JsonSerializer.Create(options.SerializerSettings);
             var dispatchCommandMethodInfo = typeof(HandlerResolverExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
             var handlerResolver = new SafeHandlerResolver(options.HandlerResolver);
+
             return next => async env =>
             {
                 // PUT "/{guid}" with a Json body.
