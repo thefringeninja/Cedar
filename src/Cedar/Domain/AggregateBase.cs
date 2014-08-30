@@ -10,6 +10,7 @@ namespace Cedar.Domain
         private readonly ICollection<object> _uncommittedEvents = new LinkedList<object>();
         private readonly IEventRouter _registeredRoutes;
         private int _version;
+        private readonly string _id;
 
         protected AggregateBase(string id)
             : this(id, new ConventionEventRouter())
@@ -20,11 +21,15 @@ namespace Cedar.Domain
             Guard.EnsureNullOrWhiteSpace(id, "id");
             Guard.EnsureNotNull(eventRouter, "eventRouter");
 
+            _id = id;
             _registeredRoutes = eventRouter;
             _registeredRoutes.Register(this);
         }
 
-        public string Id { get; protected set; }
+        public string Id
+        {
+            get { return _id; }
+        }
 
         public int Version
         {
