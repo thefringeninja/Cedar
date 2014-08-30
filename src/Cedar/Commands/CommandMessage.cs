@@ -7,12 +7,12 @@
     {
         private readonly TCommand _command;
         private readonly Guid _commandId;
-        private readonly ClaimsPrincipal _requstUser;
+        private readonly ClaimsPrincipal _requestUser;
 
-        public CommandMessage(Guid commandId, ClaimsPrincipal requstUser, TCommand command)
+        public CommandMessage(Guid commandId, ClaimsPrincipal requestUser, TCommand command)
         {
             _commandId = commandId;
-            _requstUser = requstUser;
+            _requestUser = requestUser;
             _command = command;
         }
 
@@ -26,9 +26,9 @@
             get { return _commandId; }
         }
 
-        public ClaimsPrincipal RequstUser
+        public ClaimsPrincipal RequestUser
         {
-            get { return _requstUser; }
+            get { return _requestUser; }
         }
     }
 }
