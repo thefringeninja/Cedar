@@ -32,7 +32,7 @@ namespace Cedar.Commands.Fixtures
                     typeof (TestCommandWithoutHandler),
                     typeof (TestCommandWhoseHandlerThrows)
                 });
-            var options = new CommandHandlerSettings(handlerResolver, commandTypeFromContentTypeResolver);
+            var options = new DefaultCommandHandlerSettings(handlerResolver, commandTypeFromContentTypeResolver);
             _midFunc = CommandHandlingMiddleware.HandleCommands(options);
             _commandExecutionSettings = new CommandExecutionSettings(vendor);
         }

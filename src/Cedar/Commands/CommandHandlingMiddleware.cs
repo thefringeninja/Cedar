@@ -19,7 +19,6 @@
         {
             Guard.EnsureNotNull(options, "options");
 
-            JsonSerializer jsonSerializer = JsonSerializer.Create(options.SerializerSettings);
             var dispatchCommandMethodInfo = typeof(HandlerResolverExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
             var handlerResolver = new SafeHandlerResolver(options.HandlerResolver);
 
@@ -55,7 +54,7 @@
                     object command;
                     using (var streamReader = new StreamReader(context.Request.Body))
                     {
-                        command = jsonSerializer.Deserialize(streamReader, commandType);
+                        command = options.Deserialize(streamReader, commandType);
                     }
                     var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
                     var dispatchCommand = dispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
