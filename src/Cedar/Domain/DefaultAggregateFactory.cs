@@ -12,7 +12,7 @@ namespace Cedar.Domain
         public IAggregate Build(Type type, string id)
         {
             ConstructorInfo constructor = type.GetConstructor(
-                BindingFlags.Public | BindingFlags.Instance, null, new[] {typeof (string) }, null);
+                BindingFlags.NonPublic | BindingFlags.Instance, null, new[] {typeof (string) }, null);
 
             return constructor.Invoke(new object[] {id}) as IAggregate;
         }
