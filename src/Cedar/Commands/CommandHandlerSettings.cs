@@ -38,5 +38,7 @@
         }
 
         public abstract object Deserialize(TextReader reader, Type type);
+
+        public abstract void Serialize(TextWriter writer, object target);
     }
 }

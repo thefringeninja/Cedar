@@ -65,11 +65,11 @@
                 }
                 catch (InvalidOperationException ex)
                 {
-                    HandleBadRequest(context, ex, options.ExceptionToModelConverter);
+                    HandleBadRequest(context, ex, options);
                 }
                 catch (Exception ex)
                 {
-                    HandleInternalServerError(context, ex, options.ExceptionToModelConverter);
+                    HandleInternalServerError(context, ex, options);
                     return;
                 }
                 context.Response.StatusCode = 202;
@@ -77,25 +77,25 @@
             };
         }
 
-        private static void HandleBadRequest(IOwinContext context, InvalidOperationException ex, IExceptionToModelConverter exceptionToModelConverter)
+        private static void HandleBadRequest(IOwinContext context, InvalidOperationException ex, CommandHandlerSettings options)
         {
             context.Response.StatusCode = 400;
             context.Response.ReasonPhrase = "Bad Request";
             context.Response.ContentType = "application/json";
-            ExceptionModel exceptionModel = exceptionToModelConverter.Convert(ex);
-            string exceptionJson = JsonConvert.SerializeObject(exceptionModel, DefaultJsonSerializerSettings.Settings);
+            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(ex);
+            string exceptionJson = options.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
             context.Response.Write(exceptionBytes);
         }
 
-        private static void HandleInternalServerError(IOwinContext context, Exception ex, IExceptionToModelConverter exceptionToModelConverter)
+        private static void HandleInternalServerError(IOwinContext context, Exception ex, CommandHandlerSettings options)
         {
             context.Response.StatusCode = 500;
             context.Response.ReasonPhrase = "Internal Server Error";
             context.Response.ContentType = "application/json";
-            ExceptionModel exceptionModel = exceptionToModelConverter.Convert(ex);
-            string exceptionJson = JsonConvert.SerializeObject(exceptionModel, DefaultJsonSerializerSettings.Settings);
+            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(ex);
+            string exceptionJson = options.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
             context.Response.Write(exceptionBytes);

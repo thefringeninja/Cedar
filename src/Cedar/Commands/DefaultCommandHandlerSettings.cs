@@ -18,14 +18,17 @@
             JsonSerializerSettings serializerSettings = null)
             : base(handlerResolver, commandTypeResolver, exceptionToModelConverter)
         {
-            JsonSerializerSettings serializerSettings1 = serializerSettings ?? DefaultJsonSerializerSettings.Settings;
-
-            _jsonSerializer = JsonSerializer.Create(serializerSettings1);
+            _jsonSerializer = JsonSerializer.Create(serializerSettings ?? DefaultJsonSerializerSettings.Settings);
         }
 
         public override object Deserialize(TextReader reader, Type type)
         {
             return _jsonSerializer.Deserialize(reader, type);
+        }
+
+        public override void Serialize(TextWriter writer, object target)
+        {
+            _jsonSerializer.Serialize(writer, target);
         }
     }
 }
