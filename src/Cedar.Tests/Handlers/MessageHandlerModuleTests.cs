@@ -11,7 +11,7 @@ namespace Cedar.Handlers
         [Fact]
         public void Can_handle_message()
         {
-            var handlerModule = new TestMessageHandlerModule();
+            var handlerModule = new TestHandlerModule();
 
             IEnumerable<Handler<TestMessage>> handlersFor = handlerModule.GetHandlersFor<TestMessage>();
             foreach (var handler in handlersFor)
@@ -26,20 +26,20 @@ namespace Cedar.Handlers
         private class TestMessage
         {}
 
-        private class TestMessageHandlerModule : MessageHandlerModule
+        private class TestHandlerModule : HandlerModule
         {
             private bool _finallyCalled;
             private bool _middlewareCalled;
 
-            public TestMessageHandlerModule()
+            public TestHandlerModule()
             {
-                ForMessage<TestMessage>()
-                    .Handle(next => (message, ct) =>
+                For<TestMessage>()
+                    .Pipe(next => (message, ct) =>
                     {
                         _middlewareCalled = true;
                         return next(message, ct);
                     })
-                    .Finally((message, ct) =>
+                    .Handle((message, ct) =>
                     {
                         _finallyCalled = true;
                         return Task.FromResult(0);

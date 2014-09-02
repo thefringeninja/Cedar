@@ -2,8 +2,8 @@
 {
     public interface IHandlerBuilder<TMessage>
     {
-        IHandlerBuilder<TMessage> Handle(HandlerMiddleware<TMessage> middleware);
+        IHandlerBuilder<TMessage> Pipe(Pipe<TMessage> pipe);
 
-        void Finally(Handler<TMessage> finalHandler);
+        void Handle(Handler<TMessage> handler);
     }
 }

@@ -9,30 +9,30 @@
     using Cedar.Handlers;
     using NEventStore;
 
-    public static class HandlerResolverExtensions
+    public static class HandlerModuleExtensions
     {
         public static async Task DispatchCommit(
-            [NotNull] this IHandlerResolver handlerResolver,
+            [NotNull] this IEnumerable<HandlerModule> handlerModules,
             [NotNull] ICommit commit,
             CancellationToken cancellationToken)
         {
-            Guard.EnsureNotNull(handlerResolver, "handlerResolver");
+            Guard.EnsureNotNull(handlerModules, "handlerModules");
             Guard.EnsureNotNull(commit, "commit");
 
-            var methodInfo = typeof(HandlerResolverExtensions).GetMethod("DispatchDomainEvent", BindingFlags.Static | BindingFlags.NonPublic);
+            var methodInfo = typeof(HandlerModuleExtensions).GetMethod("DispatchDomainEvent", BindingFlags.Static | BindingFlags.NonPublic);
             int version = commit.StreamRevision;
             foreach (var eventMessage in commit.Events)
             {
                 var genericMethod = methodInfo.MakeGenericMethod(eventMessage.Body.GetType());
                 await (Task)genericMethod.Invoke(null, new []
                 {
-                    handlerResolver, commit, version, eventMessage.Headers, eventMessage.Body, cancellationToken
+                    handlerModules, commit, version, eventMessage.Headers, eventMessage.Body, cancellationToken
                 });
             }
         }
 
         private static Task DispatchDomainEvent<TDomainEvent>(
-            IHandlerResolver handlerResolver,
+            IEnumerable<HandlerModule> handlerModules,
             ICommit commit,
             int version,
             IReadOnlyDictionary<string, object> eventHeaders,
@@ -41,7 +41,7 @@
             where TDomainEvent : class
         {
             var message = new DomainEventMessage<TDomainEvent>(commit, version, eventHeaders, domainEvent);
-            return handlerResolver.Dispatch(message, cancellationToken);
+            return handlerModules.Dispatch(message, cancellationToken);
         }
     }
 }

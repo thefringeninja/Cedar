@@ -27,26 +27,13 @@
         }
 
         [Fact]
-        public void When_execute_command_without_handler_then_should_throw()
-        {
-            using (var client = _fixture.CreateHttpClient())
-            {
-                Func<Task> act = () => client.ExecuteCommand(new TestCommandWithoutHandler(), Guid.NewGuid(), _fixture.CommandExecutionSettings);
-
-                act.ShouldThrow<InvalidOperationException>();
-            }
-            
-        }
-
-
-        [Fact]
         public void When_execute_command_whose_handler_throws_then_should_throw()
         {
             using (var client = _fixture.CreateHttpClient())
             {
                 Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrows(), Guid.NewGuid(), _fixture.CommandExecutionSettings);
 
-                act.ShouldThrow<NotSupportedException>();
+                act.ShouldThrow<InvalidOperationException>();
             }
         }
 

@@ -7,16 +7,16 @@
     using System.Threading.Tasks;
 
     public delegate Task Handler<TMessage>(TMessage message, CancellationToken ct);
-    public delegate Handler<TMessage> HandlerMiddleware<TMessage>(Handler<TMessage> next);
+    public delegate Handler<TMessage> Pipe<TMessage>(Handler<TMessage> next);
 
-    public abstract class MessageHandlerModule
+    public class HandlerModule
     {
         private delegate Task NonGenericHandler(object message, CancellationToken ct);
 
         private readonly Dictionary<Type, List<NonGenericHandler>> _handlersByMessageType =
             new Dictionary<Type, List<NonGenericHandler>>(); 
 
-        protected IHandlerBuilder<TMessage> ForMessage<TMessage>()
+        public IHandlerBuilder<TMessage> For<TMessage>()
         {
             var key = typeof(TMessage);
             List<NonGenericHandler> handlers = _handlersByMessageType.ContainsKey(key) 
@@ -42,7 +42,7 @@
 
         private class HandlerBuilder<TMessage> : IHandlerBuilder<TMessage>
         {
-            private readonly Stack<HandlerMiddleware<TMessage>> _middlewares = new Stack<HandlerMiddleware<TMessage>>();
+            private readonly Stack<Pipe<TMessage>> _middlewares = new Stack<Pipe<TMessage>>();
             private Handler<TMessage> _handler;
 
             internal Task Invoke(TMessage message, CancellationToken ct)
@@ -50,15 +50,15 @@
                 return _handler(message, ct);
             }
 
-            public IHandlerBuilder<TMessage> Handle(HandlerMiddleware<TMessage> middlewareHandler)
+            public IHandlerBuilder<TMessage> Pipe(Pipe<TMessage> pipe)
             {
-                _middlewares.Push(middlewareHandler);
+                _middlewares.Push(pipe);
                 return this;
             }
 
-            public void Finally(Handler<TMessage> finalHandler)
+            public void Handle(Handler<TMessage> handler)
             {
-                _handler = finalHandler;
+                _handler = handler;
 
                 while (_middlewares.Count > 0)
                 {

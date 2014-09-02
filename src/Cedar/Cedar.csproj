@@ -71,7 +71,7 @@
     <Compile Include="Commands\CommandHandlerSettingsExtensions.cs" />
     <Compile Include="Commands\DefaultJsonSerializerSettings.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
-    <Compile Include="Handlers\MessageHandlerModule.cs" />
+    <Compile Include="Handlers\HandlerModule.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Commands\DefaultCommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
@@ -81,7 +81,7 @@
     <Compile Include="Commands\Guard.cs" />
     <Compile Include="Commands\ICommandTypeResolver.cs" />
     <Compile Include="Commands\IExceptionToModelConverter.cs" />
-    <Compile Include="Commands\HandlerResolverExtensions.cs" />
+    <Compile Include="Commands\HandlerModuleExtensions.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
     <Compile Include="Domain\ConventionEventRouter.cs" />
@@ -103,7 +103,7 @@
     <Compile Include="Domain\Persistence\IRepository.cs" />
     <Compile Include="Domain\Persistence\PersistenceException.cs" />
     <Compile Include="Domain\Persistence\RepositoryExtensions.cs" />
-    <Compile Include="Handlers\HandlerResolverExtensions.cs" />
+    <Compile Include="Handlers\HandlerModuleExtensions.cs" />
     <Compile Include="Projections\DomainEventMessage.cs" />
     <Compile Include="Projections\EventStoreClient.cs">
       <SubType>Code</SubType>
@@ -117,16 +117,10 @@
     <Compile Include="Projections\InMemoryCheckpointRepository.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Handlers\IHandler.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Projections\IProjectDomainEventResolver.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Handlers\IHandlerResolver.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Projections\HandlerResolverExtensions.cs" />
+    <Compile Include="Projections\HandlerModuleExtensions.cs" />
     <Compile Include="Projections\ProjectionHost.cs">
       <SubType>Code</SubType>
     </Compile>

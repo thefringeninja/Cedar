@@ -7,29 +7,29 @@ namespace Cedar.Handlers
     using Cedar.Domain;
     using Cedar.Domain.Persistence;
 
-    public class DomainCommandMessageHandlerModule : MessageHandlerModule
+    public class DomainCommandHandlerModule : HandlerModule
     {
-        public DomainCommandMessageHandlerModule(Func<IRepository> repository)
+        public DomainCommandHandlerModule(Func<IRepository> repository)
         {
-            ForMessage<CommandMessage<CreateAggregate>>()
+            For<CommandMessage<CreateAggregate>>()
                 .LogExceptions()
                 .DenyAnonymous()
                 .RequiresClaim(claim => claim.Type == ClaimTypes.Email)
                 .ValidateWith(Command1Validator.Instance)
-                .Finally((message, ct) => repository().Save(new Aggregate1(message.Command), message.CommandId));
+                .Handle((message, ct) => repository().Save(new Aggregate1(message.Command), message.CommandId));
 
-            ForMessage<CommandMessage<CancelAggregate>>()
+            For<CommandMessage<CancelAggregate>>()
                 .LogExceptions()
                 .DenyAnonymous()
                 .RequiresClaim(claim => claim.Type == ClaimTypes.Email)
-                .Handle(next => next)
-                .Finally((message, ct) => /* etc */ Task.FromResult(0));
+                .Pipe(next => next)
+                .Handle((message, ct) => /* etc */ Task.FromResult(0));
 
-            ForMessage<CommandMessage<OtherOperationOnAggregate>>()
+            For<CommandMessage<OtherOperationOnAggregate>>()
                 .PerformanceCounter()
                 .LogAuthorizeAndValidate(Command1Validator.Instance)
                 .RequiresClaim(claim => claim.Type == ClaimTypes.Email)
-                .Finally((message, ct) => /* etc */ Task.FromResult(0));
+                .Handle((message, ct) => /* etc */ Task.FromResult(0));
         }
     }
 

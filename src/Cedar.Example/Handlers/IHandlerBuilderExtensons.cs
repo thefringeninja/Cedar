@@ -9,7 +9,7 @@ namespace Cedar.Handlers
     {
         internal static IHandlerBuilder<TMessage> LogExceptions<TMessage>(this IHandlerBuilder<TMessage> handleBuilder)
         {
-            return handleBuilder.Handle(next => async (message, ct) =>
+            return handleBuilder.Pipe(next => async (message, ct) =>
             {
                 try
                 {
@@ -25,7 +25,7 @@ namespace Cedar.Handlers
 
         internal static IHandlerBuilder<TMessage> PerformanceCounter<TMessage>(this IHandlerBuilder<TMessage> handleBuilder)
         {
-            return handleBuilder.Handle(next => async (message, ct) =>
+            return handleBuilder.Pipe(next => async (message, ct) =>
             {
                 var startNew = Stopwatch.StartNew();
                 try
@@ -50,7 +50,7 @@ namespace Cedar.Handlers
         internal static IHandlerBuilder<CommandMessage<TMessage>> DenyAnonymous<TMessage>(
             this IHandlerBuilder<CommandMessage<TMessage>> handlerBuilder)
         {
-            return handlerBuilder.Handle(next => (message, ct) =>
+            return handlerBuilder.Pipe(next => (message, ct) =>
             {
                 if (message.RequestUser.Identity.IsAuthenticated)
                 {
