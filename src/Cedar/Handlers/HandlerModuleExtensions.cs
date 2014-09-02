@@ -52,11 +52,7 @@ namespace Cedar.Handlers
             Guard.EnsureNotNull(handlerModules, "handlerModules");
             Guard.EnsureNotNull(message, "message");
 
-            var handler = handlerModules.SelectMany(m => m.GetHandlersFor<TMessage>()).SingleOrDefault();
-            if (handler == null)
-            {
-                return;
-            }
+            var handler = handlerModules.SelectMany(m => m.GetHandlersFor<TMessage>()).Single();
             await handler(message, cancellationToken);
         }
     }
