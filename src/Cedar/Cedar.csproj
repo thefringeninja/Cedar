@@ -70,6 +70,8 @@
     <Compile Include="Commands\CommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlerSettingsExtensions.cs" />
     <Compile Include="Commands\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="Handlers\IHandlerBuilder.cs" />
+    <Compile Include="Handlers\MessageHandlerModule.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Commands\DefaultCommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />

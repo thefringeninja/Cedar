@@ -68,6 +68,8 @@
     <Compile Include="CommandVersioning\CreateTShirtV4.cs" />
     <Compile Include="CommandVersioning\CreateTShirtV4CommandHandler.cs" />
     <Compile Include="CommandVersioning\TShirtCreatedV4.cs" />
+    <Compile Include="Handlers\DomainCommandMessageHandlerModule.cs" />
+    <Compile Include="Handlers\IHandlerBuilderExtensons.cs" />
     <Compile Include="IEventPublisher.cs" />
     <Compile Include="ObservableMessagePublisher.cs" />
     <Compile Include="Program.cs" />

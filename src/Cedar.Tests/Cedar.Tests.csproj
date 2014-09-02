@@ -115,6 +115,7 @@
     <Compile Include="Commands\Fixtures\TestCommandWhoseHandlerThrows.cs" />
     <Compile Include="Commands\Fixtures\TestCommandWhoseHandlerThrowsHandler.cs" />
     <Compile Include="Commands\Fixtures\TestCommandWithoutHandler.cs" />
+    <Compile Include="Handlers\MessageHandlerModuleTests.cs" />
     <Compile Include="Logging\LoggerExecutionWrapperTests.cs" />
     <Compile Include="Logging\LogProviders\Log4NetLogProviderLoggingDisabledTests.cs" />
     <Compile Include="Logging\LogProviders\Log4NetLogProviderLoggingEnabledTests.cs" />
