@@ -1,9 +1,10 @@
-namespace Cedar.Handlers
+namespace Cedar.Example.Handlers
 {
     using System;
     using System.Diagnostics;
     using System.Security.Claims;
     using Cedar.Commands;
+    using Cedar.Handlers;
 
     internal static class IHandlerBuilderExtensons
     {

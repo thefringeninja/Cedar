@@ -1,4 +1,4 @@
-namespace Cedar.Handlers
+namespace Cedar.Example.Handlers
 {
     using System;
     using System.Security.Claims;
@@ -6,6 +6,7 @@ namespace Cedar.Handlers
     using Cedar.Commands;
     using Cedar.Domain;
     using Cedar.Domain.Persistence;
+    using Cedar.Handlers;
 
     public class DomainCommandHandlerModule : HandlerModule
     {
