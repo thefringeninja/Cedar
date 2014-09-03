@@ -1,4 +1,4 @@
-﻿namespace Cedar.Projections
+﻿namespace Cedar.Handlers
 {
     using NEventStore.Client;
 

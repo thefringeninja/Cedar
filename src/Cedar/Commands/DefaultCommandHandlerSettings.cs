@@ -1,9 +1,9 @@
 ﻿namespace Cedar.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using Cedar.Annotations;
-    using Cedar.Commands.Client;
     using Cedar.Handlers;
     using Newtonsoft.Json;
 
@@ -12,11 +12,19 @@
         private readonly JsonSerializer _jsonSerializer;
 
         internal DefaultCommandHandlerSettings(
-            [NotNull] IHandlerResolver handlerResolver,
+           [NotNull] HandlerModule handlerModule,
+           [NotNull] ICommandTypeResolver commandTypeResolver,
+           IExceptionToModelConverter exceptionToModelConverter = null,
+           JsonSerializerSettings serializerSettings = null)
+            : this(new[] { handlerModule }, commandTypeResolver, exceptionToModelConverter, serializerSettings)
+        {}
+
+        internal DefaultCommandHandlerSettings(
+            [NotNull] IEnumerable<HandlerModule> handlerModules,
             [NotNull] ICommandTypeResolver commandTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null,
             JsonSerializerSettings serializerSettings = null)
-            : base(handlerResolver, commandTypeResolver, exceptionToModelConverter)
+            : base(handlerModules, commandTypeResolver, exceptionToModelConverter)
         {
             _jsonSerializer = JsonSerializer.Create(serializerSettings ?? DefaultJsonSerializerSettings.Settings);
         }

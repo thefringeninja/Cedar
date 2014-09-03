@@ -60,14 +60,14 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CommandVersioning\CommandVersioningHandlerModule.cs" />
     <Compile Include="CommandVersioning\CreateTShirt.cs" />
     <Compile Include="CommandVersioning\CreateTShirtV2.cs" />
-    <Compile Include="CommandVersioning\CreateTShirtV2CommandHandler.cs" />
     <Compile Include="CommandVersioning\CreateTShirtV3.cs" />
-    <Compile Include="CommandVersioning\CreateTShirtV3CommandHandler.cs" />
     <Compile Include="CommandVersioning\CreateTShirtV4.cs" />
-    <Compile Include="CommandVersioning\CreateTShirtV4CommandHandler.cs" />
     <Compile Include="CommandVersioning\TShirtCreatedV4.cs" />
+    <Compile Include="Handlers\DomainCommandHandlerModule.cs" />
+    <Compile Include="Handlers\IHandlerBuilderExtensons.cs" />
     <Compile Include="IEventPublisher.cs" />
     <Compile Include="ObservableMessagePublisher.cs" />
     <Compile Include="Program.cs" />

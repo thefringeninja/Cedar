@@ -1,30 +1,33 @@
 ﻿namespace Cedar.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using Cedar.Annotations;
     using Cedar.Handlers;
 
     public abstract class CommandHandlerSettings
     {
-        private readonly IHandlerResolver _handlerResolver;
+        private readonly IEnumerable<HandlerModule> _handlerModules;
         private readonly ICommandTypeResolver _commandTypeResolver;
         private readonly IExceptionToModelConverter _exceptionToModelConverter;
 
-        protected CommandHandlerSettings([NotNull] IHandlerResolver handlerResolver, [NotNull] ICommandTypeResolver commandTypeResolver,
+        protected CommandHandlerSettings(
+            [NotNull] IEnumerable<HandlerModule> handlerModules,
+            [NotNull] ICommandTypeResolver commandTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter)
         {
-            Guard.EnsureNotNull(handlerResolver, "dispatcher");
+            Guard.EnsureNotNull(handlerModules, "handlerResolver");
             Guard.EnsureNotNull(commandTypeResolver, "commandTypeResolver");
 
-            _handlerResolver = handlerResolver;
+            _handlerModules = handlerModules;
             _commandTypeResolver = commandTypeResolver;
             _exceptionToModelConverter = exceptionToModelConverter ?? new ExceptionToModelConverter();
         }
 
-        public IHandlerResolver HandlerResolver
+        public IEnumerable<HandlerModule> HandlerModules
         {
-            get { return _handlerResolver; }
+            get { return _handlerModules; }
         }
 
         public ICommandTypeResolver CommandTypeResolver

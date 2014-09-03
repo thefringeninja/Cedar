@@ -7,11 +7,8 @@
     using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
-    using Cedar.Commands.Client;
     using Cedar.Commands.ExceptionModels;
-    using Cedar.Handlers;
     using Microsoft.Owin;
-    using Newtonsoft.Json;
 
     public static class CommandHandlingMiddleware
     {
@@ -19,8 +16,8 @@
         {
             Guard.EnsureNotNull(options, "options");
 
-            var dispatchCommandMethodInfo = typeof(HandlerResolverExtensions).GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
-            var handlerResolver = new SafeHandlerResolver(options.HandlerResolver);
+            var dispatchCommandMethodInfo = typeof(HandlerModuleExtensions)
+                .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
             return next => async env =>
             {
@@ -60,7 +57,7 @@
                     var dispatchCommand = dispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
                     await (Task)dispatchCommand.Invoke(null, new[]
                     {
-                        handlerResolver, commandId, user, command, context.Request.CallCancelled
+                        options.HandlerModules, commandId, user, command, context.Request.CallCancelled
                     });
                 }
                 catch (InvalidOperationException ex)
@@ -99,31 +96,6 @@
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
             context.Response.Write(exceptionBytes);
-        }
-
-        private class SafeHandlerResolver : IHandlerResolver
-        {
-            private readonly IHandlerResolver _inner;
-
-            public SafeHandlerResolver(IHandlerResolver inner)
-            {
-                _inner = inner;
-            }
-
-            public IEnumerable<IHandler<T>> ResolveAll<T>() where T : class
-            {
-                return _inner.ResolveAll<T>();
-            }
-
-            public IHandler<T> ResolveSingle<T>() where T : class
-            {
-                var handler = _inner.ResolveSingle<T>();
-                if (handler == null)
-                {
-                    throw new InvalidOperationException(string.Format("A handler for {0} was not found.", typeof(T).Name));
-                }
-                return handler;
-            }
         }
     }
 }

@@ -5,8 +5,6 @@ namespace Cedar.Commands.Fixtures
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
-    using Cedar.Handlers;
-    using FakeItEasy;
     using Microsoft.Owin;
 
     public class CommandHandlingFixture
@@ -17,13 +15,9 @@ namespace Cedar.Commands.Fixtures
         public CommandHandlingFixture()
         {
             const string vendor = "vendor";
-            var handlerResolver = A.Fake<IHandlerResolver>();
-            A.CallTo(() => handlerResolver.ResolveSingle<CommandMessage<TestCommand>>())
-                .Returns(new TestCommandHandler());
-            A.CallTo(() => handlerResolver.ResolveSingle<CommandMessage<TestCommandWhoseHandlerThrows>>())
-                .Returns(new TestCommandWhoseHandlerThrowsHandler());
-            A.CallTo(() => handlerResolver.ResolveSingle<CommandMessage<TestCommandWithoutHandler>>())
-                .Returns(null);
+
+            var handlerModule = new TestHandlerModule();
+           
             var commandTypeFromContentTypeResolver = new DefaultCommandTypeFromContentTypeResolver(
                 vendor,
                 new[]
@@ -32,7 +26,7 @@ namespace Cedar.Commands.Fixtures
                     typeof (TestCommandWithoutHandler),
                     typeof (TestCommandWhoseHandlerThrows)
                 });
-            var options = new DefaultCommandHandlerSettings(handlerResolver, commandTypeFromContentTypeResolver);
+            var options = new DefaultCommandHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
             _midFunc = CommandHandlingMiddleware.HandleCommands(options);
             _commandExecutionSettings = new CommandExecutionSettings(vendor);
         }
