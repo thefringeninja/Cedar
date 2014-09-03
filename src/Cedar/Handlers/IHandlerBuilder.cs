@@ -4,6 +4,6 @@
     {
         IHandlerBuilder<TMessage> Pipe(Pipe<TMessage> pipe);
 
-        void Handle(Handler<TMessage> handler);
+        ICreateHandlerBuilder Handle(Handler<TMessage> handler);
     }
 }

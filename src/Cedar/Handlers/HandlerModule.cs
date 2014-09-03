@@ -9,7 +9,7 @@
     public delegate Task Handler<TMessage>(TMessage message, CancellationToken ct);
     public delegate Handler<TMessage> Pipe<TMessage>(Handler<TMessage> next);
 
-    public class HandlerModule
+    public class HandlerModule : ICreateHandlerBuilder
     {
         private delegate Task NonGenericHandler(object message, CancellationToken ct);
 
@@ -23,7 +23,7 @@
                 ? _handlersByMessageType[key]
                 : new List<NonGenericHandler>();
 
-            var handlerBuilder = new HandlerBuilder<TMessage>();
+            var handlerBuilder = new HandlerBuilder<TMessage>(this);
             handlers.Add((message, ct) => handlerBuilder.Invoke((TMessage)message, ct));
             _handlersByMessageType[key] = handlers;
 
@@ -42,8 +42,14 @@
 
         private class HandlerBuilder<TMessage> : IHandlerBuilder<TMessage>
         {
+            private readonly ICreateHandlerBuilder _createHandlerBuilder;
             private readonly Stack<Pipe<TMessage>> _middlewares = new Stack<Pipe<TMessage>>();
             private Handler<TMessage> _handler;
+
+            internal HandlerBuilder(ICreateHandlerBuilder createHandlerBuilder)
+            {
+                _createHandlerBuilder = createHandlerBuilder;
+            }
 
             internal Task Invoke(TMessage message, CancellationToken ct)
             {
@@ -56,7 +62,7 @@
                 return this;
             }
 
-            public void Handle(Handler<TMessage> handler)
+            public ICreateHandlerBuilder Handle(Handler<TMessage> handler)
             {
                 _handler = handler;
 
@@ -65,6 +71,7 @@
                     var handlerMiddleware = _middlewares.Pop();
                     _handler = handlerMiddleware(_handler);
                 }
+                return _createHandlerBuilder;
             }
         }
     }
