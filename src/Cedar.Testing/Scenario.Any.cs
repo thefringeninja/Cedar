@@ -30,8 +30,8 @@
 
             public interface Then<T> : IScenario
             {
-                void ThenShouldEqual(T other);
-                void ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
+                Then<T> ThenShouldEqual(T other);
+                Then<T> ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
             }
 
             internal class ScenarioBuilder<T> : Given<T>
@@ -80,12 +80,13 @@
                     return this;
                 }
 
-                public void ThenShouldEqual(T other)
+                public Then<T> ThenShouldEqual(T other)
                 {
                     _runThen = instance => instance.Equals(other).Should().BeTrue();
+                    return this;
                 }
 
-                public void ThenShouldThrow<TException>(Func<TException, bool> isMatch = null)
+                public Then<T> ThenShouldThrow<TException>(Func<TException, bool> isMatch = null)
                     where TException : Exception
                 {
                     isMatch = isMatch ?? (_ => true);
@@ -95,6 +96,15 @@
                         _occurredException.Should().BeOfType<TException>();
                         isMatch((TException)_occurredException).Should().BeTrue();
                     };
+
+                    return this;
+                }
+
+                public TaskAwaiter GetAwaiter()
+                {
+                    IScenario scenario = this;
+
+                    return scenario.Run().GetAwaiter();
                 }
 
                 string IScenario.Name

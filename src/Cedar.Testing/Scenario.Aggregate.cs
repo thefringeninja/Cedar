@@ -34,11 +34,11 @@
 
             public interface Then : IScenario
             {
-                void Then(params object[] expectedEvents);
+                Then Then(params object[] expectedEvents);
 
-                void ThenNothingHappened();
+                Then ThenNothingHappened();
 
-                void ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
+                Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
             }
 
             internal class ScenarioBuilder<T> : Given<T> where T : IAggregate
@@ -48,7 +48,7 @@
 
                 private readonly Action<T> _runGiven;
                 private readonly Func<T, Task> _runWhen;
-                private Action<T> _runThen = _ => { };
+                private Action<T> _runThen;
 
                 private object[] _given;
                 private Func<T, Task> _when;
@@ -87,8 +87,9 @@
                     return When(async aggregate => when(aggregate));
                 }
 
-                public void Then(params object[] expectedEvents)
+                public Then Then(params object[] expectedEvents)
                 {
+                    GuardThenNotSet();
                     _expect = expectedEvents;
 
                     _runThen = aggregate =>
@@ -97,10 +98,12 @@
                             new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
                         uncommittedEvents.ShouldBeEquivalentTo(expectedEvents);
                     };
+                    return this;
                 }
 
-                public void ThenNothingHappened()
+                public Then ThenNothingHappened()
                 {
+                    GuardThenNotSet();
                     _expect = new object[0];
 
                     _runThen = aggregate =>
@@ -109,16 +112,31 @@
                             new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
                         uncommittedEvents.Should().BeEmpty();
                     };
+                    return this;
                 }
 
-                public void ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception
+                public Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception
                 {
+                    GuardThenNotSet();
                     isMatch = isMatch ?? (_ => true);
                     _runThen = _ =>
                     {
                         _occurredException.Should().BeOfType<TException>();
                         isMatch((TException) _occurredException).Should().BeTrue();
                     };
+                    return this;
+                }
+
+                public TaskAwaiter GetAwaiter()
+                {
+                    IScenario scenario = this;
+
+                    return scenario.Run().GetAwaiter();
+                }
+
+                void GuardThenNotSet()
+                {
+                    if (_runThen !=null) throw new InvalidOperationException("Then already set.");
                 }
 
                 string IScenario.Name
@@ -146,7 +164,6 @@
                     }
 
                     _runThen(aggregate);
-
                 }
             }
         }

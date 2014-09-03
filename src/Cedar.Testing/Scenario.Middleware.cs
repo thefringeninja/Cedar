@@ -43,9 +43,9 @@
             return new Middleware.HttpClientQueryRequest<TResponse>(authorization, query);
         }
 
-        public static Middleware.Given ForMiddleware(MidFunc midFunc, [CallerMemberName] string scenarioName = null)
+        public static Middleware.WithUsers ForMiddleware(MidFunc midFunc, string commandPath = null, [CallerMemberName] string scenarioName = null)
         {
-            return new Middleware.ScenarioBuilder(midFunc, name: scenarioName);
+            return new Middleware.ScenarioBuilder(midFunc, commandPath: commandPath, name: scenarioName);
         }
 
         public static class Middleware
@@ -66,8 +66,6 @@
 
                 Then ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
                     params Expression<Func<TResponse, bool>>[] assertions);
-
-                TaskAwaiter<IScenario> GetAwaiter();
             }
 
             public interface When : Then
@@ -87,8 +85,9 @@
                 private readonly IList<IAssertion> _assertions;
                 private IHttpClientRequest[] _given = new IHttpClientRequest[0];
                 private IHttpClientRequest _when;
+                private readonly ICommandExecutionSettings _commandExecutionSettings;
 
-                public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string name = null)
+                public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string commandPath = null, string name = null)
                 {
                     _name = name;
                     next = next ?? (env =>
@@ -98,6 +97,8 @@
                         context.Response.ReasonPhrase = "Not Found";
                         return Task.FromResult(true);
                     });
+
+                    _commandExecutionSettings = new CommandExecutionSettings("vendor", path: commandPath);
                     
                     _appFunc = midFunc(next);
                     
@@ -171,11 +172,11 @@
                     return this;
                 }
 
-                public TaskAwaiter<IScenario> GetAwaiter()
+                public TaskAwaiter GetAwaiter()
                 {
                     IScenario scenario = this;
-                    
-                    return scenario.Run().ContinueWith(_ => scenario).GetAwaiter();
+
+                    return scenario.Run().GetAwaiter();
                 }
 
                 string IScenario.Name
@@ -199,7 +200,7 @@
                     await _runGiven();
                     await _runWhen();
 
-                    await Task.WhenAll(_assertions.Select(x => x.IsTrue()));
+                    await Task.WhenAll(_assertions.Select(x => x.Run()));
                 }
 
                 private Task<TResponse> Send<TResponse>(IHttpClientRequest<TResponse> context)
@@ -214,22 +215,19 @@
                             "No Authorization for '{0}' was found. You must set it up using WithUsers.");
                     }
 
-                    return context.Sender(httpClient);
+                    return context.Sender(httpClient, _commandExecutionSettings);
                 }
             }
 
             private interface IAssertion
             {
-                Task<bool> IsTrue();
+                Task Run();
             }
 
             private class ExpressionAssertion<TResponse> : IAssertion
             {
                 private readonly Func<Task<TResponse>> _execute;
                 private readonly Expression<Func<TResponse, bool>>[] _assertions;
-
-                private Exception _thrownException;
-                private bool? _isTrue;
 
                 public ExpressionAssertion(Func<Task<TResponse>> execute,
                     params Expression<Func<TResponse, bool>>[] assertions)
@@ -242,30 +240,22 @@
                     _assertions = assertions;
                 }
 
-                public Exception ThrownException
+                public async Task Run()
                 {
-                    get { return _thrownException; }
-                }
+                    var response = await _execute();
 
-                public async Task<bool> IsTrue()
-                {
-                    if (!_isTrue.HasValue)
+                    var results = (from assertion in _assertions
+                        let test = assertion.Compile()
+                        where false == test(response)
+                        select assertion).ToList();
+
+                    if (results.Any())
                     {
-                        try
-                        {
-                            var response = await _execute();
-
-                            _isTrue = _assertions.Select(a => a.Compile())
-                                .All(assertion => assertion(response));
-                        }
-                        catch (Exception ex)
-                        {
-                            _thrownException = ex;
-                            _isTrue = false;
-                        }
+                        throw new InvalidOperationException("One or more of the assertions failed: " +
+                                                            results.Aggregate(new StringBuilder(),
+                                                                (builder, assertion) =>
+                                                                    builder.Append(assertion).AppendLine()));
                     }
-
-                    return _isTrue.Value;
                 }
             }
 
@@ -274,7 +264,7 @@
 
             public interface IHttpClientRequest<TResponse>
             {
-                Func<HttpClient, Task<TResponse>> Sender { get; }
+                Func<HttpClient, ICommandExecutionSettings, Task<TResponse>> Sender { get; }
                 string AuthorizationId { get; }
                 Guid Id { get; }
             }
@@ -293,17 +283,18 @@
                     Command = command;
                     Id = commandId ?? Guid.NewGuid();
 
-                    var settings = new CommandExecutionSettings("vendor");
-
-                    Sender = client => client.ExecuteCommand(
-                        command,
-                        Id,
-                        settings)
-                        .ContinueWith(_ => Unit.Nothing);
+                    Sender = async (client, settings) =>
+                    {
+                        await client.ExecuteCommand(
+                            command,
+                            Id,
+                            settings);
+                        return Unit.Nothing;
+                    };
                 }
 
                 public TCommand Command { get; private set; }
-                public Func<HttpClient, Task<Unit>> Sender { get; private set; }
+                public Func<HttpClient, ICommandExecutionSettings, Task<Unit>> Sender { get; private set; }
                 public string AuthorizationId { get { return _authorization.Id; }}
                 public Guid Id { get; private set; }
 
@@ -324,10 +315,10 @@
 
                     _authorization = authorization;
                     Id = id ?? Guid.NewGuid();
-                    Sender = query;
+                    Sender = (client, _) => query(client);
                 }
 
-                public Func<HttpClient, Task<TResponse>> Sender { get; private set; }
+                public Func<HttpClient, ICommandExecutionSettings, Task<TResponse>> Sender { get; private set; }
                 public string AuthorizationId { get { return _authorization.Id; } }
                 public Guid Id { get; private set; }
             }

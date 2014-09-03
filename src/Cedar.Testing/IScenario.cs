@@ -1,6 +1,7 @@
 namespace Cedar.Testing
 {
     using System.IO;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
     public interface IScenario
@@ -8,5 +9,7 @@ namespace Cedar.Testing
         string Name { get; }
         Task Print(TextWriter writer);
         Task Run();
+
+        TaskAwaiter GetAwaiter();
     }
 }
