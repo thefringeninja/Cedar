@@ -1,7 +1,6 @@
 ﻿namespace Cedar.Handlers
 {
     using System;
-    using System.Collections.Generic;
     using System.Reactive.Disposables;
     using System.Reactive.Subjects;
     using System.Threading;
@@ -14,7 +13,7 @@
     {
         private readonly IEventStoreClient _eventStoreClient;
         private readonly ICheckpointRepository _checkpointRepository;
-        private readonly IEnumerable<HandlerModule> _handlerModules;
+        private readonly Func<ICommit, CancellationToken, Task> _dispatchCommit;
         private readonly Subject<ICommit> _commitsProjectedStream = new Subject<ICommit>();
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
         private int _isStarted;
@@ -24,14 +23,7 @@
         public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] HandlerModule handlerModule)
-            : this(eventStoreClient, checkpointRepository, new[] { handlerModule })
-        {}
-
-        public DurableCommitDispatcher(
-            [NotNull] IEventStoreClient eventStoreClient,
-            [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] IEnumerable<HandlerModule> handlerModules)
+            [NotNull] Func<ICommit, CancellationToken, Task> dispatchCommit)
         {
             if (eventStoreClient == null)
             {
@@ -41,14 +33,14 @@
             {
                 throw new ArgumentNullException("checkpointRepository");
             }
-            if (handlerModules == null)
+            if (dispatchCommit == null)
             {
-                throw new ArgumentNullException("handlerModules");
+                throw new ArgumentNullException("dispatchCommit");
             }
 
             _eventStoreClient = eventStoreClient;
             _checkpointRepository = checkpointRepository;
-            _handlerModules = handlerModules;
+            _dispatchCommit = dispatchCommit;
             _compositeDisposable.Add(_commitsProjectedStream);
         }
 
@@ -66,7 +58,7 @@
                     //TODO Handle transient errors and consider cancellation
                     try
                     {
-                        await _handlerModules.DispatchCommit(commit, CancellationToken.None);
+                        await _dispatchCommit(commit, CancellationToken.None);
                         await _checkpointRepository.Put(commit.CheckpointToken);
                         _commitsProjectedStream.OnNext(commit);
                     }

@@ -79,6 +79,27 @@ namespace Cedar.Handlers
             }
         }
 
+        public static async Task DispatchCommit(
+           [NotNull] this HandlerModule handlerModule,
+           [NotNull] ICommit commit,
+           CancellationToken cancellationToken)
+        {
+            Guard.EnsureNotNull(handlerModule, "handlerModule");
+            Guard.EnsureNotNull(commit, "commit");
+
+            var methodInfo = typeof(HandlerModuleExtensions)
+                .GetMethod("DispatchDomainEvent", BindingFlags.Static | BindingFlags.NonPublic);
+            int version = commit.StreamRevision;
+            foreach (var eventMessage in commit.Events)
+            {
+                var genericMethod = methodInfo.MakeGenericMethod(eventMessage.Body.GetType());
+                await (Task)genericMethod.Invoke(null, new[]
+                {
+                    new[] { handlerModule }, commit, version, eventMessage.Headers, eventMessage.Body, cancellationToken
+                });
+            }
+        }
+
         private static Task DispatchDomainEvent<TDomainEvent>(
             IEnumerable<HandlerModule> handlerModules,
             ICommit commit,

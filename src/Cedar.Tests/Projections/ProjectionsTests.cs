@@ -24,7 +24,7 @@
                 using (var host = new DurableCommitDispatcher(
                     new EventStoreClient(new PollingClient(eventStore.Advanced)),
                     new InMemoryCheckpointRepository(),
-                    handlerModule))
+                    handlerModule.DispatchCommit))
                 {
                     await host.Start();
                     Guid streamId = Guid.NewGuid();
