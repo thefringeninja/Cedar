@@ -9,13 +9,21 @@
     public delegate Task Handler<TMessage>(TMessage message, CancellationToken ct);
     public delegate Handler<TMessage> Pipe<TMessage>(Handler<TMessage> next);
 
+    /// <summary>
+    /// Represents a collection of handlers pipelines.
+    /// </summary>
     public class HandlerModule : ICreateHandlerBuilder
     {
         private delegate Task NonGenericHandler(object message, CancellationToken ct);
 
         private readonly Dictionary<Type, List<NonGenericHandler>> _handlersByMessageType =
-            new Dictionary<Type, List<NonGenericHandler>>(); 
+            new Dictionary<Type, List<NonGenericHandler>>();
 
+        /// <summary>
+        /// Starts to build a handler pipeline for the specified message type.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message the pipeline will handle.</typeparam>
+        /// <returns>A a handler builder to continue defining the pipeline.</returns>
         public IHandlerBuilder<TMessage> For<TMessage>()
         {
             var key = typeof(TMessage);
@@ -30,6 +38,11 @@
             return handlerBuilder;
         }
 
+        /// <summary>
+        /// Gets the handlers for the specified message type.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of the message.</typeparam>
+        /// <returns>The collection of handlers. Null if none exist.</returns>
         public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>()
         {
             if (!_handlersByMessageType.ContainsKey(typeof(TMessage)))
