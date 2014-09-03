@@ -2,27 +2,21 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
     using Cedar.Domain;
     using FluentAssertions;
 
     public static partial class Scenario
     {
-        public static Aggregate.Given<T> ForAggregate<T>() where T : IAggregate
+        public static Aggregate.Given<T> ForAggregate<T>(Func<T> factory = null, string aggregateId = null, [CallerMemberName] string scenarioName = null) where T : IAggregate
         {
-            return ForAggregate<T>("testid");
-        }
+            aggregateId = aggregateId ?? "testid";
+            factory = factory ?? (() => (T) new DefaultAggregateFactory().Build(typeof (T), aggregateId));
 
-        public static Aggregate.Given<T> ForAggregate<T>(string aggregateId) where T : IAggregate
-        {
-            var factory = new DefaultAggregateFactory();
-            var aggregate = (T) factory.Build(typeof (T), aggregateId);
-            return new Aggregate.ScenarioBuilder<T>(aggregate);
-        }
-
-        public static Aggregate.Given<T> ForAggregate<T>(T aggregate) where T : IAggregate
-        {
-            return new Aggregate.ScenarioBuilder<T>(aggregate);
+            return new Aggregate.ScenarioBuilder<T>(factory, scenarioName);
         }
 
         public static class Aggregate
@@ -35,72 +29,124 @@
             public interface When<out T> : Then where T : IAggregate
             {
                 Then When(Action<T> when);
+                Then When(Func<T, Task> when);
             }
 
-            public interface Then
+            public interface Then : IScenario
             {
                 void Then(params object[] expectedEvents);
 
                 void ThenNothingHappened();
 
-                void ThenShouldThrow<TException>() where TException : Exception;
+                void ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
             }
 
             internal class ScenarioBuilder<T> : Given<T> where T : IAggregate
             {
-                private readonly T _aggregate;
-                private Action _given = () => { };
-                private Action _when = () => { };
+                private readonly Func<T> _factory;
+                private readonly string _name;
 
-                public ScenarioBuilder(T aggregate)
+                private readonly Action<T> _runGiven;
+                private readonly Func<T, Task> _runWhen;
+                private Action<T> _runThen = _ => { };
+
+                private object[] _given;
+                private Func<T, Task> _when;
+                private object[] _expect;
+                
+                private Exception _occurredException;
+
+                public ScenarioBuilder(Func<T> factory, string name)
                 {
-                    _aggregate = aggregate;
+                    _factory = factory;
+                    _name = name;
+                    _runGiven = aggregate =>
+                    {
+                        foreach (var @event in _given)
+                        {
+                            aggregate.ApplyEvent(@event);
+                        }
+                    };
+                    _runWhen = aggregate => _when(aggregate);
                 }
 
                 public When<T> Given(params object[] events)
                 {
-                    _given = () =>
-                    {
-                        foreach (var @event in events)
-                        {
-                            _aggregate.ApplyEvent(@event);
-                        }
-                    };
+                    _given = events;
+                    return this;
+                }
+
+                public Then When(Func<T, Task> when)
+                {
+                    _when = when;
                     return this;
                 }
 
                 public Then When(Action<T> when)
                 {
-                    _when = () => when(_aggregate);
-                    return this;
+                    return When(async aggregate => when(aggregate));
                 }
 
                 public void Then(params object[] expectedEvents)
                 {
-                    _given();
-                    _when();
+                    _expect = expectedEvents;
 
-                    var uncommittedEvents =
-                        new List<object>(_aggregate.GetUncommittedEvents().Cast<object>());
-                    uncommittedEvents.ShouldBeEquivalentTo(expectedEvents);
+                    _runThen = aggregate =>
+                    {
+                        var uncommittedEvents =
+                            new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
+                        uncommittedEvents.ShouldBeEquivalentTo(expectedEvents);
+                    };
                 }
 
                 public void ThenNothingHappened()
                 {
-                    _given();
-                    _when();
+                    _expect = new object[0];
 
-                    var uncommittedEvents =
-                        new List<object>(_aggregate.GetUncommittedEvents().Cast<object>());
-                    uncommittedEvents.Should().BeEmpty();
+                    _runThen = aggregate =>
+                    {
+                        var uncommittedEvents =
+                            new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
+                        uncommittedEvents.Should().BeEmpty();
+                    };
                 }
 
-                public void ThenShouldThrow<TException>() where TException : Exception
+                public void ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception
                 {
-                    Action then = () => _when();
+                    isMatch = isMatch ?? (_ => true);
+                    _runThen = _ =>
+                    {
+                        _occurredException.Should().BeOfType<TException>();
+                        isMatch((TException) _occurredException).Should().BeTrue();
+                    };
+                }
 
-                    _given();
-                    then.ShouldThrow<TException>();
+                string IScenario.Name
+                {
+                    get { return _name; }
+                }
+
+                Task IScenario.Print(TextWriter writer)
+                {
+                    throw new NotImplementedException();
+                }
+
+                async Task IScenario.Run()
+                {
+                    var aggregate = _factory();
+                    _runGiven(aggregate);
+
+                    try
+                    {
+                        await _runWhen(aggregate);
+                    }
+                    catch (Exception ex)
+                    {
+                        _occurredException = ex;
+                    }
+
+                    _runThen(aggregate);
+
                 }
             }
         }

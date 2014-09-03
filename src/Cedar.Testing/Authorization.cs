@@ -10,6 +10,7 @@ namespace Cedar.Testing
         {
             return new BasicAuthorization(userName, password);
         }
+        
         class BasicAuthorization : IAuthorization
         {
             private readonly string _userName;
@@ -29,8 +30,11 @@ namespace Cedar.Testing
             }
 
             public AuthenticationHeaderValue AuthorizationHeader { get; private set; }
+
+            public override string ToString()
+            {
+                return _userName + " (Authorization: Basic)";
+            }
         }
-
-
     }
 }
