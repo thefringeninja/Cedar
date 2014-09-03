@@ -68,8 +68,8 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <Compile Include="Scenario.AnyObject.cs" />
-    <Compile Include="Scenario.Subcutaneous.cs" />
+    <Compile Include="Scenario.Any.cs" />
+    <Compile Include="Scenario.Middleware.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
