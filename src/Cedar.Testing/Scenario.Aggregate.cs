@@ -11,12 +11,12 @@
 
     public static partial class Scenario
     {
-        public static Aggregate.Given<T> ForAggregate<T>(Func<T> factory = null, string aggregateId = null, [CallerMemberName] string scenarioName = null) where T : IAggregate
+        public static Aggregate.Given<T> ForAggregate<T>(Func<string, T> factory = null, string aggregateId = null, [CallerMemberName] string scenarioName = null) where T : IAggregate
         {
             aggregateId = aggregateId ?? "testid";
-            factory = factory ?? (() => (T) new DefaultAggregateFactory().Build(typeof (T), aggregateId));
+            factory = factory ?? (id => (T) new DefaultAggregateFactory().Build(typeof (T), id));
 
-            return new Aggregate.ScenarioBuilder<T>(factory, scenarioName);
+            return new Aggregate.ScenarioBuilder<T>(factory, aggregateId, scenarioName);
         }
 
         public static class Aggregate
@@ -43,7 +43,8 @@
 
             internal class ScenarioBuilder<T> : Given<T> where T : IAggregate
             {
-                private readonly Func<T> _factory;
+                private readonly Func<string, T> _factory;
+                private readonly string _aggregateId;
                 private readonly string _name;
 
                 private readonly Action<T> _runGiven;
@@ -56,9 +57,10 @@
                 
                 private Exception _occurredException;
 
-                public ScenarioBuilder(Func<T> factory, string name)
+                public ScenarioBuilder(Func<string, T> factory, string aggregateId, string name)
                 {
                     _factory = factory;
+                    _aggregateId = aggregateId;
                     _name = name;
                     _runGiven = aggregate =>
                     {
@@ -151,7 +153,7 @@
 
                 async Task IScenario.Run()
                 {
-                    var aggregate = _factory();
+                    var aggregate = _factory(_aggregateId);
                     _runGiven(aggregate);
 
                     try
