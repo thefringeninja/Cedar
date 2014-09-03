@@ -21,7 +21,7 @@
                 var projectedEvents = new List<DomainEventMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(projectedEvents);
 
-                using (var host = new ProjectionHost(
+                using (var host = new DurableCommitDispatcher(
                     new EventStoreClient(new PollingClient(eventStore.Advanced)),
                     new InMemoryCheckpointRepository(),
                     handlerModule))

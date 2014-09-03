@@ -1,4 +1,4 @@
-﻿namespace Cedar.Projections
+﻿namespace Cedar.Handlers
 {
     using System;
     using System.Collections.Generic;
@@ -7,11 +7,10 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Handlers;
     using NEventStore;
     using NEventStore.Client;
 
-    public class ProjectionHost : IDisposable
+    public class DurableCommitDispatcher : IDisposable
     {
         private readonly IEventStoreClient _eventStoreClient;
         private readonly ICheckpointRepository _checkpointRepository;
@@ -22,14 +21,14 @@
         private int _isDisposed;
         private IObserveCommits _commitStream;
 
-        public ProjectionHost(
+        public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
             [NotNull] HandlerModule handlerModule)
             : this(eventStoreClient, checkpointRepository, new[] { handlerModule })
         {}
 
-        public ProjectionHost(
+        public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
             [NotNull] IEnumerable<HandlerModule> handlerModules)
