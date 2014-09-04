@@ -60,6 +60,11 @@
             await _output.WriteLineAsync();
         }
 
+        public Task Flush()
+        {
+            return _output.FlushAsync();
+        }
+
         private async Task WriteSection(string sectionName, object section)
         {
             await _output.WriteLineAsync(sectionName + ":");

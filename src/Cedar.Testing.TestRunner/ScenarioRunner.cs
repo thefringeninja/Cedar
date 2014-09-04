@@ -108,6 +108,8 @@ namespace Cedar.Testing.TestRunner
                     }
 
                     await printer.WriteEndCategory(category.Key);
+
+                    await printer.Flush();
                 }
             }
 

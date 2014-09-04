@@ -13,5 +13,6 @@
         Task WriteOcurredException(Exception occurredException);
         Task WriteStartCategory(string category);
         Task WriteEndCategory(string category);
+        Task Flush();
     }
 }
