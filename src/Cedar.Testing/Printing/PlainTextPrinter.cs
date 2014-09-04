@@ -13,20 +13,17 @@
             _output = output;
         }
 
-        public Task WriteHeader()
-        {
-            return Task.FromResult(true);
-        }
-
         public async Task WriteFooter()
         {
             await _output.WriteLineAsync(new string('-', 80));
             await _output.WriteLineAsync();
         }
 
-        public async Task WriteScenarioName(string name, bool passed)
+        public async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
         {
-            await _output.WriteLineAsync((name ?? "???").Underscore().Titleize() + " - " + (passed ? "PASSED" : "FAILED"));
+            await _output.WriteAsync((scenarioName ?? "???").Underscore().Titleize());
+            await _output.WriteAsync(" - " + (passed ? "PASSED" : "FAILED"));
+            await _output.WriteLineAsync(" (completed in " + (duration.HasValue ? duration.Value.TotalMilliseconds + "ms" : "???") + ")");
             await _output.WriteLineAsync();
         }
 

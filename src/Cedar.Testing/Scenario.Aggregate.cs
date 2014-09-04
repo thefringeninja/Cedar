@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -56,6 +57,7 @@
                 private object[] _expect;
                 private Exception _occurredException;
                 private bool _passed;
+                private readonly Stopwatch _timer;
 
                 public ScenarioBuilder(Func<string, T> factory, string aggregateId, string name)
                 {
@@ -70,6 +72,8 @@
                         }
                     };
                     _runWhen = aggregate => _when(aggregate);
+
+                    _timer = new Stopwatch();
                 }
 
                 public When<T> Given(params object[] events)
@@ -148,6 +152,8 @@
 
                 async Task<ScenarioResult> IScenario.Run()
                 {
+                    _timer.Start();
+
                     var aggregate = _factory(_aggregateId);
 
                     _runGiven(aggregate);
@@ -165,12 +171,13 @@
 
                     _passed = true;
                     
+                    _timer.Stop();
                     return this;
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, duration: builder._timer.Elapsed, occurredException: builder._occurredException);
                 }
             }
 

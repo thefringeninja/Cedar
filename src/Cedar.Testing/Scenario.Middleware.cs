@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Net.Http;
@@ -87,6 +88,7 @@
                 private Exception _occurredException;
                 private readonly ICommandExecutionSettings _commandExecutionSettings;
                 private bool _passed = false;
+                private readonly Stopwatch _timer;
 
                 public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string commandPath = null, string name = null)
                 {
@@ -133,6 +135,7 @@
                     };
 
                     _assertions = new List<IAssertion>();
+                    _timer = new Stopwatch();
                 }
 
                 public Given WithUsers(params IAuthorization[] users)
@@ -206,6 +209,8 @@
 
                 async Task<ScenarioResult> IScenario.Run()
                 {
+                    _timer.Start();
+                    
                     await _runGiven();
 
                     try
@@ -220,6 +225,8 @@
                     await _runThen();
 
                     _passed = true;
+                    
+                    _timer.Stop();
 
                     return this;
                 }
@@ -241,7 +248,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._assertions, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._assertions, duration: builder._timer.Elapsed, occurredException: builder._occurredException);
                 }
             }
 

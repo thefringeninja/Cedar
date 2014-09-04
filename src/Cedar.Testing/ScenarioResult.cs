@@ -11,22 +11,23 @@ namespace Cedar.Testing
         private readonly object _when;
         private readonly object _expect;
         private readonly Exception _occurredException;
+        private readonly TimeSpan? _duration;
         private readonly bool _passed;
 
-        public ScenarioResult(string name, bool passed, object given, object when, object expect, Exception occurredException = null)
+        public ScenarioResult(string name, bool passed, object given, object when, object expect, TimeSpan? duration = null, Exception occurredException = null)
         {
             _name = name;
             _given = given;
             _when = when;
             _expect = expect;
             _occurredException = occurredException;
+            _duration = duration;
             _passed = passed;
         }
 
         public async Task Print(IScenarioPrinter printer)
         {
-            await printer.WriteHeader();
-            await printer.WriteScenarioName(_name, _passed);
+            await printer.WriteHeader(_name, _duration , _passed);
             await printer.WriteGiven(_given);
             await printer.WriteWhen(_when);
             await printer.WriteExpect(_expect);
@@ -37,7 +38,7 @@ namespace Cedar.Testing
 
         public ScenarioResult WithScenarioException(Scenario.ScenarioException ex)
         {
-            return new ScenarioResult(_name, _passed, _given, _when, _expect, ex);
+            return new ScenarioResult(_name, _passed, _given, _when, _expect, _duration, ex);
         }
     }
 }

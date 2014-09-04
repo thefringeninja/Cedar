@@ -1,6 +1,7 @@
 ﻿namespace Cedar.Testing
 {
     using System;
+    using System.Diagnostics;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
@@ -42,7 +43,8 @@
                 private Expression<Func<T, Task<T>>> _when;
                 private T _expect;
                 private Exception _occurredException;
-                private bool passed;
+                private bool _passed;
+                private readonly Stopwatch _timer;
 
                 public ScenarioBuilder(string name)
                 {
@@ -50,6 +52,7 @@
 
                     _runGiven = () => _given;
                     _runWhen = instance => _when.Compile()(instance);
+                    _timer = new Stopwatch();
                 }
 
                 public When<T> Given(T instance)
@@ -116,6 +119,7 @@
 
                 async Task<ScenarioResult> IScenario.Run()
                 {
+                    _timer.Start();
                     _given = _runGiven();
 
                     try
@@ -129,14 +133,14 @@
 
                     _runThen(_expect);
 
-                    passed = true;
-
+                    _passed = true;
+                    _timer.Stop();
                     return this;
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder.passed, builder._given, builder._when, builder._expect, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, duration: builder._timer.Elapsed, occurredException: builder._occurredException);
                 }
             }
         }

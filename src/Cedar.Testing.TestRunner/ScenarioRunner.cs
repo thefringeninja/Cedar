@@ -86,7 +86,7 @@ namespace Cedar.Testing.TestRunner
             // means something really wrong happened
             if (exception == null)
             {
-                return new ScenarioResult(null, true, null, null, null, task.Exception.InnerException);
+                return new ScenarioResult(null, true, null, null, null, occurredException: task.Exception.InnerException);
             }
 
             return exception.ExpectedResult.WithScenarioException(exception);
