@@ -44,14 +44,14 @@ namespace Cedar.Testing.TestRunner
 
         private bool IsRunningUnderTeamCity
         {
-            get { return false; }
+            get { return _options.Teamcity; }
         }
 
         private IEnumerable<IScenarioPrinter> GetPrinters()
         {
             if (IsRunningUnderTeamCity)
             {
-                
+                yield return new TeamCityTestServicePrinter();
             }
 
             yield return new PlainTextPrinter(Console.Out);

@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Threading.Tasks;
 
     public class PlainTextPrinter : IScenarioPrinter
@@ -13,13 +14,7 @@
             _output = output;
         }
 
-        public async Task WriteFooter()
-        {
-            await _output.WriteLineAsync(new string('-', 80));
-            await _output.WriteLineAsync();
-        }
-
-        public async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
+        public async Task<IDisposable> WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
         {
             await _output.WriteAsync((scenarioName ?? "???")
                 .Split('.').Last()
@@ -27,6 +22,12 @@
             await _output.WriteAsync(" - " + (passed ? "PASSED" : "FAILED"));
             await _output.WriteLineAsync(" (completed in " + (duration.HasValue ? duration.Value.TotalMilliseconds + "ms" : "???") + ")");
             await _output.WriteLineAsync();
+
+            return new DisposableAction(async () =>
+            {
+                await _output.WriteLineAsync(new string('-', 80));
+                await _output.WriteLineAsync();
+            });
         }
 
         public Task WriteGiven(object given)

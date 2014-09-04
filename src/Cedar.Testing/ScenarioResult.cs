@@ -27,13 +27,14 @@ namespace Cedar.Testing
 
         public async Task Print(IScenarioPrinter printer)
         {
-            await printer.WriteHeader(_name, _duration , _passed);
-            await printer.WriteGiven(_given);
-            await printer.WriteWhen(_when);
-            await printer.WriteExpect(_expect);
-            if (_occurredException != null)
-                await printer.WriteOcurredException(_occurredException);
-            await printer.WriteFooter();
+            using (await printer.WriteHeader(_name, _duration, _passed))
+            {
+                await printer.WriteGiven(_given);
+                await printer.WriteWhen(_when);
+                await printer.WriteExpect(_expect);
+                if (_occurredException != null)
+                    await printer.WriteOcurredException(_occurredException);
+            }
         }
 
         public ScenarioResult WithScenarioException(Scenario.ScenarioException ex)

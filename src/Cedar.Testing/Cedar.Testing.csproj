@@ -51,10 +51,12 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Authorization.cs" />
+    <Compile Include="Printing\DisposableAction.cs" />
     <Compile Include="Printing\Extensions.cs" />
     <Compile Include="Printing\Inflector.cs" />
     <Compile Include="Printing\IScenarioPrinter.cs" />
     <Compile Include="Printing\PlainTextPrinter.cs" />
+    <Compile Include="Printing\TeamcityTestServicePrinter.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="IAuthorization.cs" />
     <Compile Include="IScenario.cs" />
