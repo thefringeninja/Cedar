@@ -1,7 +1,6 @@
 ﻿namespace Cedar.Commands
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Reflection;
     using System.Security.Claims;
@@ -10,9 +9,13 @@
     using Cedar.Commands.ExceptionModels;
     using Microsoft.Owin;
 
+    using MidFunc = System.Func<
+        System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
+        System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
+
     public static class CommandHandlingMiddleware
     {
-        public static Func<Func<IDictionary<string, object>, Task>, Func<IDictionary<string, object>, Task>> HandleCommands(CommandHandlerSettings options)
+        public static MidFunc HandleCommands(CommandHandlerSettings options)
         {
             Guard.EnsureNotNull(options, "options");
 
