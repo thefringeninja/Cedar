@@ -2,12 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Cedar.Domain;
-    using FluentAssertions;
 
     public static partial class Scenario
     {
@@ -21,6 +20,7 @@
 
         public static class Aggregate
         {
+
             public interface Given<out T> : When<T> where T : IAggregate
             {
                 When<T> Given(params object[] events);
@@ -96,9 +96,11 @@
 
                     _runThen = aggregate =>
                     {
-                        var uncommittedEvents =
-                            new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
-                        uncommittedEvents.ShouldBeEquivalentTo(expectedEvents);
+                        var uncommittedEvents = new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
+                        if (false == uncommittedEvents.SequenceEqual(expectedEvents, MessageEqualityComparer.Instance))
+                        {
+                            throw new ScenarioException(this, "The ocurred events did not equal the expected events.");
+                        }
                     };
                     return this;
                 }
@@ -110,9 +112,11 @@
 
                     _runThen = aggregate =>
                     {
-                        var uncommittedEvents =
-                            new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
-                        uncommittedEvents.Should().BeEmpty();
+                        var uncommittedEvents = new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
+                        if (uncommittedEvents.Any())
+                        {
+                            throw new ScenarioException(this, "No events were expected, yet some events occurred.");
+                        }
                     };
                     return this;
                 }
@@ -121,11 +125,7 @@
                 {
                     GuardThenNotSet();
                     isMatch = isMatch ?? (_ => true);
-                    _runThen = _ =>
-                    {
-                        _occurredException.Should().BeOfType<TException>();
-                        isMatch((TException) _occurredException).Should().BeTrue();
-                    };
+                    _runThen = _ => ((ScenarioResult)this).AssertExceptionMatches(_occurredException, isMatch);
                     return this;
                 }
 
@@ -149,6 +149,7 @@
                 async Task<ScenarioResult> IScenario.Run()
                 {
                     var aggregate = _factory(_aggregateId);
+
                     _runGiven(aggregate);
 
                     try
@@ -162,8 +163,75 @@
 
                     _runThen(aggregate);
 
-                    return new ScenarioResult(_name, _given, _when, _expect, _occurredException);
+                    return this;
                 }
+
+                public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
+                {
+                    return new ScenarioResult(builder._name, builder._given, builder._when, builder._expect, builder._occurredException);
+                }
+            }
+
+            internal class MessageEqualityComparer : IEqualityComparer<object>
+            {
+                private static bool ReflectionEquals(object x, object y)
+                {
+                    if (ReferenceEquals(x, y))
+                        return true;
+
+                    if (ReferenceEquals(x, null))
+                        return false;
+
+                    if (ReferenceEquals(y, null))
+                        return false;
+
+                    var type = x.GetType();
+
+                    if (type != y.GetType())
+                        return false;
+
+                    if (x == y)
+                        return true;
+
+                    if (type.IsValueType)
+                        return x.Equals(y);
+
+                    var fieldValues = from field in type.GetFields()
+                                      select new
+                                      {
+                                          member = (MemberInfo)field,
+                                          x = field.GetValue(x),
+                                          y = field.GetValue(y)
+                                      };
+
+                    var propertyValues = from property in type.GetProperties()
+                                         select new
+                                         {
+                                             member = (MemberInfo)property,
+                                             x = property.GetValue(x),
+                                             y = property.GetValue(y)
+                                         };
+
+                    var values = fieldValues.Concat(propertyValues);
+
+                    var differences = (from value in values
+                                       where false == ReflectionEquals(value.x, value.y)
+                                       select value).ToList();
+
+                    return false == differences.Any();
+                }
+
+                new public bool Equals(Object x, Object y)
+                {
+                    return ReflectionEquals(x, y);
+                }
+
+                public int GetHashCode(Object obj)
+                {
+                    return 0;
+                }
+
+                public static readonly MessageEqualityComparer Instance = new MessageEqualityComparer();
             }
         }
     }

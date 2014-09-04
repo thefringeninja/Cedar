@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Net.Http;
@@ -10,7 +9,6 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
-    using FluentAssertions;
     using Microsoft.Owin;
 
     using AppFunc = System.Func<
@@ -62,7 +60,7 @@
 
             public interface Then : IScenario
             {
-                void ThenShouldThrow<TException>(Func<TException, bool> equals = null) where TException : Exception;
+                Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
 
                 Then ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
                     params Expression<Func<TResponse, bool>>[] assertions);
@@ -81,6 +79,7 @@
 
                 private readonly Func<Task> _runGiven;
                 private readonly Func<Task> _runWhen;
+                private Func<Task> _runThen;
                 
                 private readonly IList<IAssertion> _assertions;
                 private IHttpClientRequest[] _given = new IHttpClientRequest[0];
@@ -114,6 +113,8 @@
                     };
 
                     _runWhen = () => Send(_when);
+
+                    _runThen = () => Task.WhenAll(_assertions.Select(x => x.Run()));
 
                     _assertions = new List<IAssertion>();
                 }
@@ -153,16 +154,18 @@
                     return this;
                 }
 
-                public void ThenShouldThrow<TException>(Func<TException, bool> equals = null)
+                public Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null)
                     where TException : Exception
                 {
-                    equals = equals ?? (_ => true);
-                    Action then = () => _runWhen();
+                    isMatch = isMatch ?? (_ => true);
 
-                    _runGiven();
+                    _runThen = () =>
+                    {
+                        ((ScenarioResult) this).AssertExceptionMatches(_occurredException, isMatch);
+                        return Task.FromResult(true);
+                    };
 
-                    then.ShouldThrow<TException>()
-                        .And.Should().Match<TException>(ex => equals(ex));
+                    return this;
                 }
 
                 public Then ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
@@ -203,7 +206,7 @@
 
                     try
                     {
-                        await Task.WhenAll(_assertions.Select(x => x.Run()));
+                        await _runThen();
                     }
                     catch (AggregateException ex)
                     {
@@ -227,6 +230,13 @@
 
                     return context.Sender(httpClient, _commandExecutionSettings);
                 }
+
+                public static implicit operator ScenarioResult(ScenarioBuilder builder)
+                {
+                    return new ScenarioResult(builder._name, builder._given, builder._when, builder._assertions, builder._occurredException);
+                }
+
+
             }
 
             private interface IAssertion

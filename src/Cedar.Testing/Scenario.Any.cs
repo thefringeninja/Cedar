@@ -1,13 +1,9 @@
 ﻿namespace Cedar.Testing
 {
     using System;
-    using System.ComponentModel;
-    using System.IO;
-    using System.Linq;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
-    using FluentAssertions;
 
     public static partial class Scenario
     {
@@ -83,7 +79,13 @@
 
                 public Then<T> ThenShouldEqual(T other)
                 {
-                    _runThen = instance => instance.Equals(other).Should().BeTrue();
+                    _runThen = instance =>
+                    {
+                        if (false == instance.Equals(other))
+                        {
+                            throw new ScenarioException(this, String.Format("{0} was expected to equal {1}.", instance, other));
+                        }
+                    };
                     return this;
                 }
 
@@ -92,11 +94,7 @@
                 {
                     isMatch = isMatch ?? (_ => true);
 
-                    _runThen = _ =>
-                    {
-                        _occurredException.Should().BeOfType<TException>();
-                        isMatch((TException)_occurredException).Should().BeTrue();
-                    };
+                    _runThen = _ => ((ScenarioResult)this).AssertExceptionMatches(_occurredException, isMatch);
 
                     return this;
                 }
@@ -130,7 +128,12 @@
 
                     _runThen(_expect);
 
-                    return new ScenarioResult(_name, _given, _when, _expect, _occurredException);
+                    return this;
+                }
+
+                public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
+                {
+                    return new ScenarioResult(builder._name, builder._given, builder._when, builder._expect, builder._occurredException);
                 }
             }
         }
