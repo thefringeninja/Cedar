@@ -36,7 +36,7 @@ namespace Cedar.Example.Handlers
 
     public class CreateAggregate
     {
-        public static string NewItemId { get; set; }
+        public string NewItemId { get; set; }
     }
 
     public class Command1Validator
@@ -55,7 +55,7 @@ namespace Cedar.Example.Handlers
         { }
 
         public Aggregate1(CreateAggregate command)
-            : this(CreateAggregate.NewItemId)
+            : this(command.NewItemId)
         { }
     }
 }
