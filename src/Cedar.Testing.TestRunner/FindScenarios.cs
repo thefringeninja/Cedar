@@ -30,7 +30,7 @@
             {
                 var instance = constructor.Invoke(new object[0]);
 
-                return new KeyValuePair<string, Task<ScenarioResult>>(constructor.DeclaringType.Name, (Task<ScenarioResult>) method.Invoke(instance, new object[0]));
+                return new KeyValuePair<string, Task<ScenarioResult>>(constructor.DeclaringType.FullName, (Task<ScenarioResult>) method.Invoke(instance, new object[0]));
             };
         }
     }

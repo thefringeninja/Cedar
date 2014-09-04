@@ -21,7 +21,9 @@
 
         public async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
         {
-            await _output.WriteAsync((scenarioName ?? "???").Underscore().Titleize());
+            await _output.WriteAsync((scenarioName ?? "???")
+                .Split('.').Last()
+                .Underscore().Titleize());
             await _output.WriteAsync(" - " + (passed ? "PASSED" : "FAILED"));
             await _output.WriteLineAsync(" (completed in " + (duration.HasValue ? duration.Value.TotalMilliseconds + "ms" : "???") + ")");
             await _output.WriteLineAsync();
