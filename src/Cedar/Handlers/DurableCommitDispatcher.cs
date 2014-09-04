@@ -1,11 +1,13 @@
 ﻿namespace Cedar.Handlers
 {
     using System;
+    using System.Collections.Generic;
     using System.Reactive.Disposables;
     using System.Reactive.Subjects;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using Cedar.Commands;
     using Cedar.Logging;
     using NEventStore;
     using NEventStore.Client;
@@ -35,6 +37,58 @@
         /// <param name="eventStoreClient">An event store client.</param>
         /// <param name="checkpointRepository">A checkpoint repository. Each instane of a <see cref="DurableCommitDispatcher"/>
         /// should have their own instance of a <see cref="ICheckpointRepository"/>.</param>
+        /// <param name="handlerModule">A handler module to dispatch the commit to.</param>
+        /// <param name="retryPolicy">A retry policy when a <see cref="TransientException"/> occurs.
+        /// If none specified TransientException.None is used.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// eventStoreClient
+        /// or
+        /// checkpointRepository
+        /// or
+        /// dispatchCommit
+        /// </exception>
+        public DurableCommitDispatcher(
+            [NotNull] IEventStoreClient eventStoreClient,
+            [NotNull] ICheckpointRepository checkpointRepository,
+            [NotNull] HandlerModule handlerModule,
+            TransientExceptionRetryPolicy retryPolicy = null) :
+            this(eventStoreClient, checkpointRepository, new[] { handlerModule }, retryPolicy)
+        {
+            Guard.EnsureNotNull(handlerModule, "handlerModule");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DurableCommitDispatcher"/> class.
+        /// </summary>
+        /// <param name="eventStoreClient">An event store client.</param>
+        /// <param name="checkpointRepository">A checkpoint repository. Each instane of a <see cref="DurableCommitDispatcher"/>
+        /// should have their own instance of a <see cref="ICheckpointRepository"/>.</param>
+        /// <param name="handlerModules">A collection of handler modules to dispatch the commit to.</param>
+        /// <param name="retryPolicy">A retry policy when a <see cref="TransientException"/> occurs.
+        /// If none specified TransientException.None is used.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// eventStoreClient
+        /// or
+        /// checkpointRepository
+        /// or
+        /// dispatchCommit
+        /// </exception>
+        public DurableCommitDispatcher(
+            [NotNull] IEventStoreClient eventStoreClient,
+            [NotNull] ICheckpointRepository checkpointRepository,
+            [NotNull] IEnumerable<HandlerModule> handlerModules,
+            TransientExceptionRetryPolicy retryPolicy = null):
+            this(eventStoreClient, checkpointRepository, handlerModules.DispatchCommit, retryPolicy )
+        {
+            Guard.EnsureNotNull(handlerModules, "handlerModule");
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DurableCommitDispatcher"/> class.
+        /// </summary>
+        /// <param name="eventStoreClient">An event store client.</param>
+        /// <param name="checkpointRepository">A checkpoint repository. Each instane of a <see cref="DurableCommitDispatcher"/>
+        /// should have their own instance of a <see cref="ICheckpointRepository"/>.</param>
         /// <param name="dispatchCommit">A handler to dispatch the commit to.</param>
         /// <param name="retryPolicy">A retry policy when a <see cref="TransientException"/> occurs.
         /// If none specified TransientException.None is used.</param>
@@ -51,18 +105,9 @@
             [NotNull] Func<ICommit, CancellationToken, Task> dispatchCommit,
             TransientExceptionRetryPolicy retryPolicy = null)
         {
-            if (eventStoreClient == null)
-            {
-                throw new ArgumentNullException("eventStoreClient");
-            }
-            if (checkpointRepository == null)
-            {
-                throw new ArgumentNullException("checkpointRepository");
-            }
-            if (dispatchCommit == null)
-            {
-                throw new ArgumentNullException("dispatchCommit");
-            }
+            Guard.EnsureNotNull(eventStoreClient, "eventStoreClient");
+            Guard.EnsureNotNull(checkpointRepository, "checkpointRepository");
+            Guard.EnsureNotNull(dispatchCommit, "dispatchCommit");
 
             _eventStoreClient = eventStoreClient;
             _checkpointRepository = checkpointRepository;
