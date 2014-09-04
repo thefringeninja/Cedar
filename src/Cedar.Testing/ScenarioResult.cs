@@ -3,6 +3,7 @@ namespace Cedar.Testing
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using Cedar.Testing.Printing;
 
     public class ScenarioResult
     {
@@ -21,9 +22,16 @@ namespace Cedar.Testing
             _occurredException = occurredException;
         }
 
-        public Task Print(Stream stream)
+        public async Task Print(TextWriter writer, IScenarioFormatter formatter)
         {
-            throw new NotImplementedException();
+            await formatter.WriteHeader(writer);
+            await formatter.WriteScenarioName(_name, writer);
+            await formatter.WriteGiven(_given, writer);
+            await formatter.WriteWhen(_when, writer);
+            await formatter.WriteExpect(_expect, writer);
+            if (_occurredException != null)
+                await formatter.WriteOcurredException(_occurredException, writer);
+            await formatter.WriteFooter(writer);
         }
 
         public ScenarioResult WithScenarioException(Scenario.ScenarioException ex)

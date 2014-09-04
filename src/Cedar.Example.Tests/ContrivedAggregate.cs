@@ -7,7 +7,13 @@
 
     public class ContrivedAggregate
     {
-        class SomethingHappened { }
+        class SomethingHappened
+        {
+            public override string ToString()
+            {
+                return "Something happened.";
+            }
+        }
         class Aggregate : AggregateBase
         {
             private int _something = 0;

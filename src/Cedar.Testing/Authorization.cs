@@ -33,7 +33,7 @@ namespace Cedar.Testing
 
             public override string ToString()
             {
-                return _userName + " (Authorization: Basic)";
+                return "\"" + _userName + "\", Authorization: Basic";
             }
         }
     }

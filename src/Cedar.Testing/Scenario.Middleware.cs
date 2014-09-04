@@ -305,6 +305,12 @@
                         select new AssertionResult(test(response), assertion))
                         .ToList();
                 }
+
+                public override string ToString()
+                {
+                    return _assertions.Aggregate(new StringBuilder(),
+                        (builder, assertion) => builder.Append(assertion).AppendLine()).ToString();
+                }
             }
 
             public interface IHttpClientRequest : IHttpClientRequest<Unit>
@@ -348,7 +354,7 @@
 
                 public override string ToString()
                 {
-                    return "Executing: " + Command + " as " + _authorization;
+                    return Command + " (running as " + _authorization + ")";
                 }
             }
 

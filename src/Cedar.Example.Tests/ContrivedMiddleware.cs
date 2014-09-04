@@ -40,11 +40,20 @@
     public class ContrivedMiddleware
     {
         class Something {
-            public string Value { get; set; } }
+            public string Value { get; set; }
+            public override string ToString()
+            {
+                return "Something = " + Value;
+            }
+        }
 
         class SomethingElse
         {
             public string Value { get; set; }
+            public override string ToString()
+            {
+                return "Something else = " + Value;
+            }
         }
 
         class QueryResult
