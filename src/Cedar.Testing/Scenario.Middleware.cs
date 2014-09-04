@@ -85,6 +85,7 @@
                 private readonly IList<IAssertion> _assertions;
                 private IHttpClientRequest[] _given = new IHttpClientRequest[0];
                 private IHttpClientRequest _when;
+                private Exception _occurredException;
                 private readonly ICommandExecutionSettings _commandExecutionSettings;
 
                 public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string commandPath = null, string name = null)
@@ -172,7 +173,7 @@
                     return this;
                 }
 
-                public TaskAwaiter GetAwaiter()
+                public TaskAwaiter<ScenarioResult> GetAwaiter()
                 {
                     IScenario scenario = this;
 
@@ -184,7 +185,7 @@
                     get { return _name; }
                 }
 
-                async Task IScenario.Print(TextWriter writer)
+                /*async Task IScenario.Print(TextWriter writer)
                 {
                     var builder = _given.Aggregate(new StringBuilder(), (sb, request) => sb.Append(request).AppendLine())
                             .Append(_when).AppendLine();
@@ -193,14 +194,23 @@
 
                     await writer.WriteAsync(builder.ToString());
                     await writer.FlushAsync();
-                }
+                }*/
 
-                async Task IScenario.Run()
+                async Task<ScenarioResult> IScenario.Run()
                 {
                     await _runGiven();
                     await _runWhen();
 
-                    await Task.WhenAll(_assertions.Select(x => x.Run()));
+                    try
+                    {
+                        await Task.WhenAll(_assertions.Select(x => x.Run()));
+                    }
+                    catch (AggregateException ex)
+                    {
+                        _occurredException = ex;
+                    }
+
+                    return new ScenarioResult(_name, _given, _when, _assertions, _occurredException);
                 }
 
                 private Task<TResponse> Send<TResponse>(IHttpClientRequest<TResponse> context)

@@ -129,7 +129,7 @@
                     return this;
                 }
 
-                public TaskAwaiter GetAwaiter()
+                public TaskAwaiter<ScenarioResult> GetAwaiter()
                 {
                     IScenario scenario = this;
 
@@ -146,12 +146,7 @@
                     get { return _name; }
                 }
 
-                Task IScenario.Print(TextWriter writer)
-                {
-                    throw new NotImplementedException();
-                }
-
-                async Task IScenario.Run()
+                async Task<ScenarioResult> IScenario.Run()
                 {
                     var aggregate = _factory(_aggregateId);
                     _runGiven(aggregate);
@@ -166,6 +161,8 @@
                     }
 
                     _runThen(aggregate);
+
+                    return new ScenarioResult(_name, _given, _when, _expect, _occurredException);
                 }
             }
         }

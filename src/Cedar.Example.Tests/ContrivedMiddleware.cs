@@ -52,7 +52,7 @@
             public string Value { get; set; }
         }
         [Fact]
-        public async Task Works()
+        public async Task Passes()
         {
             var user = Authorization.Basic("user", "password");
 
@@ -61,20 +61,46 @@
                 .Given(user.Does(new Something {Value = "this"}))
                 .When(user.Does(new SomethingElse {Value = "that"}))
                 .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
-                    result => result.Value == "this");
+                    result => result.Value == "that");
         }
 
         [Fact]
-        public async Task AlsoWorks()
+        public async Task<ScenarioResult> AlsoPasses()
         {
             var user = Authorization.Basic("user", "password");
 
-            await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+            return await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
                 .WithUsers(user)
                 .Given(user.Does(new Something() { Value = "this" }))
                 .When(user.Does(new SomethingElse() { Value = "that" }))
                 .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
                     result => result.Value == "that");
+        }
+
+        [Fact]
+        public async Task DoesNotPass()
+        {
+            var user = Authorization.Basic("user", "password");
+
+            await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+                .WithUsers(user)
+                .Given(user.Does(new Something { Value = "this" }))
+                .When(user.Does(new SomethingElse { Value = "that" }))
+                .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
+                    result => result.Value == "this");
+        }
+
+        [Fact]
+        public async Task<ScenarioResult> AlsoDoesNotPass()
+        {
+            var user = Authorization.Basic("user", "password");
+
+            return await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+                .WithUsers(user)
+                .Given(user.Does(new Something() { Value = "this" }))
+                .When(user.Does(new SomethingElse() { Value = "that" }))
+                .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
+                    result => result.Value == "this");
         }
 
         static Func<Func<IDictionary<string, object>, Task>, Func<IDictionary<string, object>, Task>> MySystem

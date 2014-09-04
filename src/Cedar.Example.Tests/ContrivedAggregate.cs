@@ -1,5 +1,6 @@
 ﻿namespace Cedar.Example.Tests
 {
+    using System.Threading.Tasks;
     using Cedar.Domain;
     using Cedar.Testing;
     using Xunit;
@@ -28,21 +29,40 @@
 
         }
         [Fact]
-        public void Works()
+        public async Task Passes()
         {
-            Scenario.ForAggregate(() => new Aggregate("test"))
+            await Scenario.ForAggregate(id => new Aggregate(id))
                 .Given(new SomethingHappened())
                 .When(a => a.DoSomething())
                 .Then(new SomethingHappened());
         }
 
         [Fact]
-        public IScenario AlsoWorks()
+        public async Task<ScenarioResult> AlsoPasses()
         {
-            return Scenario.ForAggregate(() => new Aggregate("test"))
+            return await Scenario.ForAggregate(id => new Aggregate(id))
                 .Given(new SomethingHappened())
                 .When(a => a.DoSomething())
                 .Then(new SomethingHappened());
         }
+
+        [Fact]
+        public async Task DoesNotPass()
+        {
+            await Scenario.ForAggregate(id => new Aggregate(id))
+                .Given(new SomethingHappened())
+                .When(a => a.DoSomething())
+                .ThenNothingHappened();
+        }
+
+        [Fact]
+        public async Task<ScenarioResult> AlsoDoesNotPass()
+        {
+            return await Scenario.ForAggregate(id => new Aggregate(id))
+                .Given(new SomethingHappened())
+                .When(a => a.DoSomething())
+                .ThenNothingHappened();
+        }
+
     }
 }

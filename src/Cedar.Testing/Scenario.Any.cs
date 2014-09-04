@@ -3,6 +3,7 @@
     using System;
     using System.ComponentModel;
     using System.IO;
+    using System.Linq;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
@@ -100,7 +101,7 @@
                     return this;
                 }
 
-                public TaskAwaiter GetAwaiter()
+                public TaskAwaiter<ScenarioResult> GetAwaiter()
                 {
                     IScenario scenario = this;
 
@@ -112,12 +113,9 @@
                     get { return _name; }
                 }
 
-                Task IScenario.Print(TextWriter writer)
-                {
-                    throw new NotImplementedException();
-                }
 
-                async Task IScenario.Run()
+
+                async Task<ScenarioResult> IScenario.Run()
                 {
                     _given = _runGiven();
 
@@ -131,6 +129,8 @@
                     }
 
                     _runThen(_expect);
+
+                    return new ScenarioResult(_name, _given, _when, _expect, _occurredException);
                 }
             }
         }
