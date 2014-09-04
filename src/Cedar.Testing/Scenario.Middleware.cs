@@ -228,7 +228,7 @@
                         _occurredException = ex;
                     }
 
-                    return new ScenarioResult(_name, _given, _when, _assertions, _occurredException);
+                    return this;
                 }
 
                 private Task<TResponse> Send<TResponse>(IHttpClientRequest<TResponse> context)
