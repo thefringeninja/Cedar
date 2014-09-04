@@ -114,7 +114,22 @@
 
                     _runWhen = () => Send(_when);
 
-                    _runThen = () => Task.WhenAll(_assertions.Select(x => x.Run()));
+                    _runThen = async () =>
+                    {
+                        var results = await Task.WhenAll(_assertions.Select(assertion => assertion.Run()));
+
+                        var failed = (from result in results
+                            from assertionResult in result
+                            where !assertionResult.Passed
+                            select assertionResult).ToList();
+
+                        if (failed.Any())
+                        {
+                            throw new ScenarioException(this, "One or more assertions failed:" 
+                                + Environment.NewLine 
+                                + failed.Aggregate(new StringBuilder(), (builder, assertionResult) => builder.Append(assertionResult).AppendLine()));
+                        }
+                    };
 
                     _assertions = new List<IAssertion>();
                 }
@@ -171,7 +186,7 @@
                 public Then ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
                     params Expression<Func<TResponse, bool>>[] assertions)
                 {
-                    _assertions.Add(new ExpressionAssertion<TResponse>(() => Send(response), assertions));
+                    _assertions.Add(new AsyncAssertion<TResponse>(() => Send(response), assertions));
                     
                     return this;
                 }
@@ -235,21 +250,42 @@
                 {
                     return new ScenarioResult(builder._name, builder._given, builder._when, builder._assertions, builder._occurredException);
                 }
-
-
             }
 
             private interface IAssertion
             {
-                Task Run();
+                Task<IEnumerable<IAssertionResult>> Run();
             }
 
-            private class ExpressionAssertion<TResponse> : IAssertion
+            private interface IAssertionResult
+            {
+                bool Passed { get; }
+            }
+
+            private class AssertionResult : IAssertionResult {
+                private readonly bool _passed;
+                private readonly Expression _expression;
+
+                public AssertionResult(bool passed, Expression expression )
+                {
+                    _passed = passed;
+                    _expression = expression;
+                }
+
+                public bool Passed { get { return _passed; } }
+
+                public override string ToString()
+                {
+                    return _expression + ": " + (Passed ? "Passed" : "Failed");
+                }
+            }
+
+            private class AsyncAssertion<TResponse> : IAssertion
             {
                 private readonly Func<Task<TResponse>> _execute;
                 private readonly Expression<Func<TResponse, bool>>[] _assertions;
 
-                public ExpressionAssertion(Func<Task<TResponse>> execute,
+                public AsyncAssertion(Func<Task<TResponse>> execute,
                     params Expression<Func<TResponse, bool>>[] assertions)
                 {
                     if (assertions == null) throw new ArgumentNullException("assertions");
@@ -260,22 +296,14 @@
                     _assertions = assertions;
                 }
 
-                public async Task Run()
+                public async Task<IEnumerable<IAssertionResult>> Run()
                 {
                     var response = await _execute();
 
-                    var results = (from assertion in _assertions
+                    return (from assertion in _assertions
                         let test = assertion.Compile()
-                        where false == test(response)
-                        select assertion).ToList();
-
-                    if (results.Any())
-                    {
-                        throw new InvalidOperationException("One or more of the assertions failed: " +
-                                                            results.Aggregate(new StringBuilder(),
-                                                                (builder, assertion) =>
-                                                                    builder.Append(assertion).AppendLine()));
-                    }
+                        select new AssertionResult(test(response), assertion))
+                        .ToList();
                 }
             }
 
