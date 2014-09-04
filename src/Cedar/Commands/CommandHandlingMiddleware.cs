@@ -19,7 +19,7 @@
         {
             Guard.EnsureNotNull(options, "options");
 
-            var dispatchCommandMethodInfo = typeof(HandlerModuleExtensions)
+            var dispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
                 .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
             return next => async env =>
