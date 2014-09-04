@@ -32,7 +32,7 @@ namespace Cedar.Example.Tests
             _jsonSerializer = JsonSerializer.Create(serializerSettings ?? new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                TypeNameHandling = TypeNameHandling.All
+                TypeNameHandling = TypeNameHandling.None
             });
         }
 
