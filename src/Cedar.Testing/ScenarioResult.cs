@@ -1,7 +1,6 @@
 namespace Cedar.Testing
 {
     using System;
-    using System.IO;
     using System.Threading.Tasks;
     using Cedar.Testing.Printing;
 
@@ -12,31 +11,33 @@ namespace Cedar.Testing
         private readonly object _when;
         private readonly object _expect;
         private readonly Exception _occurredException;
+        private readonly bool _passed;
 
-        public ScenarioResult(string name, object given, object when, object expect, Exception occurredException = null)
+        public ScenarioResult(string name, bool passed, object given, object when, object expect, Exception occurredException = null)
         {
             _name = name;
             _given = given;
             _when = when;
             _expect = expect;
             _occurredException = occurredException;
+            _passed = passed;
         }
 
-        public async Task Print(TextWriter writer, IScenarioFormatter formatter)
+        public async Task Print(IScenarioPrinter printer)
         {
-            await formatter.WriteHeader(writer);
-            await formatter.WriteScenarioName(_name, writer);
-            await formatter.WriteGiven(_given, writer);
-            await formatter.WriteWhen(_when, writer);
-            await formatter.WriteExpect(_expect, writer);
+            await printer.WriteHeader();
+            await printer.WriteScenarioName(_name, _passed);
+            await printer.WriteGiven(_given);
+            await printer.WriteWhen(_when);
+            await printer.WriteExpect(_expect);
             if (_occurredException != null)
-                await formatter.WriteOcurredException(_occurredException, writer);
-            await formatter.WriteFooter(writer);
+                await printer.WriteOcurredException(_occurredException);
+            await printer.WriteFooter();
         }
 
         public ScenarioResult WithScenarioException(Scenario.ScenarioException ex)
         {
-            return new ScenarioResult(_name, _given, _when, _expect, ex);
+            return new ScenarioResult(_name, _passed, _given, _when, _expect, ex);
         }
     }
 }

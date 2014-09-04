@@ -86,6 +86,7 @@
                 private IHttpClientRequest _when;
                 private Exception _occurredException;
                 private readonly ICommandExecutionSettings _commandExecutionSettings;
+                private bool _passed = false;
 
                 public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string commandPath = null, string name = null)
                 {
@@ -203,30 +204,22 @@
                     get { return _name; }
                 }
 
-                /*async Task IScenario.Print(TextWriter writer)
-                {
-                    var builder = _given.Aggregate(new StringBuilder(), (sb, request) => sb.Append(request).AppendLine())
-                            .Append(_when).AppendLine();
-
-                    builder = _assertions.Aggregate(builder, (sb, assertion) => sb.Append(assertion).AppendLine());
-
-                    await writer.WriteAsync(builder.ToString());
-                    await writer.FlushAsync();
-                }*/
-
                 async Task<ScenarioResult> IScenario.Run()
                 {
                     await _runGiven();
-                    await _runWhen();
 
                     try
                     {
-                        await _runThen();
+                        await _runWhen();
                     }
                     catch (AggregateException ex)
                     {
                         _occurredException = ex;
                     }
+
+                    await _runThen();
+
+                    _passed = true;
 
                     return this;
                 }
@@ -248,7 +241,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder builder)
                 {
-                    return new ScenarioResult(builder._name, builder._given, builder._when, builder._assertions, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._assertions, builder._occurredException);
                 }
             }
 

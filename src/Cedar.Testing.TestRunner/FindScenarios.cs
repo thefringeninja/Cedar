@@ -8,7 +8,7 @@
 
     public static class FindScenarios
     {
-        public static IEnumerable<Func<Task<ScenarioResult>>> InType(Type type)
+        public static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> InType(Type type)
         {
             return from method in type.GetMethods()
                 let constructor=  type.GetConstructor(Type.EmptyTypes)
@@ -16,7 +16,7 @@
                       && method.ReturnType == typeof (Task<ScenarioResult>)
                 select FromMethodInfo(method, constructor);
         }
-        public static IEnumerable<Func<Task<ScenarioResult>>> InAssemblies(params Assembly[] assemblies)
+        public static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> InAssemblies(params Assembly[] assemblies)
         {
             return from assembly in assemblies
                 from type in assembly.GetTypes()
@@ -24,13 +24,13 @@
                 select result;
         }
 
-        private static Func<Task<ScenarioResult>> FromMethodInfo(MethodInfo method, ConstructorInfo constructor)
+        private static Func<KeyValuePair<string, Task<ScenarioResult>>> FromMethodInfo(MethodInfo method, ConstructorInfo constructor)
         {
             return () =>
             {
                 var instance = constructor.Invoke(new object[0]);
 
-                return (Task<ScenarioResult>) method.Invoke(instance, new object[0]);
+                return new KeyValuePair<string, Task<ScenarioResult>>(constructor.DeclaringType.Name, (Task<ScenarioResult>) method.Invoke(instance, new object[0]));
             };
         }
     }

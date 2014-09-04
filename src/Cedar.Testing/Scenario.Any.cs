@@ -42,6 +42,7 @@
                 private Expression<Func<T, Task<T>>> _when;
                 private T _expect;
                 private Exception _occurredException;
+                private bool passed;
 
                 public ScenarioBuilder(string name)
                 {
@@ -128,12 +129,14 @@
 
                     _runThen(_expect);
 
+                    passed = true;
+
                     return this;
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._given, builder._when, builder._expect, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder.passed, builder._given, builder._when, builder._expect, builder._occurredException);
                 }
             }
         }

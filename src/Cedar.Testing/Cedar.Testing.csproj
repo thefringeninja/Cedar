@@ -53,8 +53,8 @@
     <Compile Include="Authorization.cs" />
     <Compile Include="Printing\Extensions.cs" />
     <Compile Include="Printing\Inflector.cs" />
-    <Compile Include="Printing\IScenarioFormatter.cs" />
-    <Compile Include="Printing\PlainTextFormatter.cs" />
+    <Compile Include="Printing\IScenarioPrinter.cs" />
+    <Compile Include="Printing\PlainTextPrinter.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="IAuthorization.cs" />
     <Compile Include="IScenario.cs" />

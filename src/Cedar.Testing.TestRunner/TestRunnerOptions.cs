@@ -17,21 +17,10 @@ namespace Cedar.Testing.TestRunner
         [ArgDescription("Force teamcity output.")]
         public bool Teamcity { get; set; }
 
-        public async Task<Assembly> LoadAssembly()
-        {
-            var assembly = Assembly;
-            
-            if (false == Path.HasExtension(assembly))
-                assembly = assembly + ".dll";
-            
-            using (var stream = File.OpenRead(assembly))
-            {
-                var buffer = new byte[stream.Length];
-                
-                await stream.ReadAsync(buffer, 0, buffer.Length);
-
-                return System.Reflection.Assembly.Load(buffer);
-            }
-        }
+        [ArgDescription("A list of formaters.")]
+        public string[] Formatters { get; set; }
+        
+        [ArgDescription("Output folder.")]
+        public string Output { get; set; }
     }
 }

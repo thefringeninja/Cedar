@@ -54,8 +54,8 @@
                 private object[] _given;
                 private Func<T, Task> _when;
                 private object[] _expect;
-                
                 private Exception _occurredException;
+                private bool _passed;
 
                 public ScenarioBuilder(Func<string, T> factory, string aggregateId, string name)
                 {
@@ -163,12 +163,14 @@
 
                     _runThen(aggregate);
 
+                    _passed = true;
+                    
                     return this;
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._given, builder._when, builder._expect, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._occurredException);
                 }
             }
 

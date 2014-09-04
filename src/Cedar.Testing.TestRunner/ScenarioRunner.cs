@@ -2,6 +2,7 @@ namespace Cedar.Testing.TestRunner
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
@@ -18,12 +19,45 @@ namespace Cedar.Testing.TestRunner
 
         public async Task Run()
         {
-            var assembly = await _options.LoadAssembly();
+            var assembly = await LoadTestAssembly();
             var results = await RunTests(assembly);
-            await PrintResults(results);
+
+            await PrintResults(results.GroupBy(x => x.Key, x => x.Value));
         }
 
-        private Task<ScenarioResult[]> RunTests(Assembly assembly)
+        private async Task<Assembly> LoadTestAssembly()
+        {
+            var assembly = _options.Assembly;
+            
+            if (false == Path.HasExtension(assembly))
+                assembly = assembly + ".dll";
+            
+            using (var stream = File.OpenRead(assembly))
+            {
+                var buffer = new byte[stream.Length];
+                
+                await stream.ReadAsync(buffer, 0, buffer.Length);
+
+                return Assembly.Load(buffer);
+            }
+        }
+
+        private bool IsRunningUnderTeamCity
+        {
+            get { return false; }
+        }
+
+        private IEnumerable<IScenarioPrinter> GetPrinters()
+        {
+            if (IsRunningUnderTeamCity)
+            {
+                
+            }
+
+            yield return new PlainTextPrinter(Console.Out);
+        }
+
+        private Task<KeyValuePair<string, ScenarioResult>[]> RunTests(Assembly assembly)
         {
             var scenarios = FindScenarios.InAssemblies(assembly);
 
@@ -32,9 +66,12 @@ namespace Cedar.Testing.TestRunner
             return results;
         }
 
-        private static Task<ScenarioResult> RunScenario(Func<Task<ScenarioResult>> run)
+        private static async Task<KeyValuePair<string, ScenarioResult>> RunScenario(Func<KeyValuePair<string, Task<ScenarioResult>>> run)
         {
-            return run().ContinueWith<ScenarioResult>(HandleFailingScenario);
+            var pair = run();
+
+            return new KeyValuePair<string, ScenarioResult>(pair.Key,
+                await pair.Value.ContinueWith<ScenarioResult>(HandleFailingScenario));
         }
 
         private static ScenarioResult HandleFailingScenario(Task<ScenarioResult> task)
@@ -49,21 +86,31 @@ namespace Cedar.Testing.TestRunner
             // means something really wrong happened
             if (exception == null)
             {
-                return new ScenarioResult(null, null, null, null, task.Exception.InnerException);
+                return new ScenarioResult(null, true, null, null, null, task.Exception.InnerException);
             }
 
             return exception.ExpectedResult.WithScenarioException(exception);
         }
 
-        private async Task PrintResults(IEnumerable<ScenarioResult> results)
+        private async Task PrintResults(IEnumerable<IGrouping<string, ScenarioResult>> results)
         {
-            var formatter = new PlainTextFormatter();
+            results = results.ToList();
 
-            foreach (var result in results)
+            foreach (var printer in GetPrinters())
             {
-                await result.Print(Console.Out, formatter);
+                foreach (var category in results)
+                {
+                    await printer.WriteStartCategory(category.Key);
+
+                    foreach (var result in category)
+                    {
+                        await result.Print(printer);
+                    }
+
+                    await printer.WriteEndCategory(category.Key);
+                }
             }
-            
+
         }
     }
 }

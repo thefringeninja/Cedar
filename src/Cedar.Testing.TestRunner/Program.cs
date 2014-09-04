@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Cedar.Testing.TestRunner
+﻿namespace Cedar.Testing.TestRunner
 {
     using System;
     using System.Diagnostics;
