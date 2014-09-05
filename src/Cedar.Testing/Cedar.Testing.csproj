@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Inflector">
+      <HintPath>..\packages\Inflector.1.0.0.0\lib\net45\Inflector.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Owin, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
@@ -53,7 +56,6 @@
     <Compile Include="Authorization.cs" />
     <Compile Include="Printing\DisposableAction.cs" />
     <Compile Include="Printing\Extensions.cs" />
-    <Compile Include="Printing\Inflector.cs" />
     <Compile Include="Printing\IScenarioPrinter.cs" />
     <Compile Include="Printing\PlainTextPrinter.cs" />
     <Compile Include="Printing\TeamcityTestServicePrinter.cs" />
