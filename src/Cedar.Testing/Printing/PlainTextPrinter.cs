@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public class PlainTextPrinter : IScenarioPrinter
+    public class PlainTextPrinter : IScenarioResultPrinter
     {
         private readonly TextWriter _output;
 
@@ -14,43 +14,58 @@
             _output = output;
         }
 
-        public async Task<IDisposable> WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
+        public async Task PrintResult(ScenarioResult result)
+        {
+            await WriteHeader(result.Name, result.Duration, result.Passed);
+            await WriteGiven(result.Given);
+            await WriteWhen(result.When);
+            await WriteExpect(result.Expect);
+            if (result.OccurredException != null)
+            {
+                await WriteOcurredException(result.OccurredException);
+            }
+            await WriteFooter();
+        }
+
+        private async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
         {
             await _output.WriteAsync((scenarioName ?? "???")
                 .Split('.').Last()
                 .Underscore().Titleize());
             await _output.WriteAsync(" - " + (passed ? "PASSED" : "FAILED"));
-            await _output.WriteLineAsync(" (completed in " + (duration.HasValue ? duration.Value.TotalMilliseconds + "ms" : "???") + ")");
+            await
+                _output.WriteLineAsync(" (completed in " +
+                                       (duration.HasValue ? duration.Value.TotalMilliseconds + "ms" : "???") + ")");
             await _output.WriteLineAsync();
-
-            return new DisposableAction(async () =>
-            {
-                await _output.WriteLineAsync(new string('-', 80));
-                await _output.WriteLineAsync();
-            });
         }
 
-        public Task WriteGiven(object given)
+        private async Task WriteFooter()
+        {
+            await _output.WriteLineAsync(new string('-', 80));
+            await _output.WriteLineAsync();
+        }
+
+        private Task WriteGiven(object given)
         {
             return WriteSection("Given", given);
         }
 
-        public Task WriteWhen(object when)
+        private Task WriteWhen(object when)
         {
             return WriteSection("When", when);
         }
 
-        public Task WriteExpect(object expect)
+        private Task WriteExpect(object expect)
         {
             return WriteSection("Expect", expect);
         }
 
-        public Task WriteOcurredException(Exception occurredException)
+        private Task WriteOcurredException(Exception occurredException)
         {
             return WriteSection("Exception", occurredException);
         }
 
-        public async Task WriteStartCategory(string category)
+        public async Task PrintCategoryHeader(string category)
         {
             await _output.WriteLineAsync(new string('=', 80));
             await _output.WriteLineAsync((String.IsNullOrEmpty(category) ? "???" : category).Underscore().Humanize());
@@ -58,14 +73,9 @@
             await _output.WriteLineAsync();
         }
 
-        public async Task WriteEndCategory(string category)
+        public async Task PrintCategoryFooter(string category)
         {
             await _output.WriteLineAsync();
-        }
-
-        public Task Flush()
-        {
-            return _output.FlushAsync();
         }
 
         private async Task WriteSection(string sectionName, object section)

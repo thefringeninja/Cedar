@@ -47,7 +47,7 @@ namespace Cedar.Testing.TestRunner
             get { return _options.Teamcity; }
         }
 
-        private IEnumerable<IScenarioPrinter> GetPrinters()
+        private IEnumerable<IScenarioResultPrinter> GetPrinters()
         {
             if (IsRunningUnderTeamCity)
             {
@@ -100,16 +100,14 @@ namespace Cedar.Testing.TestRunner
             {
                 foreach (var category in results)
                 {
-                    await printer.WriteStartCategory(category.Key);
+                    await printer.PrintCategoryHeader(category.Key);
 
                     foreach (var result in category)
                     {
-                        await result.Print(printer);
+                        await printer.PrintResult(result);
                     }
 
-                    await printer.WriteEndCategory(category.Key);
-
-                    await printer.Flush();
+                    await printer.PrintCategoryFooter(category.Key);
                 }
             }
 

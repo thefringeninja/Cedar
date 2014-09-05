@@ -5,7 +5,7 @@
     using System.IO;
     using System.Threading.Tasks;
 
-    public class TeamCityTestServicePrinter : IScenarioPrinter
+    public class TeamCityTestServicePrinter : IScenarioResultPrinter
     {
         private readonly Stack<Tuple<string, TimeSpan?, bool>> _state = new Stack<Tuple<string, TimeSpan?, bool>>();
 
@@ -46,57 +46,26 @@
             _output = Console.Out;
         }
 
-        public async Task<IDisposable> WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
-        {
-            // yes, this is awful
-            _state.Push(Tuple.Create(scenarioName, duration, passed));
-            await _output.WriteLineAsync(Started(scenarioName));
-
-            return new DisposableAction(async () =>
-            {
-                _state.Pop();
-                await _output.WriteLineAsync(Finished(scenarioName, duration));
-            });
-        }
-
-        public Task WriteGiven(object given)
-        {
-            return Task.FromResult(true);
-        }
-
-        public Task WriteWhen(object when)
-        {
-            return Task.FromResult(true);
-        }
-
-        public Task WriteExpect(object expect)
-        {
-            return Task.FromResult(true);
-        }
-
-        public async Task WriteOcurredException(Exception occurredException)
-        {
-            var current = _state.Peek();
-
-            if (false == current.Item3)
-            {
-                await _output.WriteLineAsync(Failed(current.Item1, occurredException));
-            }
-        }
-
-        public Task WriteStartCategory(string category)
-        {
-            return _output.WriteLineAsync(SuiteStarted(category));
-        }
-
-        public Task WriteEndCategory(string category)
+        public Task PrintCategoryFooter(string category)
         {
             return _output.WriteLineAsync(SuiteFinished(category));
         }
 
-        public Task Flush()
+        public Task PrintCategoryHeader(string category)
         {
-            return _output.FlushAsync();
+            return _output.WriteLineAsync(SuiteStarted(category));
+        }
+
+        public async Task PrintResult(ScenarioResult result)
+        {
+            await _output.WriteLineAsync(Started(result.Name));
+
+            if (false == result.Passed)
+            {
+                await _output.WriteLineAsync(Failed(result.Name, result.OccurredException));
+            }
+
+            await _output.WriteLineAsync(Finished(result.Name, result.Duration));
         }
     }
 }

@@ -6,40 +6,33 @@ namespace Cedar.Testing
 
     public class ScenarioResult
     {
-        private readonly string _name;
-        private readonly object _given;
-        private readonly object _when;
-        private readonly object _expect;
-        private readonly Exception _occurredException;
-        private readonly TimeSpan? _duration;
-        private readonly bool _passed;
+        public readonly string Name;
+        public readonly object Given;
+        public readonly object When;
+        public readonly object Expect;
+        public readonly Exception OccurredException;
+        public readonly TimeSpan? Duration;
+        public readonly bool Passed;
 
         public ScenarioResult(string name, bool passed, object given, object when, object expect, TimeSpan? duration = null, Exception occurredException = null)
         {
-            _name = name;
-            _given = given;
-            _when = when;
-            _expect = expect;
-            _occurredException = occurredException;
-            _duration = duration;
-            _passed = passed;
+            Name = name;
+            Given = given;
+            When = when;
+            Expect = expect;
+            OccurredException = occurredException;
+            Duration = duration;
+            Passed = passed;
         }
 
-        public async Task Print(IScenarioPrinter printer)
+        public async Task Print(IScenarioResultPrinter printer)
         {
-            using (await printer.WriteHeader(_name, _duration, _passed))
-            {
-                await printer.WriteGiven(_given);
-                await printer.WriteWhen(_when);
-                await printer.WriteExpect(_expect);
-                if (_occurredException != null)
-                    await printer.WriteOcurredException(_occurredException);
-            }
+            await printer.PrintResult(this);
         }
 
         public ScenarioResult WithScenarioException(Scenario.ScenarioException ex)
         {
-            return new ScenarioResult(_name, _passed, _given, _when, _expect, _duration, ex);
+            return new ScenarioResult(Name, Passed, Given, When, Expect, Duration, ex);
         }
     }
 }
