@@ -49,6 +49,7 @@ namespace Cedar.Testing.TestRunner
 
         private IEnumerable<IScenarioResultPrinter> GetPrinters()
         {
+
             if (IsRunningUnderTeamCity)
             {
                 yield return new TeamCityTestServicePrinter();
@@ -66,12 +67,12 @@ namespace Cedar.Testing.TestRunner
             return results;
         }
 
-        private static async Task<KeyValuePair<string, ScenarioResult>> RunScenario(Func<KeyValuePair<string, Task<ScenarioResult>>> run)
+        private static async Task<KeyValuePair<string, ScenarioResult>> RunScenario(Func<KeyValuePair<string, Task<ScenarioResult>>> runScenario)
         {
-            var pair = run();
+            var groupedScenarioResult = runScenario();
 
-            return new KeyValuePair<string, ScenarioResult>(pair.Key,
-                await pair.Value.ContinueWith<ScenarioResult>(HandleFailingScenario));
+            return new KeyValuePair<string, ScenarioResult>(groupedScenarioResult.Key,
+                await groupedScenarioResult.Value.ContinueWith<ScenarioResult>(HandleFailingScenario));
         }
 
         private static ScenarioResult HandleFailingScenario(Task<ScenarioResult> task)
@@ -94,6 +95,7 @@ namespace Cedar.Testing.TestRunner
 
         private async Task PrintResults(IEnumerable<IGrouping<string, ScenarioResult>> results)
         {
+
             results = results.ToList();
 
             foreach (var printer in GetPrinters())

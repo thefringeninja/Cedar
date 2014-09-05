@@ -1,8 +1,5 @@
 namespace Cedar.Testing.TestRunner
 {
-    using System.IO;
-    using System.Reflection;
-    using System.Threading.Tasks;
     using PowerArgs;
 
     public class TestRunnerOptions

@@ -184,7 +184,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, duration: builder._timer.Elapsed, occurredException: builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._timer.Elapsed, builder._occurredException);
                 }
             }
 

@@ -1,14 +1,11 @@
 ﻿namespace Cedar.Testing.Printing
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Threading.Tasks;
 
     public class TeamCityTestServicePrinter : IScenarioResultPrinter
     {
-        private readonly Stack<Tuple<string, TimeSpan?, bool>> _state = new Stack<Tuple<string, TimeSpan?, bool>>();
-
         private const string TeamCityServiceMessageFormat = "###teamcity[{0} {1}]";
 
         private static string Started(string name)
