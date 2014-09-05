@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Linq.Expressions;
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
@@ -22,15 +23,15 @@
         public static class Aggregate
         {
 
-            public interface Given<out T> : When<T> where T : IAggregate
+            public interface Given<T> : When<T> where T : IAggregate
             {
                 When<T> Given(params object[] events);
             }
 
-            public interface When<out T> : Then where T : IAggregate
+            public interface When<T> : Then where T : IAggregate
             {
-                Then When(Action<T> when);
-                Then When(Func<T, Task> when);
+                Then When(Expression<Func<T, Task>> when);
+                Then When(Expression<Action<T>> when);
             }
 
             public interface Then : IScenario
@@ -53,7 +54,7 @@
                 private Action<T> _runThen;
 
                 private object[] _given;
-                private Func<T, Task> _when;
+                private Expression<Func<T, Task>> _when;
                 private object[] _expect;
                 private Exception _occurredException;
                 private bool _passed;
@@ -71,7 +72,7 @@
                             aggregate.ApplyEvent(@event);
                         }
                     };
-                    _runWhen = aggregate => _when(aggregate);
+                    _runWhen = aggregate => _when.Compile()(aggregate);
 
                     _timer = new Stopwatch();
                 }
@@ -82,15 +83,21 @@
                     return this;
                 }
 
-                public Then When(Func<T, Task> when)
+                public Then When(Expression<Func<T, Task>> when)
                 {
                     _when = when;
                     return this;
                 }
 
-                public Then When(Action<T> when)
+                public Then When(Expression<Action<T>> when)
                 {
-                    return When(async aggregate => when(aggregate));
+                    var body = Expression.Block(
+                        when.Body,
+                        Expression.Call(typeof (Task), "FromResult", new[] {typeof (bool)}, Expression.Constant(true)));
+
+                    _when = Expression.Lambda<Func<T, Task>>(body, when.Parameters);
+
+                    return this;
                 }
 
                 public Then Then(params object[] expectedEvents)
