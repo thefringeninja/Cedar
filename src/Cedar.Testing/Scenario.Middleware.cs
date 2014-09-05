@@ -87,7 +87,7 @@
                 private IHttpClientRequest _when;
                 private Exception _occurredException;
                 private readonly ICommandExecutionSettings _commandExecutionSettings;
-                private bool _passed = false;
+                private bool _passed;
                 private readonly Stopwatch _timer;
 
                 public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string commandPath = null, string name = null)
@@ -248,7 +248,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._assertions, duration: builder._timer.Elapsed, occurredException: builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._assertions, builder._timer.Elapsed, builder._occurredException);
                 }
             }
 

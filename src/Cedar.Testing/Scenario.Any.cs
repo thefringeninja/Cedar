@@ -22,7 +22,6 @@
 
             public interface When<T> : Then<T>
             {
-                Then<T> When(Expression<Func<T, T>> when);
                 Then<T> When(Expression<Func<T, Task<T>>> when);
             }
 
@@ -60,18 +59,6 @@
                     _given = instance;
 
                     return this;
-                }
-
-                public Then<T> When(Expression<Func<T, T>> when)
-                {
-                    /*var parameter = Expression.Parameter(typeof (T), "instance");
-                    Expression body = Expression.Invoke(, parameter);
-                    return When(Expression.Lambda<Func<T, Task<
-                        T>>>(body, parameter));*/
-
-                   // return When(async instance => await instance);
-
-                    throw new NotImplementedException();
                 }
 
                 public Then<T> When(Expression<Func<T, Task<T>>> when)
@@ -140,7 +127,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, duration: builder._timer.Elapsed, occurredException: builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._timer.Elapsed, builder._occurredException);
                 }
             }
         }
