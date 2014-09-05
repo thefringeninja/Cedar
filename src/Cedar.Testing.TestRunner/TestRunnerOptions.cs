@@ -22,6 +22,14 @@ namespace Cedar.Testing.TestRunner
         [ArgDescription("Output folder.")]
         public string Output { get; set; }
 
+        public TestRunnerOptions()
+        {
+            Formatters = new[]
+            {
+                "PlainText"
+            };
+        }
+
         public string GetOutputWithExtension(string fileExtension)
         {
             if (String.IsNullOrWhiteSpace(Output)) throw new InvalidOperationException();

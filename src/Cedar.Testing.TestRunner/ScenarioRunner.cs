@@ -13,8 +13,6 @@ namespace Cedar.Testing.TestRunner
     {
         private readonly TestRunnerOptions _options;
 
-        private bool _disposed;
-
         public ScenarioRunner(TestRunnerOptions options)
         {
             _options = options;
@@ -60,13 +58,39 @@ namespace Cedar.Testing.TestRunner
 
         private IEnumerable<IScenarioResultPrinter> GetPrinters()
         {
+            var allPrinters = GetAllPrinters();
 
             if (IsRunningUnderTeamCity)
             {
                 yield return new TeamCityTestServicePrinter(new NonClosingTextWriter(Console.Out));
             }
 
-            yield return new PlainTextPrinter(OutputFactory);
+            foreach (var formatter in _options.Formatters)
+            {
+                Func<Func<string, TextWriter>, IScenarioResultPrinter> factory;
+                if (allPrinters.TryGetValue(formatter + "Printer", out factory))
+                {
+                    yield return factory(OutputFactory);
+                }
+            }
+        }
+
+        private static IDictionary<string,Func<Func<string, TextWriter>, IScenarioResultPrinter>> GetAllPrinters()
+        {
+            return (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                from type in assembly.GetTypes()
+                where type.IsClass && false == type.IsAbstract && typeof (IScenarioResultPrinter).IsAssignableFrom(type)
+                let constructor = type.GetConstructor(new[] {typeof (Func<string, TextWriter>)})
+                where constructor != null
+                select new
+                {
+                    type,
+                    constructor
+                }).ToDictionary(
+                    x => x.type.AssemblyQualifiedName,
+                    x => new Func<Func<string, TextWriter>, IScenarioResultPrinter>(
+                        factory => (IScenarioResultPrinter) x.constructor.Invoke(new object[] {factory})), PrinterTypeNameEqualityComparer.Instance
+                );
         }
 
         private Task<KeyValuePair<string, ScenarioResult>[]> RunTests(Assembly assembly)
@@ -121,6 +145,28 @@ namespace Cedar.Testing.TestRunner
 
                     await printer.PrintCategoryFooter(category.Key);
                 }
+            }
+        }
+
+        internal class PrinterTypeNameEqualityComparer : IEqualityComparer<string>
+        {
+            public static readonly IEqualityComparer<string> Instance = new PrinterTypeNameEqualityComparer();
+
+            private PrinterTypeNameEqualityComparer()
+            {
+                
+            }
+            public bool Equals(string x, string y)
+            {
+                Type a = Type.GetType(x, true, true);
+
+                return a.Name.Equals(y, StringComparison.InvariantCultureIgnoreCase)
+                       || a.FullName.Equals(y, StringComparison.InvariantCultureIgnoreCase);
+            }
+
+            public int GetHashCode(string obj)
+            {
+                return 0;
             }
         }
 
