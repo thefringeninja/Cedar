@@ -37,10 +37,11 @@
         }
 
         private readonly TextWriter _output;
+        private bool _disposed;
 
-        public TeamCityTestServicePrinter()
+        public TeamCityTestServicePrinter(TextWriter output)
         {
-            _output = Console.Out;
+            _output = output;
         }
 
         public Task PrintCategoryFooter(string category)
@@ -63,6 +64,18 @@
             }
 
             await _output.WriteLineAsync(Finished(result.Name, result.Duration));
+
+            await _output.FlushAsync();
+        }
+
+        public string FileExtension { get { return "teamcity"; } }
+        
+        public void Dispose()
+        {
+            if (_disposed) return;
+            
+            _disposed = true;
+            _output.Dispose();
         }
     }
 }

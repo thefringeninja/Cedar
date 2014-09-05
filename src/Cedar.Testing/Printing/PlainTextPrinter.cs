@@ -8,10 +8,11 @@
     public class PlainTextPrinter : IScenarioResultPrinter
     {
         private readonly TextWriter _output;
+        private bool _disposed;
 
-        public PlainTextPrinter(TextWriter output)
+        public PlainTextPrinter(Func<string, TextWriter> factory)
         {
-            _output = output;
+            _output = factory(FileExtension);
         }
 
         public async Task PrintResult(ScenarioResult result)
@@ -25,7 +26,11 @@
                 await WriteOcurredException(result.OccurredException);
             }
             await WriteFooter();
+
+            await _output.FlushAsync();
         }
+
+        public string FileExtension { get { return "txt"; } }
 
         private async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
         {
@@ -83,6 +88,14 @@
             await _output.WriteLineAsync(sectionName + ":");
             await _output.WriteLineAsync(section.NicePrint());
             await _output.WriteLineAsync();
+        }
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _output.Flush();
+            _output.Dispose();
         }
     }
 }

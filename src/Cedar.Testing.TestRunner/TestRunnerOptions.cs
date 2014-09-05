@@ -1,5 +1,7 @@
 namespace Cedar.Testing.TestRunner
 {
+    using System;
+    using System.IO;
     using PowerArgs;
 
     public class TestRunnerOptions
@@ -19,5 +21,12 @@ namespace Cedar.Testing.TestRunner
         
         [ArgDescription("Output folder.")]
         public string Output { get; set; }
+
+        public string GetOutputWithExtension(string fileExtension)
+        {
+            if (String.IsNullOrWhiteSpace(Output)) throw new InvalidOperationException();
+
+            return Path.ChangeExtension(Path.Combine(Output, Assembly), fileExtension);
+        }
     }
 }
