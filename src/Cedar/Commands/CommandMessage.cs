@@ -7,13 +7,15 @@
     {
         private readonly TCommand _command;
         private readonly Guid _commandId;
+        private readonly Guid _correlationId;
         private readonly ClaimsPrincipal _requestUser;
 
-        public CommandMessage(Guid commandId, ClaimsPrincipal requestUser, TCommand command)
+        public CommandMessage(Guid commandId, ClaimsPrincipal requestUser, TCommand command, Guid? correlationId = default (Guid?))
         {
             _commandId = commandId;
             _requestUser = requestUser;
             _command = command;
+            _correlationId = correlationId ?? Guid.NewGuid();
         }
 
         public TCommand Command
@@ -29,6 +31,11 @@
         public ClaimsPrincipal RequestUser
         {
             get { return _requestUser; }
+        }
+
+        public Guid CorrelationId
+        {
+            get { return _correlationId; }
         }
     }
 }
