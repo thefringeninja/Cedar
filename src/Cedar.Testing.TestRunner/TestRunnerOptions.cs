@@ -6,6 +6,8 @@ namespace Cedar.Testing.TestRunner
 
     public class TestRunnerOptions
     {
+        private string[] _formatters;
+
         [ArgDescription("Show help."), ArgShortcut("?")]
         public bool Help { get; set; }
 
@@ -17,14 +19,22 @@ namespace Cedar.Testing.TestRunner
         public bool Teamcity { get; set; }
 
         [ArgDescription("A list of formaters.")]
-        public string[] Formatters { get; set; }
-        
+        public string[] Formatters
+        {
+            get { return _formatters; }
+            set
+            {
+                if (value == null || value.Length == 0) return;
+                _formatters = value;
+            }
+        }
+
         [ArgDescription("Output folder.")]
         public string Output { get; set; }
 
         public TestRunnerOptions()
         {
-            Formatters = new[]
+            _formatters = new[]
             {
                 "PlainText"
             };
