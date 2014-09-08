@@ -54,7 +54,6 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Authorization.cs" />
-    <Compile Include="Printing\DisposableAction.cs" />
     <Compile Include="Printing\Extensions.cs" />
     <Compile Include="Printing\IScenarioResultPrinter.cs" />
     <Compile Include="Printing\MarkdownPrinter.cs" />
