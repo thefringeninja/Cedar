@@ -54,6 +54,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Authorization.cs" />
+    <Compile Include="Printing\Bootstrap\BootstrapPrinter.cs" />
     <Compile Include="Printing\Extensions.cs" />
     <Compile Include="Printing\IScenarioResultPrinter.cs" />
     <Compile Include="Printing\Markdown\MarkdownPrinter.cs" />
@@ -81,6 +82,9 @@
       <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
       <Name>Cedar</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Printing\Bootstrap\bootstrap.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
