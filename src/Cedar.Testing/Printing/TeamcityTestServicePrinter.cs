@@ -44,6 +44,11 @@
             _output = output;
         }
 
+        public Task Flush()
+        {
+            return _output.FlushAsync();
+        }
+
         public Task PrintCategoryFooter(string category)
         {
             return _output.WriteLineAsync(SuiteFinished(category));

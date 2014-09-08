@@ -31,6 +31,11 @@
             await _output.FlushAsync();
         }
 
+        public Task Flush()
+        {
+            return _output.FlushAsync();
+        }
+
         public string FileExtension { get { return "md"; } }
 
         private async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
@@ -98,7 +103,6 @@
         {
             if (_disposed) return;
             _disposed = true;
-            _output.Flush();
             _output.Dispose();
         }
     }

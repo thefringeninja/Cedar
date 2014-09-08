@@ -31,6 +31,11 @@
             await _output.FlushAsync();
         }
 
+        public Task Flush()
+        {
+            return _output.FlushAsync();
+        }
+
         public string FileExtension { get { return "txt"; } }
 
         private async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)

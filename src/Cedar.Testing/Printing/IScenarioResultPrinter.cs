@@ -8,7 +8,7 @@
         Task PrintCategoryFooter(string category);
         Task PrintCategoryHeader(string category);
         Task PrintResult(ScenarioResult result);
-
+        Task Flush();
         string FileExtension { get; }
     }
 }

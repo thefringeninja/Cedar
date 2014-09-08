@@ -145,6 +145,8 @@ namespace Cedar.Testing.TestRunner
 
                     await printer.PrintCategoryFooter(category.Key);
                 }
+
+                await printer.Flush();
             }
         }
 
