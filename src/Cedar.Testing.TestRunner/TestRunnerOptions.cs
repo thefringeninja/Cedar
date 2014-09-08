@@ -44,7 +44,9 @@ namespace Cedar.Testing.TestRunner
         {
             if (String.IsNullOrWhiteSpace(Output)) throw new InvalidOperationException();
 
-            return Path.ChangeExtension(Path.Combine(Output, Assembly), fileExtension);
+            var outputPath = Path.ChangeExtension(Path.Combine(Output, Path.GetFileName(Assembly)), fileExtension);
+
+            return outputPath;
         }
     }
 }
