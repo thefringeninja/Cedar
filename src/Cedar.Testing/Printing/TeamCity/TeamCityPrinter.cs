@@ -1,10 +1,10 @@
-﻿namespace Cedar.Testing.Printing
+﻿namespace Cedar.Testing.Printing.TeamCity
 {
     using System;
     using System.IO;
     using System.Threading.Tasks;
 
-    public class TeamCityTestServicePrinter : IScenarioResultPrinter
+    public class TeamCityPrinter : IScenarioResultPrinter
     {
         private const string TeamCityServiceMessageFormat = "###teamcity[{0} {1}]";
 
@@ -39,7 +39,7 @@
         private readonly TextWriter _output;
         private bool _disposed;
 
-        public TeamCityTestServicePrinter(TextWriter output)
+        public TeamCityPrinter(TextWriter output)
         {
             _output = output;
         }

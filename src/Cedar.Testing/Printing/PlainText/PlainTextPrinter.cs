@@ -1,4 +1,4 @@
-﻿namespace Cedar.Testing.Printing
+﻿namespace Cedar.Testing.Printing.PlainText
 {
     using System;
     using System.IO;
@@ -6,12 +6,12 @@
     using System.Threading.Tasks;
     using Inflector;
 
-    public class MarkdownPrinter : IScenarioResultPrinter
+    public class PlainTextPrinter : IScenarioResultPrinter
     {
         private readonly TextWriter _output;
         private bool _disposed;
 
-        public MarkdownPrinter(Func<string, TextWriter> factory)
+        public PlainTextPrinter(Func<string, TextWriter> factory)
         {
             _output = factory(FileExtension);
         }
@@ -36,19 +36,17 @@
             return _output.FlushAsync();
         }
 
-        public string FileExtension { get { return "md"; } }
+        public string FileExtension { get { return "txt"; } }
 
         private async Task WriteHeader(string scenarioName, TimeSpan? duration, bool passed)
         {
-            await _output.WriteAsync("###" + (scenarioName ?? "???")
+            await _output.WriteAsync((scenarioName ?? "???")
                 .Split('.').Last()
                 .Underscore().Titleize());
             await _output.WriteAsync(" - " + (passed ? "PASSED" : "FAILED"));
-            await _output.WriteLineAsync(" (completed in "
-                                         + (duration.HasValue
-                                             ? duration.Value.TotalMilliseconds + "ms"
-                                             : "???")
-                                         + ")");
+            await
+                _output.WriteLineAsync(" (completed in " +
+                                       (duration.HasValue ? duration.Value.TotalMilliseconds + "ms" : "???") + ")");
             await _output.WriteLineAsync();
         }
 
@@ -73,16 +71,16 @@
             return WriteSection("Expect", expect);
         }
 
-        private async Task WriteOcurredException(Exception occurredException)
+        private Task WriteOcurredException(Exception occurredException)
         {
-            await _output.WriteLineAsync("<pre>");
-            await WriteSection("Exception", occurredException, "");
-            await _output.WriteLineAsync("</pre>");
+            return WriteSection("Exception", occurredException);
         }
 
         public async Task PrintCategoryHeader(string category)
         {
-            await _output.WriteLineAsync("##" + (String.IsNullOrEmpty(category) ? "???" : category).Underscore().Humanize());
+            await _output.WriteLineAsync(new string('=', 80));
+            await _output.WriteLineAsync((String.IsNullOrEmpty(category) ? "???" : category).Underscore().Humanize());
+            await _output.WriteLineAsync(new string('=', 80));
             await _output.WriteLineAsync();
         }
 
@@ -91,10 +89,10 @@
             await _output.WriteLineAsync();
         }
 
-        private async Task WriteSection(string sectionName, object section, string prefix = "- ")
+        private async Task WriteSection(string sectionName, object section)
         {
-            await _output.WriteLineAsync("####" + sectionName + ":");
-            foreach (var line in section.NicePrint(prefix))
+            await _output.WriteLineAsync(sectionName + ":");
+            foreach (var line in section.NicePrint())
                 await _output.WriteLineAsync(line);
             await _output.WriteLineAsync();
         }
@@ -103,6 +101,7 @@
         {
             if (_disposed) return;
             _disposed = true;
+            _output.Flush();
             _output.Dispose();
         }
     }

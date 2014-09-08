@@ -56,9 +56,9 @@
     <Compile Include="Authorization.cs" />
     <Compile Include="Printing\Extensions.cs" />
     <Compile Include="Printing\IScenarioResultPrinter.cs" />
-    <Compile Include="Printing\MarkdownPrinter.cs" />
-    <Compile Include="Printing\PlainTextPrinter.cs" />
-    <Compile Include="Printing\TeamcityTestServicePrinter.cs" />
+    <Compile Include="Printing\Markdown\MarkdownPrinter.cs" />
+    <Compile Include="Printing\PlainText\PlainTextPrinter.cs" />
+    <Compile Include="Printing\TeamCity\TeamCityPrinter.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="IAuthorization.cs" />
     <Compile Include="IScenario.cs" />
