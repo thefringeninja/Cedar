@@ -8,7 +8,6 @@ namespace Cedar.Commands.Client
     using System.Threading.Tasks;
     using Cedar.ContentNegotiation.Client;
     using Cedar.ExceptionModels.Client;
-    using Newtonsoft.Json;
 
     public static class HttpClientExtensions
     {
@@ -31,12 +30,12 @@ namespace Cedar.Commands.Client
             }
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
+                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
+                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
         }

@@ -6,16 +6,14 @@ namespace Cedar.Queries.Client
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Cedar.Commands.Client;
     using Cedar.ContentNegotiation.Client;
     using Cedar.ExceptionModels.Client;
-    using Newtonsoft.Json;
-    
+
     public static class HttpClientExtensions
     {
-        public static async Task<TOutput> ExecuteQuery<TInput, TOutput>(this HttpClient client, TInput input, Guid commandId, IMessageExecutionSettings settings)
+        public static async Task<TOutput> ExecuteQuery<TInput, TOutput>(this HttpClient client, TInput input, Guid queryId, IMessageExecutionSettings settings)
         {
-            string queryJson = JsonConvert.SerializeObject(input, DefaultJsonSerializerSettings.Settings);
+            string queryJson = settings.Serializer.Serialize(input);
             var httpContent = new StringContent(queryJson);
             httpContent.Headers.ContentType =
                 MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, typeof(TInput).Name).ToLower());
@@ -32,15 +30,15 @@ namespace Cedar.Queries.Client
             }
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
+                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
+                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
-            return default(TOutput);
+            return await settings.Serializer.ReadObject<TOutput>(response.Content);
         }
     }
 }

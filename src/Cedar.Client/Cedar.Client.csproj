@@ -54,7 +54,7 @@
     <Compile Include="MessageExecutionSettings.cs" />
     <Compile Include="ContentNegotiation\Client\DefaultJsonSerializerSettings.cs" />
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />
-    <Compile Include="Commands\Client\HttpContentExtensions.cs" />
+    <Compile Include="ContentNegotiation\Client\HttpContentExtensions.cs" />
     <Compile Include="IMessageExecutionSettings.cs" />
     <Compile Include="ContentNegotiation\Client\IModelToExceptionConverter.cs" />
     <Compile Include="ContentNegotiation\Client\ModelToExceptionConverter.cs" />
@@ -76,7 +76,6 @@
     <Compile Include="Logging\LogProviders\NLogProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\Client\HttpClientExtensions.cs" />
-    <Compile Include="Queries\Client\HttpContentExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Cedar.Client.nuspec" />
