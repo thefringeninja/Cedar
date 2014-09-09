@@ -20,9 +20,11 @@ namespace Cedar.Queries.Client
 
             var request = new HttpRequestMessage(HttpMethod.Get, settings.Path + "/{0}".FormatWith(typeof(TInput).Name).ToLower())
             {
-                Content = httpContent
+                Content = httpContent,
             };
-            request.Headers.Accept.ParseAdd("application/json");
+            
+            request.Headers.Accept.ParseAdd("application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, typeof(TOutput).Name).ToLower());
+            
             HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
             if (response.StatusCode == HttpStatusCode.NotFound)
             {

@@ -39,7 +39,7 @@
 
                 try
                 {
-                    return HandleQuery(Guid.NewGuid(), options, context);
+                    return HandleQuery(context, Guid.NewGuid(), queryPath, options);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -53,10 +53,17 @@
             };
         }
 
-        private static async Task HandleQuery(Guid queryId, HandlerSettings options, IOwinContext context)
+        private static async Task HandleQuery(IOwinContext context, Guid queryId, string queryPath, HandlerSettings options)
         {
             string contentType = context.Request.ContentType;
-            var inputType = options.ContentTypeMapper.GetFromContentType(contentType);
+            var inputType = options.ContentTypeMapper.GetFromContentType(context.Request.Path.Value.Remove(0, queryPath.Length + 1));
+
+            if (inputType == null)
+            {
+                await context.HandleNotFound(new NotSupportedException(), options);
+                return;
+            }
+
             if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) || inputType == null)
             {
                 // Not a json entity OR not content type not registered, unsupported
