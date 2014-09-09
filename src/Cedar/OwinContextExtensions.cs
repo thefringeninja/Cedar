@@ -14,6 +14,16 @@
             return context.HandleException(options, 400, "Bad Request", ex);
         }
 
+        internal static Task HandleNotFound(this IOwinContext context, Exception ex, HandlerSettings options)
+        {
+            return context.HandleException(options, 404, "Not Found", ex);
+        }
+
+        internal static Task HandleUnsupportedMediaType(this IOwinContext context, Exception ex, HandlerSettings options)
+        {
+            return context.HandleException(options, 415, "Unsupported Media Type", ex);
+        }
+
         internal static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
         {
             return context.HandleException(options, 500, "Internal Server Error", ex);

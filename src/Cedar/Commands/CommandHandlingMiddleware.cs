@@ -58,8 +58,7 @@
             if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase))
             {
                 // Not a json entity, bad request
-                context.Response.StatusCode = 415;
-                context.Response.ReasonPhrase = "Unsupported Media Type";
+                await context.HandleUnsupportedMediaType(new NotSupportedException(), options);
                 return;
             }
             Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
