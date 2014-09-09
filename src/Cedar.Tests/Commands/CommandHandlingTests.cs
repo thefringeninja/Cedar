@@ -76,7 +76,7 @@
         }
 
         [Fact]
-        public async Task When_request_is_not_json_then_should_get_Bad_Request()
+        public async Task When_request_is_not_json_then_should_get_Unsupported_Media_Type()
         {
             using (var client = _fixture.CreateHttpClient())
             {
@@ -88,7 +88,7 @@
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
                 var response = await client.SendAsync(request);
 
-                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+                response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
             }
         }
 
