@@ -82,7 +82,7 @@
 
         public async Task PrintCategoryHeader(string category)
         {
-            await _output.WriteLineAsync("##" + (String.IsNullOrEmpty(category) ? "???" : category).Underscore().Humanize());
+            await _output.WriteLineAsync("##" + (String.IsNullOrEmpty(category) ? "???" : category).Replace('.', ' ').Underscore().Humanize());
             await _output.WriteLineAsync();
         }
 
