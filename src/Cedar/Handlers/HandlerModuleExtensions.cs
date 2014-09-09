@@ -12,7 +12,7 @@ namespace Cedar.Handlers
     public static class HandlerModuleExtensions
     {
         public static Task Dispatch<TMessage>(
-            [NotNull] this HandlerModule handlerModules,
+            [NotNull] this IHandlerResolver handlerModules,
             TMessage message,
             CancellationToken cancellationToken)
             where TMessage : class
@@ -21,7 +21,7 @@ namespace Cedar.Handlers
         }
 
         public static async Task Dispatch<TMessage>(
-            [NotNull] this IEnumerable<HandlerModule> handlerModules,
+            [NotNull] this IEnumerable<IHandlerResolver> handlerModules,
             TMessage message,
             CancellationToken cancellationToken)
             where TMessage: class
@@ -37,7 +37,7 @@ namespace Cedar.Handlers
         }
 
         public static Task DispatchSingle<TMessage>(
-            [NotNull] this HandlerModule handlerModules,
+            [NotNull] this IHandlerResolver handlerModules,
             TMessage message,
             CancellationToken cancellationToken)
             where TMessage : class
@@ -46,7 +46,7 @@ namespace Cedar.Handlers
         }
         
         public static async Task DispatchSingle<TMessage>(
-            [NotNull] this IEnumerable<HandlerModule> handlerModules,
+            [NotNull] this IEnumerable<IHandlerResolver> handlerModules,
             TMessage message,
             CancellationToken cancellationToken)
             where TMessage : class
@@ -59,7 +59,7 @@ namespace Cedar.Handlers
         }
 
         public static async Task DispatchCommit(
-           [NotNull] this IEnumerable<HandlerModule> handlerModules,
+           [NotNull] this IEnumerable<IHandlerResolver> handlerModules,
            [NotNull] ICommit commit,
            CancellationToken cancellationToken)
         {
@@ -80,7 +80,7 @@ namespace Cedar.Handlers
         }
 
         public static async Task DispatchCommit(
-           [NotNull] this HandlerModule handlerModule,
+           [NotNull] this IHandlerResolver handlerModule,
            [NotNull] ICommit commit,
            CancellationToken cancellationToken)
         {
@@ -101,7 +101,7 @@ namespace Cedar.Handlers
         }
 
         private static Task DispatchDomainEvent<TDomainEvent>(
-            IEnumerable<HandlerModule> handlerModules,
+            IEnumerable<IHandlerResolver> handlerModules,
             ICommit commit,
             int version,
             IReadOnlyDictionary<string, object> eventHeaders,
