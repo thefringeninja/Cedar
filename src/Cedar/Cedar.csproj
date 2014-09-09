@@ -101,7 +101,7 @@
     <Compile Include="Commands\Guard.cs" />
     <Compile Include="ContentNegotiation\IContentTypeMapper.cs" />
     <Compile Include="ContentNegotiation\IExceptionToModelConverter.cs" />
-    <Compile Include="ContentNegotiation\HandlerModuleExtensions.cs" />
+    <Compile Include="Commands\HandlerModuleExtensions.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
     <Compile Include="Domain\ConventionEventRouter.cs" />
