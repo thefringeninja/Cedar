@@ -25,13 +25,11 @@
         }
 
         [Fact]
-        public void When_command_is_unknown_then_should_throw()
+        public void When_command_is_unknown_then_should_return_null()
         {
             var sut = new DefaultContentTypeMapper("vendor", Enumerable.Empty<Type>());
 
-            Action act = () => sut.GetFromContentType("unknown");
-
-            act.ShouldThrow<NotSupportedException>();
+            sut.GetFromContentType("unknown").Should().BeNull();
         }
     }
 }

@@ -34,11 +34,10 @@
                 .Replace("+json", string.Empty)
                 .Replace("+xml", string.Empty);
 
-            if (!_mapping.ContainsKey(typeName))
-            {
-                throw new NotSupportedException(string.Format("Type {0} is not supported.", typeName));
-            }
-            return _mapping[typeName];
+            Type type;
+            return _mapping.TryGetValue(typeName, out type)
+                ? type
+                : null;
         }
     }
 }

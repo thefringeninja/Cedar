@@ -55,13 +55,13 @@
         private static async Task HandleCommand(Guid commandId, HandlerSettings options, OwinContext context)
         {
             string contentType = context.Request.ContentType;
-            if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase))
+            Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
+            if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) || commandType == null)
             {
                 // Not a json entity, bad request
                 await context.HandleUnsupportedMediaType(new NotSupportedException(), options);
                 return;
             }
-            Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
             object command;
             using (var streamReader = new StreamReader(context.Request.Body))
             {
