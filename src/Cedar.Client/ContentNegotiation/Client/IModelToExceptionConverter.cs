@@ -1,7 +1,7 @@
 ﻿namespace Cedar.ContentNegotiation.Client
 {
     using System;
-    using Cedar.Commands.ExceptionModels;
+    using Cedar.ExceptionModels.Client;
 
     public interface IModelToExceptionConverter
     {

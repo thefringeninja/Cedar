@@ -3,8 +3,8 @@
     using System;
     using System.Text;
     using System.Threading.Tasks;
-    using Cedar.Commands.ExceptionModels;
     using Cedar.ContentNegotiation;
+    using Cedar.ExceptionModels.Client;
     using Microsoft.Owin;
 
     internal static class OwinContextExtensions

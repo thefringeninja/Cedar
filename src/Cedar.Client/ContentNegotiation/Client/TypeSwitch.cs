@@ -1,5 +1,5 @@
 // ReSharper disable once CheckNamespace
-namespace Cedar.Commands.Client
+namespace Cedar.ContentNegotiation.Client
 {
     using System;
 

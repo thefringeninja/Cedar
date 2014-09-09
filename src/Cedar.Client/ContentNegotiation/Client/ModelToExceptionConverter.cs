@@ -2,7 +2,7 @@
 {
     using System;
     using Cedar.Commands.Client;
-    using Cedar.Commands.ExceptionModels;
+    using Cedar.ExceptionModels.Client;
 
     public class ModelToExceptionConverter : IModelToExceptionConverter
     {
