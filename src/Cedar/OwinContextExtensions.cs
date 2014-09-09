@@ -11,21 +11,19 @@
     {
         internal static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
-            context.Response.StatusCode = 400;
-            context.Response.ReasonPhrase = "Bad Request";
-            context.Response.ContentType = "application/json";
-            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(ex);
-            string exceptionJson = options.Serialize(exceptionModel);
-            byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
-            context.Response.ContentLength = exceptionBytes.Length;
-            return context.Response.WriteAsync(exceptionBytes);
+            return context.HandleException(options, 400, "Bad Request", ex);
         }
 
         internal static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
         {
-            context.Response.StatusCode = 500;
-            context.Response.ReasonPhrase = "Internal Server Error";
-            context.Response.ContentType = "application/json";
+            return context.HandleException(options, 500, "Internal Server Error", ex);
+        }
+
+        internal static Task HandleException(this IOwinContext context, HandlerSettings options, int statusCode, string reasonPhrase, Exception ex, string contentType = "application/json")
+        {
+            context.Response.StatusCode = statusCode;
+            context.Response.ReasonPhrase = reasonPhrase;
+            context.Response.ContentType = contentType;
             ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(ex);
             string exceptionJson = options.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
