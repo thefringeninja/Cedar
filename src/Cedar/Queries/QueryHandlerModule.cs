@@ -15,12 +15,10 @@
         {
             _inner = new HandlerModule();
         }
-
-        public void For<TInput, TOutput>(Func<TInput, Task<TOutput>> query, params Pipe<QueryMessage<TInput, TOutput>>[] pipeline)
+        public void For<TInput, TOutput>(IQueryHandler<TInput, TOutput> handler, params Pipe<QueryMessage<TInput, TOutput>>[] pipeline)
         {
-            var handler = CreateHandler(query);
-
-            pipeline.Aggregate(_inner.For<QueryMessage<TInput, TOutput>>(), (builder, pipe) => builder.Pipe(pipe), BuildHandler(handler));
+            pipeline.Aggregate(_inner.For<QueryMessage<TInput, TOutput>>(), (builder, pipe) => builder.Pipe(pipe),
+                BuildHandler(handler));
         }
 
         private static Func<IHandlerBuilder<QueryMessage<TInput, TOutput>>, ICreateHandlerBuilder> BuildHandler<TInput, TOutput>(IQueryHandler<TInput, TOutput> handler)
@@ -33,27 +31,6 @@
         {
             var output = await handler.PerformQuery(message.Input);
             message.Source.TrySetResult(output);
-        }
-
-
-        private static IQueryHandler<TInput, TOutput> CreateHandler<TInput, TOutput>(Func<TInput, Task<TOutput>> query)
-        {
-            return new DelegateQueryHandler<TInput, TOutput>(query);
-        }
-
-        internal class DelegateQueryHandler<TInput, TOutput> : IQueryHandler<TInput, TOutput>
-        {
-            private readonly Func<TInput, Task<TOutput>> _query;
-
-            public DelegateQueryHandler(Func<TInput, Task<TOutput>> query)
-            {
-                _query = query;
-            }
-
-            public Task<TOutput> PerformQuery(TInput input)
-            {
-                return _query(input);
-            }
         }
 
         public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>()
