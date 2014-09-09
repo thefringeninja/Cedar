@@ -14,67 +14,68 @@
 
     public static class CommandHandlingMiddleware
     {
+        private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
+            .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
+
         public static MidFunc HandleCommands(HandlerSettings options)
         {
             Guard.EnsureNotNull(options, "options");
 
-            var dispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
-                .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
-
-            return next => async env =>
+            return next => env =>
             {
                 // PUT "/{guid}" with a Json body.
                 var context = new OwinContext(env);
                 if (!context.Request.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
                 {
                     // Not a PUT, pass through.
-                    await next(env);
-                    return;
+                    return next(env);
                 }
                 var commandIdString = context.Request.Path.Value.Substring(1);
                 Guid commandId;
                 if (!Guid.TryParse(commandIdString, out commandId))
                 {
                     // Resource is not a GUID, pass through
-                    await next(env);
-                    return;
+                    return next(env);
                 }
                 try
                 {
-                    string contentType = context.Request.ContentType;
-                    if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Not a json entity, bad request
-                        context.Response.StatusCode = 415;
-                        context.Response.ReasonPhrase = "Unsupported Media Type";
-                        return;
-                    }
-                    Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
-                    object command;
-                    using (var streamReader = new StreamReader(context.Request.Body))
-                    {
-                        command = options.Deserialize(streamReader, commandType);
-                    }
-                    var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
-                    var dispatchCommand = dispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
-                    await (Task)dispatchCommand.Invoke(null, new[]
-                    {
-                        options.HandlerModules, commandId, user, command, context.Request.CallCancelled
-                    });
+                    return HandleCommand(commandId, options, context);
                 }
                 catch (InvalidOperationException ex)
                 {
-                    context.HandleBadRequest(ex, options);
-                    return;
+                    return context.HandleBadRequest(ex, options);
                 }
                 catch (Exception ex)
                 {
-                    context.HandleInternalServerError(ex, options);
-                    return;
+                    return context.HandleInternalServerError(ex, options);
                 }
-                context.Response.StatusCode = 202;
-                context.Response.ReasonPhrase = "Accepted";
             };
+        }
+
+        private static async Task HandleCommand(Guid commandId, HandlerSettings options, OwinContext context)
+        {
+            string contentType = context.Request.ContentType;
+            if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase))
+            {
+                // Not a json entity, bad request
+                context.Response.StatusCode = 415;
+                context.Response.ReasonPhrase = "Unsupported Media Type";
+                return;
+            }
+            Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
+            object command;
+            using (var streamReader = new StreamReader(context.Request.Body))
+            {
+                command = options.Deserialize(streamReader, commandType);
+            }
+            var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
+            var dispatchCommand = DispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
+            await (Task) dispatchCommand.Invoke(null, new[]
+            {
+                options.HandlerModules, commandId, user, command, context.Request.CallCancelled
+            });
+            context.Response.StatusCode = 202;
+            context.Response.ReasonPhrase = "Accepted";
         }
     }
 }

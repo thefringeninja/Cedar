@@ -2,13 +2,14 @@
 {
     using System;
     using System.Text;
+    using System.Threading.Tasks;
     using Cedar.Commands.ExceptionModels;
     using Cedar.ContentNegotiation;
     using Microsoft.Owin;
 
     internal static class OwinContextExtensions
     {
-        internal static void HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
+        internal static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
             context.Response.StatusCode = 400;
             context.Response.ReasonPhrase = "Bad Request";
@@ -17,10 +18,10 @@
             string exceptionJson = options.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
-            context.Response.Write(exceptionBytes);
+            return context.Response.WriteAsync(exceptionBytes);
         }
 
-        internal static void HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
+        internal static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
         {
             context.Response.StatusCode = 500;
             context.Response.ReasonPhrase = "Internal Server Error";
@@ -29,7 +30,7 @@
             string exceptionJson = options.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
-            context.Response.Write(exceptionBytes);
+            return context.Response.WriteAsync(exceptionBytes);
         }
     }
 }
