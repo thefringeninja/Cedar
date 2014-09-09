@@ -17,7 +17,7 @@
         private static readonly MethodInfo DispatchQueryMethodInfo = typeof(HandlerModulesDispatchQuery)
             .GetMethod("DispatchQuery", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleCommands(HandlerSettings options)
+        public static MidFunc HandleCommands(HandlerSettings options, string queryPath = "/query")
         {
             Guard.EnsureNotNull(options, "options");
 
@@ -26,6 +26,11 @@
             return next => env =>
             {
                 var context = new OwinContext(env);
+
+                if (!context.Request.Path.StartsWithSegments(new PathString(queryPath)))
+                {
+                    return next(env);
+                }
 
                 if (!acceptableMethods.Contains(context.Request.Method))
                 {
@@ -48,7 +53,7 @@
             };
         }
 
-        private static async Task HandleQuery(Guid queryId, HandlerSettings options, OwinContext context)
+        private static async Task HandleQuery(Guid queryId, HandlerSettings options, IOwinContext context)
         {
             string contentType = context.Request.ContentType;
             var inputType = options.ContentTypeMapper.GetFromContentType(contentType);
