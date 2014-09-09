@@ -83,9 +83,12 @@
     </Compile>
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
+    <Compile Include="ProcessManagers\ICommandDispatcher.cs" />
     <Compile Include="ProcessManagers\IProcessManager.cs" />
+    <Compile Include="ProcessManagers\IProcessManagerRepository.cs" />
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
     <Compile Include="ProcessManagers\ProcessCompleted.cs" />
+    <Compile Include="ProcessManagers\ProcessHandlerModule.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Commands\DefaultCommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
