@@ -7,7 +7,6 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
     using Cedar.Commands;
-    using Cedar.ContentNegotiation;
     using Microsoft.Owin;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
@@ -73,7 +72,7 @@
             object input;
             using (var streamReader = new StreamReader(context.Request.Body))
             {
-                input = options.Deserialize(streamReader, inputType);
+                input = options.Serializer.Deserialize(streamReader, inputType);
             }
             var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
             var dispatchQuery = DispatchQueryMethodInfo.MakeGenericMethod(input.GetType(), outputType);

@@ -48,6 +48,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Commands\Client\CommandExecutionSettings.cs" />
+    <Compile Include="ContentNegotiation\Client\DefaultJsonSerializer.cs" />
+    <Compile Include="ContentNegotiation\Client\ISerializer.cs" />
+    <Compile Include="ContentNegotiation\Client\SerializationExtensions.cs" />
     <Compile Include="MessageExecutionSettings.cs" />
     <Compile Include="ContentNegotiation\Client\DefaultJsonSerializerSettings.cs" />
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />

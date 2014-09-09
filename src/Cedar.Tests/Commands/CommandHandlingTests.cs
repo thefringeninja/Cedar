@@ -42,10 +42,10 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                var settings = new MessageExecutionSettings(
+                var settings = new CommandExecutionSettings(
                     _fixture.MessageExecutionSettings.Vendor,
                     _fixture.MessageExecutionSettings.ModelToExceptionConverter,
-                    "notfoundpath");
+                    path: "notfoundpath");
 
                 Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), settings);
 

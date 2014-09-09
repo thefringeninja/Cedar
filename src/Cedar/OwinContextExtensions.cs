@@ -4,6 +4,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.ContentNegotiation;
+    using Cedar.ContentNegotiation.Client;
     using Cedar.ExceptionModels.Client;
     using Microsoft.Owin;
 
@@ -40,7 +41,7 @@
             context.Response.ReasonPhrase = reasonPhrase;
             context.Response.ContentType = contentType;
             ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(ex);
-            string exceptionJson = options.Serialize(exceptionModel);
+            string exceptionJson = options.Serializer.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
             return context.Response.WriteAsync(exceptionBytes);

@@ -8,7 +8,7 @@
         internal static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            TypeNameHandling = TypeNameHandling.All
+            TypeNameHandling = TypeNameHandling.None
         };
     }
 }

@@ -14,7 +14,7 @@ namespace Cedar.Commands.Client
     {
         public static async Task ExecuteCommand(this HttpClient client, object command, Guid commandId, IMessageExecutionSettings settings)
         {
-            string commandJson = JsonConvert.SerializeObject(command, DefaultJsonSerializerSettings.Settings);
+            string commandJson = settings.Serializer.Serialize(command);
             var httpContent = new StringContent(commandJson);
             httpContent.Headers.ContentType =
                 MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, command.GetType().Name.ToLower()));

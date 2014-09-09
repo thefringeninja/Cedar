@@ -68,9 +68,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DeterministicGuidGenerator.cs" />
-    <Compile Include="ContentNegotiation\HandlerSettings.cs" />
-    <Compile Include="ContentNegotiation\HandlerSettingsExtensions.cs" />
-    <Compile Include="ContentNegotiation\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="HandlerSettings.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
@@ -96,7 +94,7 @@
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
     <Compile Include="TaskExtensions.cs" />
-    <Compile Include="ContentNegotiation\DefaultHandlerSettings.cs" />
+    <Compile Include="DefaultHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
     <Compile Include="ContentNegotiation\DefaultContentTypeMapper.cs" />

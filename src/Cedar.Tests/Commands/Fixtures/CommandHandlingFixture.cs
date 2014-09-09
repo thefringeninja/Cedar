@@ -6,6 +6,7 @@ namespace Cedar.Commands.Fixtures
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
     using Cedar.ContentNegotiation;
+    using Cedar.Handlers;
     using Microsoft.Owin;
 
     public class CommandHandlingFixture
@@ -29,7 +30,7 @@ namespace Cedar.Commands.Fixtures
                 });
             var options = new DefaultHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
             _midFunc = CommandHandlingMiddleware.HandleCommands(options);
-            _messageExecutionSettings = new MessageExecutionSettings(vendor);
+            _messageExecutionSettings = new CommandExecutionSettings(vendor);
         }
 
         public MessageExecutionSettings MessageExecutionSettings

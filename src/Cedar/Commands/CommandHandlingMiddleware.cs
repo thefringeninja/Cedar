@@ -5,7 +5,6 @@
     using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
-    using Cedar.ContentNegotiation;
     using Microsoft.Owin;
 
     using MidFunc = System.Func<
@@ -17,7 +16,7 @@
         private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
             .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleCommands(HandlerSettings options)
+        public static MidFunc HandleCommands(HandlerSettings options, string commandPath = "/commands")
         {
             Guard.EnsureNotNull(options, "options");
 
@@ -30,7 +29,15 @@
                     // Not a PUT, pass through.
                     return next(env);
                 }
-                var commandIdString = context.Request.Path.Value.Substring(1);
+
+                var path = context.Request.Path;
+                if (!path.StartsWithSegments(new PathString(commandPath), out path))
+                {
+                    // not routed to us
+                    return next(env);
+                }
+
+                var commandIdString = path.Value.Substring(1);
                 Guid commandId;
                 if (!Guid.TryParse(commandIdString, out commandId))
                 {
@@ -65,7 +72,7 @@
             object command;
             using (var streamReader = new StreamReader(context.Request.Body))
             {
-                command = options.Deserialize(streamReader, commandType);
+                command = options.Serializer.Deserialize(streamReader, commandType);
             }
             var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
             var dispatchCommand = DispatchCommandMethodInfo.MakeGenericMethod(command.GetType());

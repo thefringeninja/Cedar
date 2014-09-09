@@ -9,5 +9,7 @@
         IModelToExceptionConverter ModelToExceptionConverter { get; }
 
         string Path { get; }
+
+        ISerializer Serializer { get; }
     }
 }

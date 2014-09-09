@@ -101,7 +101,7 @@
                         return Task.FromResult(true);
                     });
 
-                    _messageExecutionSettings = new MessageExecutionSettings("vendor", path: commandPath);
+                    _messageExecutionSettings = new CommandExecutionSettings("vendor", path: commandPath);
                     
                     _appFunc = midFunc(next);
                     
