@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Linq.Expressions;
-    using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Cedar.Domain;
@@ -186,68 +185,6 @@
                 {
                     return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._timer.Elapsed, builder._occurredException);
                 }
-            }
-
-            internal class MessageEqualityComparer : IEqualityComparer<object>
-            {
-                private static bool ReflectionEquals(object x, object y)
-                {
-                    if (ReferenceEquals(x, y))
-                        return true;
-
-                    if (ReferenceEquals(x, null))
-                        return false;
-
-                    if (ReferenceEquals(y, null))
-                        return false;
-
-                    var type = x.GetType();
-
-                    if (type != y.GetType())
-                        return false;
-
-                    if (x == y)
-                        return true;
-
-                    if (type.IsValueType)
-                        return x.Equals(y);
-
-                    var fieldValues = from field in type.GetFields()
-                                      select new
-                                      {
-                                          member = (MemberInfo)field,
-                                          x = field.GetValue(x),
-                                          y = field.GetValue(y)
-                                      };
-
-                    var propertyValues = from property in type.GetProperties()
-                                         select new
-                                         {
-                                             member = (MemberInfo)property,
-                                             x = property.GetValue(x),
-                                             y = property.GetValue(y)
-                                         };
-
-                    var values = fieldValues.Concat(propertyValues);
-
-                    var differences = (from value in values
-                                       where false == ReflectionEquals(value.x, value.y)
-                                       select value).ToList();
-
-                    return false == differences.Any();
-                }
-
-                new public bool Equals(Object x, Object y)
-                {
-                    return ReflectionEquals(x, y);
-                }
-
-                public int GetHashCode(Object obj)
-                {
-                    return 0;
-                }
-
-                public static readonly MessageEqualityComparer Instance = new MessageEqualityComparer();
             }
         }
     }

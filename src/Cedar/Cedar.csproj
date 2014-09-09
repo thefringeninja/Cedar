@@ -67,9 +67,11 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DeterministicGuidGenerator.cs" />
     <Compile Include="Commands\CommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlerSettingsExtensions.cs" />
     <Compile Include="Commands\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
     <Compile Include="Handlers\HandlerModule.cs" />
@@ -80,6 +82,9 @@
     </Compile>
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
+    <Compile Include="ProcessManagers\IProcessManager.cs" />
+    <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
+    <Compile Include="ProcessManagers\ProcessCompleted.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Commands\DefaultCommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />

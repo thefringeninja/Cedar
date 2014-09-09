@@ -1,6 +1,9 @@
 ﻿namespace Cedar.Testing
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Cedar.ProcessManagers;
 
     public static partial class Scenario
     {

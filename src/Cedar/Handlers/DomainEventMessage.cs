@@ -1,5 +1,6 @@
 namespace Cedar.Handlers
 {
+    using System;
     using System.Collections.Generic;
     using NEventStore;
 
@@ -40,6 +41,21 @@ namespace Cedar.Handlers
         public T DomainEvent
         {
             get { return _domainEvent; }
+        }
+
+        public Guid? CorrelationId
+        {
+            get
+            {
+                object correlationIdRaw;
+                Guid correlationId;
+
+                if (false == _commit.Headers.TryGetValue("CorrelationId", out correlationIdRaw) || correlationIdRaw == null) return default(Guid?);
+
+                if (correlationIdRaw is Guid) return (Guid) correlationIdRaw;
+
+                return Guid.TryParse(correlationIdRaw.ToString(), out correlationId) ? correlationId : default(Guid?);
+            }
         }
     }
 }
