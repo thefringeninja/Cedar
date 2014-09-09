@@ -8,12 +8,12 @@
 
     public abstract class CommandHandlerSettings
     {
-        private readonly IEnumerable<HandlerModule> _handlerModules;
+        private readonly IEnumerable<IHandlerResolver> _handlerModules;
         private readonly ICommandTypeResolver _commandTypeResolver;
         private readonly IExceptionToModelConverter _exceptionToModelConverter;
 
         protected CommandHandlerSettings(
-            [NotNull] IEnumerable<HandlerModule> handlerModules,
+            [NotNull] IEnumerable<IHandlerResolver> handlerModules,
             [NotNull] ICommandTypeResolver commandTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter)
         {
@@ -25,7 +25,7 @@
             _exceptionToModelConverter = exceptionToModelConverter ?? new ExceptionToModelConverter();
         }
 
-        public IEnumerable<HandlerModule> HandlerModules
+        public IEnumerable<IHandlerResolver> HandlerModules
         {
             get { return _handlerModules; }
         }

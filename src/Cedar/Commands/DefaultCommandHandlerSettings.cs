@@ -12,7 +12,7 @@
         private readonly JsonSerializer _jsonSerializer;
 
         internal DefaultCommandHandlerSettings(
-           [NotNull] HandlerModule handlerModule,
+           [NotNull] IHandlerResolver handlerModule,
            [NotNull] ICommandTypeResolver commandTypeResolver,
            IExceptionToModelConverter exceptionToModelConverter = null,
            JsonSerializerSettings serializerSettings = null)
@@ -20,7 +20,7 @@
         {}
 
         internal DefaultCommandHandlerSettings(
-            [NotNull] IEnumerable<HandlerModule> handlerModules,
+            [NotNull] IEnumerable<IHandlerResolver> handlerModules,
             [NotNull] ICommandTypeResolver commandTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null,
             JsonSerializerSettings serializerSettings = null)

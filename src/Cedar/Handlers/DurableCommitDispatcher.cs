@@ -50,7 +50,7 @@
         public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] HandlerModule handlerModule,
+            [NotNull] IHandlerResolver handlerModule,
             TransientExceptionRetryPolicy retryPolicy = null) :
             this(eventStoreClient, checkpointRepository, new[] { handlerModule }, retryPolicy)
         {
@@ -76,7 +76,7 @@
         public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] IEnumerable<HandlerModule> handlerModules,
+            [NotNull] IEnumerable<IHandlerResolver> handlerModules,
             TransientExceptionRetryPolicy retryPolicy = null):
             this(eventStoreClient, checkpointRepository, handlerModules.DispatchCommit, retryPolicy )
         {

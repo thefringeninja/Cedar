@@ -12,7 +12,7 @@
     {
         [UsedImplicitly]
         public static Task DispatchCommand<TCommand>(
-            this IEnumerable<HandlerModule> handlerModules,
+            this IEnumerable<IHandlerResolver> handlerModules,
             Guid commandId,
             ClaimsPrincipal requstUser,
             TCommand command,
@@ -45,7 +45,7 @@
         /// <returns>A <see cref="Task"/> that represesnts the operation.</returns>
         [UsedImplicitly]
         public static Task DispatchCommand<TCommand>(
-            this HandlerModule handlerModule,
+            this IHandlerResolver handlerModule,
             Guid commandId,
             ClaimsPrincipal requstUser,
             TCommand command,
