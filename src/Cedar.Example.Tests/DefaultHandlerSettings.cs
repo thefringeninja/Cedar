@@ -6,28 +6,29 @@ namespace Cedar.Example.Tests
     using System.Linq;
     using Cedar.Annotations;
     using Cedar.Commands;
+    using Cedar.ContentNegotiation;
     using Cedar.Handlers;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
-    internal class DefaultCommandHandlerSettings : CommandHandlerSettings
+    internal class DefaultHandlerSettings : HandlerSettings
     {
         private readonly JsonSerializer _jsonSerializer;
 
-        internal DefaultCommandHandlerSettings(
+        internal DefaultHandlerSettings(
             [NotNull] HandlerModule handlerModule,
-            [NotNull] ICommandTypeResolver commandTypeResolver,
+            [NotNull] IContentTypeMapper contentTypeMapper,
             IExceptionToModelConverter exceptionToModelConverter = null,
             JsonSerializerSettings serializerSettings = null)
-            : this(Enumerable.Repeat(handlerModule, 1), commandTypeResolver, exceptionToModelConverter, serializerSettings)
+            : this(Enumerable.Repeat(handlerModule, 1), contentTypeMapper, exceptionToModelConverter, serializerSettings)
         {}
 
-        internal DefaultCommandHandlerSettings(
+        internal DefaultHandlerSettings(
             [NotNull] IEnumerable<HandlerModule> handlerModules,
-            [NotNull] ICommandTypeResolver commandTypeResolver,
+            [NotNull] IContentTypeMapper contentTypeMapper,
             IExceptionToModelConverter exceptionToModelConverter = null,
             JsonSerializerSettings serializerSettings = null)
-            : base(handlerModules, commandTypeResolver, exceptionToModelConverter)
+            : base(handlerModules, contentTypeMapper, exceptionToModelConverter)
         {
             _jsonSerializer = JsonSerializer.Create(serializerSettings ?? new JsonSerializerSettings
             {

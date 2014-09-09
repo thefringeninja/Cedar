@@ -1,27 +1,28 @@
-﻿namespace Cedar.Commands
+﻿namespace Cedar.ContentNegotiation
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using Cedar.Annotations;
+    using Cedar.Commands;
     using Cedar.Handlers;
 
-    public abstract class CommandHandlerSettings
+    public abstract class HandlerSettings
     {
         private readonly IEnumerable<IHandlerResolver> _handlerModules;
-        private readonly ICommandTypeResolver _commandTypeResolver;
+        private readonly IContentTypeMapper _contentTypeMapper;
         private readonly IExceptionToModelConverter _exceptionToModelConverter;
 
-        protected CommandHandlerSettings(
+        protected HandlerSettings(
             [NotNull] IEnumerable<IHandlerResolver> handlerModules,
-            [NotNull] ICommandTypeResolver commandTypeResolver,
+            [NotNull] IContentTypeMapper contentTypeMapper,
             IExceptionToModelConverter exceptionToModelConverter)
         {
             Guard.EnsureNotNull(handlerModules, "handlerResolver");
-            Guard.EnsureNotNull(commandTypeResolver, "commandTypeResolver");
+            Guard.EnsureNotNull(contentTypeMapper, "contentTypeMapper");
 
             _handlerModules = handlerModules;
-            _commandTypeResolver = commandTypeResolver;
+            _contentTypeMapper = contentTypeMapper;
             _exceptionToModelConverter = exceptionToModelConverter ?? new ExceptionToModelConverter();
         }
 
@@ -30,9 +31,9 @@
             get { return _handlerModules; }
         }
 
-        public ICommandTypeResolver CommandTypeResolver
+        public IContentTypeMapper ContentTypeMapper
         {
-            get { return _commandTypeResolver; }
+            get { return _contentTypeMapper; }
         }
 
         public IExceptionToModelConverter ExceptionToModelConverter

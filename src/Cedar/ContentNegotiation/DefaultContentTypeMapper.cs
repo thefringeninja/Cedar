@@ -1,9 +1,10 @@
-﻿namespace Cedar.Commands
+﻿namespace Cedar.ContentNegotiation
 {
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
+    using Cedar.Commands;
 
     /// <summary>
     /// Represents and way to get command type from a http Content-Type. ConentType is expected
@@ -11,33 +12,33 @@
     /// 'application/vnd.{vendorName}.{commandtype}+xml' where CommanandTypeName ia a command's
     /// type Name in lowercase.
     /// </summary>
-    public class DefaultCommandTypeFromContentTypeResolver : ICommandTypeResolver
+    public class DefaultContentTypeMapper : IContentTypeMapper
     {
         private readonly string _vendorName;
-        private readonly Dictionary<string, Type> _commandTypes;
+        private readonly Dictionary<string, Type> _mapping;
 
-        public DefaultCommandTypeFromContentTypeResolver(string vendorName, IEnumerable<Type> knownCommandTypes)
+        public DefaultContentTypeMapper(string vendorName, IEnumerable<Type> knownTypes)
         {
             Guard.EnsureNullOrWhiteSpace(vendorName, "vendorName");
-            Guard.EnsureNotNull(knownCommandTypes, "knownCommandTypes");
+            Guard.EnsureNotNull(knownTypes, "knownTypes");
 
             _vendorName = vendorName;
-            _commandTypes = knownCommandTypes
+            _mapping = knownTypes
                 .ToDictionary(t => t.Name.ToLower(CultureInfo.InvariantCulture));
         }
 
         public Type GetFromContentType(string contentType)
         {
-            string commandTypeName = contentType
+            string typeName = contentType
                 .Replace(@"application/vnd." + _vendorName + ".", string.Empty)
                 .Replace("+json", string.Empty)
                 .Replace("+xml", string.Empty);
 
-            if (!_commandTypes.ContainsKey(commandTypeName))
+            if (!_mapping.ContainsKey(typeName))
             {
-                throw new NotSupportedException(string.Format("Command {0} is not supported.", commandTypeName));
+                throw new NotSupportedException(string.Format("Type {0} is not supported.", typeName));
             }
-            return _commandTypes[commandTypeName];
+            return _mapping[typeName];
         }
     }
 }

@@ -1,10 +1,10 @@
-﻿namespace Cedar.Commands
+﻿namespace Cedar.ContentNegotiation
 {
     using System.IO;
 
-    public static class CommandHandlerSettingsExtensions
+    public static class HandlerSettingsExtensions
     {
-        public static string Serialize(this CommandHandlerSettings options, object target)
+        public static string Serialize(this HandlerSettings options, object target)
         {
             using (var writer = new StringWriter())
             {

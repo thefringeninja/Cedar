@@ -1,4 +1,4 @@
-﻿namespace Cedar.Commands
+﻿namespace Cedar.ContentNegotiation
 {
     using System;
     using System.Collections.Generic;
@@ -6,6 +6,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using Cedar.Commands;
     using Cedar.Handlers;
 
     public static class HandlerModulesDispatchCommand

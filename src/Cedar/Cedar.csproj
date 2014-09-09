@@ -68,9 +68,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DeterministicGuidGenerator.cs" />
-    <Compile Include="Commands\CommandHandlerSettings.cs" />
-    <Compile Include="Commands\CommandHandlerSettingsExtensions.cs" />
-    <Compile Include="Commands\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="ContentNegotiation\HandlerSettings.cs" />
+    <Compile Include="ContentNegotiation\HandlerSettingsExtensions.cs" />
+    <Compile Include="ContentNegotiation\DefaultJsonSerializerSettings.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
@@ -93,15 +93,15 @@
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
     <Compile Include="TaskExtensions.cs" />
-    <Compile Include="Commands\DefaultCommandHandlerSettings.cs" />
+    <Compile Include="ContentNegotiation\DefaultHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
-    <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolver.cs" />
-    <Compile Include="Commands\ExceptionToModelConverter.cs" />
+    <Compile Include="ContentNegotiation\DefaultContentTypeMapper.cs" />
+    <Compile Include="ContentNegotiation\ExceptionToModelConverter.cs" />
     <Compile Include="Commands\Guard.cs" />
-    <Compile Include="Commands\ICommandTypeResolver.cs" />
-    <Compile Include="Commands\IExceptionToModelConverter.cs" />
-    <Compile Include="Commands\HandlerModuleExtensions.cs" />
+    <Compile Include="ContentNegotiation\IContentTypeMapper.cs" />
+    <Compile Include="ContentNegotiation\IExceptionToModelConverter.cs" />
+    <Compile Include="ContentNegotiation\HandlerModuleExtensions.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
     <Compile Include="Domain\ConventionEventRouter.cs" />
@@ -167,6 +167,7 @@
       <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

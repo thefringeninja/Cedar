@@ -1,4 +1,4 @@
-﻿namespace Cedar.Commands
+﻿namespace Cedar.ContentNegotiation
 {
     using System;
     using System.Collections.Generic;
@@ -7,24 +7,24 @@
     using Cedar.Handlers;
     using Newtonsoft.Json;
 
-    internal class DefaultCommandHandlerSettings : CommandHandlerSettings
+    internal class DefaultHandlerSettings : HandlerSettings
     {
         private readonly JsonSerializer _jsonSerializer;
 
-        internal DefaultCommandHandlerSettings(
+        internal DefaultHandlerSettings(
            [NotNull] IHandlerResolver handlerModule,
-           [NotNull] ICommandTypeResolver commandTypeResolver,
+           [NotNull] IContentTypeMapper contentTypeMapper,
            IExceptionToModelConverter exceptionToModelConverter = null,
            JsonSerializerSettings serializerSettings = null)
-            : this(new[] { handlerModule }, commandTypeResolver, exceptionToModelConverter, serializerSettings)
+            : this(new[] { handlerModule }, contentTypeMapper, exceptionToModelConverter, serializerSettings)
         {}
 
-        internal DefaultCommandHandlerSettings(
+        internal DefaultHandlerSettings(
             [NotNull] IEnumerable<IHandlerResolver> handlerModules,
-            [NotNull] ICommandTypeResolver commandTypeResolver,
+            [NotNull] IContentTypeMapper contentTypeMapper,
             IExceptionToModelConverter exceptionToModelConverter = null,
             JsonSerializerSettings serializerSettings = null)
-            : base(handlerModules, commandTypeResolver, exceptionToModelConverter)
+            : base(handlerModules, contentTypeMapper, exceptionToModelConverter)
         {
             _jsonSerializer = JsonSerializer.Create(serializerSettings ?? DefaultJsonSerializerSettings.Settings);
         }

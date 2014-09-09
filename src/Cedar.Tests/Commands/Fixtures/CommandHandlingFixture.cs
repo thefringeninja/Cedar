@@ -5,6 +5,7 @@ namespace Cedar.Commands.Fixtures
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
+    using Cedar.ContentNegotiation;
     using Microsoft.Owin;
 
     public class CommandHandlingFixture
@@ -18,7 +19,7 @@ namespace Cedar.Commands.Fixtures
 
             var handlerModule = new TestHandlerModule();
            
-            var commandTypeFromContentTypeResolver = new DefaultCommandTypeFromContentTypeResolver(
+            var commandTypeFromContentTypeResolver = new DefaultContentTypeMapper(
                 vendor,
                 new[]
                 {
@@ -26,7 +27,7 @@ namespace Cedar.Commands.Fixtures
                     typeof (TestCommandWithoutHandler),
                     typeof (TestCommandWhoseHandlerThrows)
                 });
-            var options = new DefaultCommandHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
+            var options = new DefaultHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
             _midFunc = CommandHandlingMiddleware.HandleCommands(options);
             _commandExecutionSettings = new CommandExecutionSettings(vendor);
         }

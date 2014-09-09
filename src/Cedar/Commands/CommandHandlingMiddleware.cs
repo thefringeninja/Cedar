@@ -7,6 +7,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.Commands.ExceptionModels;
+    using Cedar.ContentNegotiation;
     using Microsoft.Owin;
 
     using MidFunc = System.Func<
@@ -15,7 +16,7 @@
 
     public static class CommandHandlingMiddleware
     {
-        public static MidFunc HandleCommands(CommandHandlerSettings options)
+        public static MidFunc HandleCommands(HandlerSettings options)
         {
             Guard.EnsureNotNull(options, "options");
 
@@ -50,7 +51,7 @@
                         context.Response.ReasonPhrase = "Bad Request";
                         return;
                     }
-                    Type commandType = options.CommandTypeResolver.GetFromContentType(contentType);
+                    Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
                     object command;
                     using (var streamReader = new StreamReader(context.Request.Body))
                     {
@@ -77,7 +78,7 @@
             };
         }
 
-        private static void HandleBadRequest(IOwinContext context, InvalidOperationException ex, CommandHandlerSettings options)
+        private static void HandleBadRequest(IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
             context.Response.StatusCode = 400;
             context.Response.ReasonPhrase = "Bad Request";
@@ -89,7 +90,7 @@
             context.Response.Write(exceptionBytes);
         }
 
-        private static void HandleInternalServerError(IOwinContext context, Exception ex, CommandHandlerSettings options)
+        private static void HandleInternalServerError(IOwinContext context, Exception ex, HandlerSettings options)
         {
             context.Response.StatusCode = 500;
             context.Response.ReasonPhrase = "Internal Server Error";

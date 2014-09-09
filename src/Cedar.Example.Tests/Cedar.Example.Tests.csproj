@@ -99,7 +99,7 @@
     <Compile Include="ContrivedMiddleware.cs" />
     <Compile Include="starbucks_should.cs" />
     <Compile Include="ContrivedValueObject.cs" />
-    <Compile Include="DefaultCommandHandlerSettings.cs" />
+    <Compile Include="DefaultHandlerSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

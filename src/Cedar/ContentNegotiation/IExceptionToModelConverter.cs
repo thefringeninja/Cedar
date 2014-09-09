@@ -1,4 +1,4 @@
-﻿namespace Cedar.Commands
+﻿namespace Cedar.ContentNegotiation
 {
     using System;
     using Cedar.Commands.ExceptionModels;

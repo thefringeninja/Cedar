@@ -5,6 +5,7 @@
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands;
+    using Cedar.ContentNegotiation;
     using Cedar.Handlers;
     using Cedar.Testing;
     using Microsoft.Owin;
@@ -125,9 +126,9 @@
                     .Handle(async (message, _) => result = new QueryResult { Value = message.Command.Value });
 
                 var commands = CommandHandlingMiddleware.HandleCommands(
-                    new DefaultCommandHandlerSettings(
+                    new DefaultHandlerSettings(
                         module,
-                        new DefaultCommandTypeFromContentTypeResolver(
+                        new DefaultContentTypeMapper(
                             "vendor",
                             new[]
                             {
