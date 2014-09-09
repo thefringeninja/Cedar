@@ -12,7 +12,7 @@ namespace Cedar.Commands.Client
 
     public static class HttpClientExtensions
     {
-        public static async Task ExecuteCommand(this HttpClient client, object command, Guid commandId, ICommandExecutionSettings settings)
+        public static async Task ExecuteCommand(this HttpClient client, object command, Guid commandId, IMessageExecutionSettings settings)
         {
             string commandJson = JsonConvert.SerializeObject(command, DefaultJsonSerializerSettings.Settings);
             var httpContent = new StringContent(commandJson);

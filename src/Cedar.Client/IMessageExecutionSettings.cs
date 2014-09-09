@@ -1,8 +1,8 @@
-﻿namespace Cedar.Commands.Client
+﻿namespace Cedar
 {
     using Cedar.ContentNegotiation.Client;
 
-    public interface ICommandExecutionSettings
+    public interface IMessageExecutionSettings
     {
         string Vendor { get; }
 

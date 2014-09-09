@@ -20,7 +20,7 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), _fixture.CommandExecutionSettings);
+                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
 
                 act.ShouldNotThrow();
             }
@@ -31,7 +31,7 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrows(), Guid.NewGuid(), _fixture.CommandExecutionSettings);
+                Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrows(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
 
                 act.ShouldThrow<InvalidOperationException>();
             }
@@ -42,9 +42,9 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                var settings = new CommandExecutionSettings(
-                    _fixture.CommandExecutionSettings.Vendor,
-                    _fixture.CommandExecutionSettings.ModelToExceptionConverter,
+                var settings = new MessageExecutionSettings(
+                    _fixture.MessageExecutionSettings.Vendor,
+                    _fixture.MessageExecutionSettings.ModelToExceptionConverter,
                     "notfoundpath");
 
                 Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), settings);
@@ -69,7 +69,7 @@
             {
                 var request = new HttpRequestMessage(
                     new HttpMethod(httpMethod),
-                    _fixture.CommandExecutionSettings.Path + "/" + commandId);
+                    _fixture.MessageExecutionSettings.Path + "/" + commandId);
                 await client.SendAsync(request);
                 passedThrough.Should().BeTrue();
             }
@@ -81,7 +81,7 @@
             using (var client = _fixture.CreateHttpClient())
             {
                 var request = new HttpRequestMessage(HttpMethod.Put,
-                    _fixture.CommandExecutionSettings.Path + "/" + Guid.NewGuid())
+                    _fixture.MessageExecutionSettings.Path + "/" + Guid.NewGuid())
                 {
                     Content = new StringContent("text")
                 };

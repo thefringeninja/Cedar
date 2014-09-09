@@ -11,7 +11,7 @@ namespace Cedar.Commands.Fixtures
     public class CommandHandlingFixture
     {
         private readonly Func<Func<IDictionary<string, object>, Task>, Func<IDictionary<string, object>, Task>> _midFunc;
-        private readonly CommandExecutionSettings _commandExecutionSettings;
+        private readonly MessageExecutionSettings _messageExecutionSettings;
 
         public CommandHandlingFixture()
         {
@@ -29,12 +29,12 @@ namespace Cedar.Commands.Fixtures
                 });
             var options = new DefaultHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
             _midFunc = CommandHandlingMiddleware.HandleCommands(options);
-            _commandExecutionSettings = new CommandExecutionSettings(vendor);
+            _messageExecutionSettings = new MessageExecutionSettings(vendor);
         }
 
-        public CommandExecutionSettings CommandExecutionSettings
+        public MessageExecutionSettings MessageExecutionSettings
         {
-            get { return _commandExecutionSettings; }
+            get { return _messageExecutionSettings; }
         }
 
         public HttpClient CreateHttpClient()
