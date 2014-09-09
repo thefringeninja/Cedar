@@ -39,7 +39,7 @@
                 }
                 try
                 {
-                    return HandleCommand(commandId, options, context);
+                    return HandleCommand(context, commandId, options);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -52,7 +52,7 @@
             };
         }
 
-        private static async Task HandleCommand(Guid commandId, HandlerSettings options, OwinContext context)
+        private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerSettings options)
         {
             string contentType = context.Request.ContentType;
             Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
