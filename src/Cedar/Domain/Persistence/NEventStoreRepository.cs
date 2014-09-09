@@ -13,7 +13,6 @@ namespace Cedar.Domain.Persistence
         private readonly IConflictDetector _conflictDetector;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IStoreEvents _eventStore;
-        private readonly IDictionary<string, IEventStream> _streams = new Dictionary<string, IEventStream>();
 
         public NEventStoreRepository(IStoreEvents eventStore)
             : this(eventStore, new DefaultAggregateFactory(), new DefaultConflictDetector())
@@ -34,12 +33,6 @@ namespace Cedar.Domain.Persistence
             _conflictDetector = conflictDetector;
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         public virtual TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate
         {
             return GetById<TAggregate>(Bucket.Default, id);
@@ -58,7 +51,7 @@ namespace Cedar.Domain.Persistence
         public TAggregate GetById<TAggregate>(string bucketId, Guid id, int versionToLoad)
             where TAggregate : class, IAggregate
         {
-            IEventStream stream = OpenStream(bucketId, id, versionToLoad);
+            IEventStream stream = _eventStore.OpenStream(bucketId, id, 0, versionToLoad);
             IAggregate aggregate = GetAggregate<TAggregate>(stream);
             ApplyEventsToAggregate(versionToLoad, stream, aggregate);
             return aggregate as TAggregate;
@@ -108,24 +101,6 @@ namespace Cedar.Domain.Persistence
             }
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposing)
-            {
-                return;
-            }
-
-            lock (_streams)
-            {
-                foreach (var stream in _streams)
-                {
-                    stream.Value.Dispose();
-                }
-
-                _streams.Clear();
-            }
-        }
-
         private IAggregate GetAggregate<TAggregate>(IEventStream stream)
         {
             return _aggregateFactory.Build(typeof(TAggregate), stream.StreamId);
@@ -143,45 +118,24 @@ namespace Cedar.Domain.Persistence
             }
         }
 
-        private IEventStream OpenStream(string bucketId, Guid id, int version)
-        {
-            IEventStream stream;
-            string streamId = bucketId + "+" + id;
-            if (_streams.TryGetValue(streamId, out stream))
-            {
-                return stream;
-            }
-
-            stream = _eventStore.OpenStream(bucketId, id, 0, version);
-
-            return _streams[streamId] = stream;
-        }
-
         private IEventStream PrepareStream(string bucketId, IAggregate aggregate, Dictionary<string, object> headers)
         {
-            IEventStream stream;
-            string streamId = bucketId + "+" + aggregate.Id;
-            if (!_streams.TryGetValue(streamId, out stream))
-            {
-                _streams[streamId] = stream = _eventStore.CreateStream(bucketId, aggregate.Id);
-            }
-
+            IEventStream stream = _eventStore.CreateStream(bucketId, aggregate.Id);
             foreach (var item in headers)
             {
                 stream.UncommittedHeaders[item.Key] = item.Value;
             }
-
             aggregate.GetUncommittedEvents()
                 .Cast<object>()
                 .Select(x => new EventMessage {Body = x})
                 .ToList()
                 .ForEach(stream.Add);
-
             return stream;
         }
 
         private static Dictionary<string, object> PrepareHeaders(
-            IAggregate aggregate, Action<IDictionary<string, object>> updateHeaders)
+            IAggregate aggregate,
+            Action<IDictionary<string, object>> updateHeaders)
         {
             var headers = new Dictionary<string, object>();
 

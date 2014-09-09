@@ -4,7 +4,7 @@ namespace Cedar.Domain.Persistence
     using System.Collections.Generic;
     using System.Threading.Tasks;
 
-    public interface IRepository : IDisposable
+    public interface IRepository
     {
         TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate;
 
