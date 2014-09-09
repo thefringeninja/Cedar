@@ -89,6 +89,9 @@
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
     <Compile Include="ProcessManagers\ProcessCompleted.cs" />
     <Compile Include="ProcessManagers\ProcessHandlerModule.cs" />
+    <Compile Include="Queries\QueryHandlerModule.cs" />
+    <Compile Include="Queries\IQueryHandler.cs" />
+    <Compile Include="Queries\QueryMessage.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="Commands\DefaultCommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
