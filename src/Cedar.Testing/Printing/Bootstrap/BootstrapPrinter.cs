@@ -26,7 +26,7 @@
 
         public async Task PrintCategoryHeader(string category)
         {
-            _tableOfContents.Add(Tuple.Create(category, new List<ScenarioResult>()));
+            _tableOfContents.Add(Tuple.Create(category.Replace('.', ' ').Underscore().Titleize(), new List<ScenarioResult>()));
         }
 
         public async Task PrintCategoryFooter(string category)
@@ -79,7 +79,7 @@
                 var results = item.Item2;
                 await _output.WriteLineAsync(
                         String.Format(
-                            "<li ><a href='#{0}'>{1}</a> ({2})</li>",
+                            "<li><a href='#{0}'>{1}</a> ({2})</li>",
                             category.Underscore(), category, results.All(result => result.Passed) ? "PASSED" : "FAILED"));
             }
             await _output.WriteLineAsync("</ul></nav>");
@@ -151,12 +151,10 @@
 
         private async Task WriteOcurredException(Exception occurredException)
         {
-            await _output.WriteLineAsync("<pre>");
             await WriteSection("Exception", occurredException, "");
-            await _output.WriteLineAsync("</pre>");
         }
 
-        private async Task WriteSection(string sectionName, object section, string prefix = "- ")
+        private async Task WriteSection(string sectionName, object section, string prefix = "\t")
         {
             await _output.WriteLineAsync(sectionName + ":");
             foreach (var line in section.NicePrint(prefix))
