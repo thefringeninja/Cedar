@@ -1,5 +1,7 @@
 namespace Cedar.Commands.Client
 {
+    using Cedar.ContentNegotiation.Client;
+
     public class CommandExecutionSettings : ICommandExecutionSettings
     {
         private readonly string _vendor;

@@ -1,4 +1,4 @@
-﻿namespace Cedar.Commands.Client
+﻿namespace Cedar.ContentNegotiation.Client
 {
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;

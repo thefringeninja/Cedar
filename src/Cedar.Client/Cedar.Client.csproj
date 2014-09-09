@@ -48,12 +48,12 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Commands\Client\CommandExecutionSettings.cs" />
-    <Compile Include="Commands\Client\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="ContentNegotiation\Client\DefaultJsonSerializerSettings.cs" />
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />
     <Compile Include="Commands\Client\HttpContentExtensions.cs" />
     <Compile Include="Commands\Client\ICommandExecutionSettings.cs" />
-    <Compile Include="Commands\Client\IModelToExceptionConverter.cs" />
-    <Compile Include="Commands\Client\ModelToExceptionConverter.cs" />
+    <Compile Include="ContentNegotiation\Client\IModelToExceptionConverter.cs" />
+    <Compile Include="ContentNegotiation\Client\ModelToExceptionConverter.cs" />
     <Compile Include="Commands\Client\StringExtensions.cs" />
     <Compile Include="Commands\Client\TypeSwitch.cs" />
     <Compile Include="Commands\ExceptionModels\ArgumentExceptionModel.cs" />

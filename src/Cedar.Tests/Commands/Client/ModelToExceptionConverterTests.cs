@@ -2,6 +2,7 @@
 {
     using System;
     using Cedar.Commands.ExceptionModels;
+    using Cedar.ContentNegotiation.Client;
     using FluentAssertions;
     using Xunit;
 
