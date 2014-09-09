@@ -90,8 +90,10 @@
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
     <Compile Include="ProcessManagers\ProcessCompleted.cs" />
     <Compile Include="ProcessManagers\ProcessHandlerModule.cs" />
+    <Compile Include="Queries\HandlerModuleExtensions.cs" />
     <Compile Include="Queries\QueryHandlerModule.cs" />
     <Compile Include="Queries\IQueryHandler.cs" />
+    <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="ContentNegotiation\DefaultHandlerSettings.cs" />

@@ -19,6 +19,11 @@
             return context.HandleException(options, 404, "Not Found", ex);
         }
 
+        internal static Task HandleNotAcceptable(this IOwinContext context, Exception ex, HandlerSettings options)
+        {
+            return context.HandleException(options, 406, "Not Acceptable", ex);
+        }
+
         internal static Task HandleUnsupportedMediaType(this IOwinContext context, Exception ex, HandlerSettings options)
         {
             return context.HandleException(options, 415, "Unsupported Media Type", ex);
