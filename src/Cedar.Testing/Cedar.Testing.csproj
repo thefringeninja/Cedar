@@ -70,14 +70,12 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Authorization.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
-    <Compile Include="MessageEqualityComparer.cs" />
     <Compile Include="Printing\DisposableAction.cs" />
     <Compile Include="Printing\Extensions.cs" />
     <Compile Include="Printing\IScenarioResultPrinter.cs" />
-    <Compile Include="Printing\MarkdownPrinter.cs" />
-    <Compile Include="Printing\PlainTextPrinter.cs" />
-    <Compile Include="Printing\TeamcityTestServicePrinter.cs" />
+    <Compile Include="Printing\Markdown\MarkdownPrinter.cs" />
+    <Compile Include="Printing\PlainText\PlainTextPrinter.cs" />
+    <Compile Include="Printing\TeamCity\TeamCityPrinter.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="IAuthorization.cs" />
     <Compile Include="IScenario.cs" />
@@ -101,6 +99,9 @@
       <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
       <Name>Cedar</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Printing\Bootstrap\bootstrap.css" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

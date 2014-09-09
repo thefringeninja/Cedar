@@ -8,6 +8,7 @@ namespace Cedar.Testing.TestRunner
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.Testing.Printing;
+    using Cedar.Testing.Printing.TeamCity;
 
     public class ScenarioRunner
     {
@@ -62,7 +63,7 @@ namespace Cedar.Testing.TestRunner
 
             if (IsRunningUnderTeamCity)
             {
-                yield return new TeamCityTestServicePrinter(new NonClosingTextWriter(Console.Out));
+                yield return new TeamCityPrinter(new NonClosingTextWriter(Console.Out));
             }
 
             foreach (var formatter in _options.Formatters)
@@ -145,6 +146,8 @@ namespace Cedar.Testing.TestRunner
 
                     await printer.PrintCategoryFooter(category.Key);
                 }
+
+                await printer.Flush();
             }
         }
 

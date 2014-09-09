@@ -6,6 +6,8 @@ namespace Cedar.Testing.TestRunner
 
     public class TestRunnerOptions
     {
+        private string[] _formatters;
+
         [ArgDescription("Show help."), ArgShortcut("?")]
         public bool Help { get; set; }
 
@@ -17,14 +19,22 @@ namespace Cedar.Testing.TestRunner
         public bool Teamcity { get; set; }
 
         [ArgDescription("A list of formaters.")]
-        public string[] Formatters { get; set; }
-        
+        public string[] Formatters
+        {
+            get { return _formatters; }
+            set
+            {
+                if (value == null || value.Length == 0) return;
+                _formatters = value;
+            }
+        }
+
         [ArgDescription("Output folder.")]
         public string Output { get; set; }
 
         public TestRunnerOptions()
         {
-            Formatters = new[]
+            _formatters = new[]
             {
                 "PlainText"
             };
@@ -34,7 +44,9 @@ namespace Cedar.Testing.TestRunner
         {
             if (String.IsNullOrWhiteSpace(Output)) throw new InvalidOperationException();
 
-            return Path.ChangeExtension(Path.Combine(Output, Assembly), fileExtension);
+            var outputPath = Path.ChangeExtension(Path.Combine(Output, Path.GetFileName(Assembly)), fileExtension);
+
+            return outputPath;
         }
     }
 }
