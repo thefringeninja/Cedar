@@ -1,7 +1,8 @@
 ﻿namespace Cedar.Commands
 {
     using System;
-    using Cedar.Commands.ExceptionModels;
+    using Cedar.ContentNegotiation;
+    using Cedar.ExceptionModels.Client;
     using FluentAssertions;
     using Xunit;
 

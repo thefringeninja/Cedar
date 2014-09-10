@@ -1,6 +1,7 @@
 ﻿namespace Cedar.Commands
 {
     using System;
+    using Cedar.ContentNegotiation;
     using FluentAssertions;
     using Xunit;
 
@@ -9,7 +10,7 @@
         [Fact]
         public void Should_get_command_type()
         {
-            var resolver = new DefaultCommandTypeFromContentTypeResolver("cedar.tests", new[] {typeof (CommandTypeResolverTests)});
+            var resolver = new DefaultContentTypeMapper("cedar.tests", new[] {typeof (CommandTypeResolverTests)});
 
             Type commandType = resolver.GetFromContentType(@"application/vnd.cedar.tests.commandtyperesolvertests+json");
 

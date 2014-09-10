@@ -5,12 +5,14 @@ namespace Cedar.Commands.Fixtures
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
+    using Cedar.ContentNegotiation;
+    using Cedar.Handlers;
     using Microsoft.Owin;
 
     public class CommandHandlingFixture
     {
         private readonly Func<Func<IDictionary<string, object>, Task>, Func<IDictionary<string, object>, Task>> _midFunc;
-        private readonly CommandExecutionSettings _commandExecutionSettings;
+        private readonly MessageExecutionSettings _messageExecutionSettings;
 
         public CommandHandlingFixture()
         {
@@ -18,7 +20,7 @@ namespace Cedar.Commands.Fixtures
 
             var handlerModule = new TestHandlerModule();
            
-            var commandTypeFromContentTypeResolver = new DefaultCommandTypeFromContentTypeResolver(
+            var commandTypeFromContentTypeResolver = new DefaultContentTypeMapper(
                 vendor,
                 new[]
                 {
@@ -26,14 +28,14 @@ namespace Cedar.Commands.Fixtures
                     typeof (TestCommandWithoutHandler),
                     typeof (TestCommandWhoseHandlerThrows)
                 });
-            var options = new DefaultCommandHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
+            var options = new DefaultHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
             _midFunc = CommandHandlingMiddleware.HandleCommands(options);
-            _commandExecutionSettings = new CommandExecutionSettings(vendor);
+            _messageExecutionSettings = new CommandExecutionSettings(vendor);
         }
 
-        public CommandExecutionSettings CommandExecutionSettings
+        public MessageExecutionSettings MessageExecutionSettings
         {
-            get { return _commandExecutionSettings; }
+            get { return _messageExecutionSettings; }
         }
 
         public HttpClient CreateHttpClient()

@@ -86,7 +86,7 @@
                 private IHttpClientRequest[] _given = new IHttpClientRequest[0];
                 private IHttpClientRequest _when;
                 private Exception _occurredException;
-                private readonly ICommandExecutionSettings _commandExecutionSettings;
+                private readonly IMessageExecutionSettings _messageExecutionSettings;
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
@@ -101,7 +101,7 @@
                         return Task.FromResult(true);
                     });
 
-                    _commandExecutionSettings = new CommandExecutionSettings("vendor", path: commandPath);
+                    _messageExecutionSettings = new CommandExecutionSettings("vendor", path: commandPath);
                     
                     _appFunc = midFunc(next);
                     
@@ -243,7 +243,7 @@
                             "No Authorization for '{0}' was found. You must set it up using WithUsers.");
                     }
 
-                    return context.Sender(httpClient, _commandExecutionSettings);
+                    return context.Sender(httpClient, _messageExecutionSettings);
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder builder)
@@ -318,7 +318,7 @@
 
             public interface IHttpClientRequest<TResponse>
             {
-                Func<HttpClient, ICommandExecutionSettings, Task<TResponse>> Sender { get; }
+                Func<HttpClient, IMessageExecutionSettings, Task<TResponse>> Sender { get; }
                 string AuthorizationId { get; }
                 Guid Id { get; }
             }
@@ -348,7 +348,7 @@
                 }
 
                 public TCommand Command { get; private set; }
-                public Func<HttpClient, ICommandExecutionSettings, Task<Unit>> Sender { get; private set; }
+                public Func<HttpClient, IMessageExecutionSettings, Task<Unit>> Sender { get; private set; }
                 public string AuthorizationId { get { return _authorization.Id; }}
                 public Guid Id { get; private set; }
 
@@ -372,7 +372,7 @@
                     Sender = (client, _) => query(client);
                 }
 
-                public Func<HttpClient, ICommandExecutionSettings, Task<TResponse>> Sender { get; private set; }
+                public Func<HttpClient, IMessageExecutionSettings, Task<TResponse>> Sender { get; private set; }
                 public string AuthorizationId { get { return _authorization.Id; } }
                 public Guid Id { get; private set; }
             }

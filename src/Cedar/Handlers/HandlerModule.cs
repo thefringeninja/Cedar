@@ -12,7 +12,7 @@
     /// <summary>
     /// Represents a collection of handlers pipelines.
     /// </summary>
-    public class HandlerModule : ICreateHandlerBuilder
+    public class HandlerModule : ICreateHandlerBuilder, IHandlerResolver
     {
         private delegate Task NonGenericHandler(object message, CancellationToken ct);
 

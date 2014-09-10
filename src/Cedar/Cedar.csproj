@@ -50,6 +50,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -67,14 +68,14 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Internal\DeterministicGuidGenerator.cs" />
-    <Compile Include="Commands\CommandHandlerSettings.cs" />
-    <Compile Include="Commands\CommandHandlerSettingsExtensions.cs" />
-    <Compile Include="Commands\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="ContentNegotiation\ContentNegotiationExtensions.cs" />
+    <Compile Include="DefaultHandlerSettings.cs" />
     <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="HandlerSettings.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
     <Compile Include="Handlers\HandlerModule.cs" />
+    <Compile Include="Handlers\IHandlerResolver.cs" />
     <Compile Include="Handlers\Messages.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -82,18 +83,24 @@
     </Compile>
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
+    <Compile Include="ExceptionHandlingExtensions.cs" />
+    <Compile Include="HttpStatusException.cs" />
+    <Compile Include="Internal\DeterministicGuidGenerator.cs" />
+    <Compile Include="Internal\InterlockedBoolean.cs" />
+    <Compile Include="Internal\StringExtensions.cs" />
+    <Compile Include="Internal\TaskExtensions.cs" />
+    <Compile Include="ProcessManagers\ICommandDispatcher.cs" />
     <Compile Include="ProcessManagers\IProcessManager.cs" />
+    <Compile Include="ProcessManagers\IProcessManagerRepository.cs" />
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
     <Compile Include="ProcessManagers\ProcessCompleted.cs" />
-    <Compile Include="Internal\TaskExtensions.cs" />
-    <Compile Include="Commands\DefaultCommandHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
-    <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolver.cs" />
-    <Compile Include="Commands\ExceptionToModelConverter.cs" />
+    <Compile Include="ContentNegotiation\DefaultContentTypeMapper.cs" />
+    <Compile Include="ContentNegotiation\ExceptionToModelConverter.cs" />
     <Compile Include="Commands\Guard.cs" />
-    <Compile Include="Commands\ICommandTypeResolver.cs" />
-    <Compile Include="Commands\IExceptionToModelConverter.cs" />
+    <Compile Include="ContentNegotiation\IContentTypeMapper.cs" />
+    <Compile Include="ContentNegotiation\IExceptionToModelConverter.cs" />
     <Compile Include="Commands\HandlerModuleExtensions.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
@@ -133,12 +140,15 @@
     <Compile Include="Handlers\DurableCommitDispatcher.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ProcessManagers\ProcessHandlerModule.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Internal\StringExtensions.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Internal\InterlockedBoolean.cs" />
+    <Compile Include="Queries\HandlerModuleExtensions.cs" />
+    <Compile Include="Queries\IQueryHandler.cs" />
+    <Compile Include="Queries\QueryHandlerModule.cs" />
+    <Compile Include="Queries\QueryHandlingMiddleware.cs" />
+    <Compile Include="Queries\QueryMessage.cs" />
+    <Compile Include="Queries\QueryTypeMapping.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

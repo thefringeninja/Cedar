@@ -20,7 +20,7 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), _fixture.CommandExecutionSettings);
+                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
 
                 act.ShouldNotThrow();
             }
@@ -31,7 +31,7 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrows(), Guid.NewGuid(), _fixture.CommandExecutionSettings);
+                Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrows(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
 
                 act.ShouldThrow<InvalidOperationException>();
             }
@@ -43,9 +43,9 @@
             using (var client = _fixture.CreateHttpClient())
             {
                 var settings = new CommandExecutionSettings(
-                    _fixture.CommandExecutionSettings.Vendor,
-                    _fixture.CommandExecutionSettings.ModelToExceptionConverter,
-                    "notfoundpath");
+                    _fixture.MessageExecutionSettings.Vendor,
+                    _fixture.MessageExecutionSettings.ModelToExceptionConverter,
+                    path: "notfoundpath");
 
                 Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), settings);
 
@@ -69,26 +69,26 @@
             {
                 var request = new HttpRequestMessage(
                     new HttpMethod(httpMethod),
-                    _fixture.CommandExecutionSettings.Path + "/" + commandId);
+                    _fixture.MessageExecutionSettings.Path + "/" + commandId);
                 await client.SendAsync(request);
                 passedThrough.Should().BeTrue();
             }
         }
 
         [Fact]
-        public async Task When_request_is_not_json_then_should_get_Bad_Request()
+        public async Task When_request_is_not_json_then_should_get_Unsupported_Media_Type()
         {
             using (var client = _fixture.CreateHttpClient())
             {
                 var request = new HttpRequestMessage(HttpMethod.Put,
-                    _fixture.CommandExecutionSettings.Path + "/" + Guid.NewGuid())
+                    _fixture.MessageExecutionSettings.Path + "/" + Guid.NewGuid())
                 {
                     Content = new StringContent("text")
                 };
                 request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
                 var response = await client.SendAsync(request);
 
-                response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+                response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
             }
         }
 

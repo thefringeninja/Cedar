@@ -5,7 +5,10 @@
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands;
+    using Cedar.ContentNegotiation;
     using Cedar.Handlers;
+    using Cedar.Queries;
+    using Cedar.Queries.Client;
     using Cedar.Testing;
     using Microsoft.Owin;
     using Newtonsoft.Json;
@@ -39,6 +42,13 @@
 
     public class ContrivedMiddleware
     {
+        private readonly QueryExecutionSettings _queryExecutionSettings;
+
+        public ContrivedMiddleware()
+        {
+            _queryExecutionSettings = new QueryExecutionSettings("vendor");
+        }
+
         class Something {
             public string Value { get; set; }
             public override string ToString()
@@ -55,10 +65,25 @@
                 return "Something else = " + Value;
             }
         }
-
+        class Query { }
         class QueryResult
         {
             public string Value { get; set; }
+        }
+
+        class QueryHandler : IQueryHandler<Query, QueryResult>
+        {
+            private readonly QueryResult _result;
+
+            public QueryHandler(QueryResult result)
+            {
+                _result = result;
+            }
+
+            public Task<QueryResult> PerformQuery(Query input)
+            {
+                return Task.FromResult(_result);
+            }
         }
         [Fact]
         public async Task Passes()
@@ -69,7 +94,7 @@
                 .WithUsers(user)
                 .Given(user.Does(new Something {Value = "this"}))
                 .When(user.Does(new SomethingElse {Value = "that"}))
-                .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
+                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
                     result => result.Value == "that");
         }
 
@@ -82,7 +107,7 @@
                 .WithUsers(user)
                 .Given(user.Does(new Something() { Value = "this" }))
                 .When(user.Does(new SomethingElse() { Value = "that" }))
-                .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
+                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
                     result => result.Value == "that");
         }
 
@@ -95,7 +120,7 @@
                 .WithUsers(user)
                 .Given(user.Does(new Something { Value = "this" }))
                 .When(user.Does(new SomethingElse { Value = "that" }))
-                .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
+                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
                     result => result.Value == "this");
         }
 
@@ -108,7 +133,7 @@
                 .WithUsers(user)
                 .Given(user.Does(new Something() { Value = "this" }))
                 .When(user.Does(new SomethingElse() { Value = "that" }))
-                .ThenShould(user.Queries(client => client.AsJson<QueryResult>(new Uri("http://localhost/results"))),
+                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
                     result => result.Value == "this");
         }
 
@@ -117,49 +142,37 @@
             get
             {
                 var result = new QueryResult();
-                var module = new HandlerModule();
-
-                module.For<CommandMessage<Something>>()
-                    .Handle(async (message, _) => result = new QueryResult {Value = message.Command.Value});
-                module.For<CommandMessage<SomethingElse>>()
-                    .Handle(async (message, _) => result = new QueryResult { Value = message.Command.Value });
+                
+                var commandModule = new HandlerModule();
+                commandModule.For<CommandMessage<Something>>()
+                    .Handle(async (message, _) => result.Value = message.Command.Value);
+                commandModule.For<CommandMessage<SomethingElse>>()
+                    .Handle(async (message, _) => result.Value = message.Command.Value);
 
                 var commands = CommandHandlingMiddleware.HandleCommands(
-                    new DefaultCommandHandlerSettings(
-                        module,
-                        new DefaultCommandTypeFromContentTypeResolver(
+                    new DefaultHandlerSettings(
+                        commandModule,
+                        new DefaultContentTypeMapper(
                             "vendor",
                             new[]
                             {
                                 typeof (Something), typeof (SomethingElse)
                             })));
 
-                var queries = new MidFunc(_ => env =>
-                {
-                    var context = new OwinContext(env);
+                var queryModule = new QueryHandlerModule();
+                queryModule.For(new QueryHandler(result));
 
-                    return context.Response.WriteAsync(JsonConvert.SerializeObject(result));
-                });
-
-                var router = new MidFunc(
-                    next => 
-                    env =>
-                    {
-                        var context = new OwinContext(env);
-
-                        MidFunc selected = app => app;
-
-                        if (context.Request.Path.StartsWithSegments(new PathString("/results")))
-                            selected = queries;
-                        else if (context.Request.Path.StartsWithSegments(new PathString("/commands")))
+                var queries = QueryHandlingMiddleware.HandleQueries(new DefaultHandlerSettings(
+                    queryModule,
+                    new DefaultContentTypeMapper(
+                        "vendor",
+                        new[]
                         {
-                            context.Request.Path = new PathString(context.Request.Path.Value.Remove(0, "/commands".Length));
-                            selected = commands;
-                        }
+                            typeof(QueryResult), typeof(Query)
+                        })));
 
-                        return selected(next)(env);
-                    });
-                return router;
+
+                return app => commands(queries(app));
             }
         }
     }

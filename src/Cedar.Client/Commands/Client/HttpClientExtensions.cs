@@ -6,14 +6,14 @@ namespace Cedar.Commands.Client
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Cedar.Commands.ExceptionModels;
-    using Newtonsoft.Json;
+    using Cedar.ContentNegotiation.Client;
+    using Cedar.ExceptionModels.Client;
 
     public static class HttpClientExtensions
     {
-        public static async Task ExecuteCommand(this HttpClient client, object command, Guid commandId, ICommandExecutionSettings settings)
+        public static async Task ExecuteCommand(this HttpClient client, object command, Guid commandId, IMessageExecutionSettings settings)
         {
-            string commandJson = JsonConvert.SerializeObject(command, DefaultJsonSerializerSettings.Settings);
+            string commandJson = settings.Serializer.Serialize(command);
             var httpContent = new StringContent(commandJson);
             httpContent.Headers.ContentType =
                 MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, command.GetType().Name.ToLower()));
@@ -30,12 +30,12 @@ namespace Cedar.Commands.Client
             }
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
+                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                var exceptionModel = await response.Content.ReadObject(DefaultJsonSerializerSettings.Settings) as ExceptionModel;
+                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
                 throw settings.ModelToExceptionConverter.Convert(exceptionModel);
             }
         }
