@@ -3,12 +3,11 @@
     using System;
     using System.Text;
     using System.Threading.Tasks;
-    using Cedar.ContentNegotiation;
     using Cedar.ContentNegotiation.Client;
     using Cedar.ExceptionModels.Client;
     using Microsoft.Owin;
 
-    internal static class OwinContextExtensions
+    internal static partial class ExceptionHandlingExtensions
     {
         internal static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {

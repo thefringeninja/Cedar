@@ -50,6 +50,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Reactive.Core">
       <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
     </Reference>
@@ -67,6 +68,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ContentNegotiation\ContentNegotiationExtensions.cs" />
     <Compile Include="DeterministicGuidGenerator.cs" />
     <Compile Include="HandlerSettings.cs" />
     <Compile Include="EnumerableExtensions.cs" />
@@ -81,7 +83,7 @@
     </Compile>
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
-    <Compile Include="OwinContextExtensions.cs" />
+    <Compile Include="ExceptionHandlingExtensions.cs" />
     <Compile Include="ProcessManagers\ICommandDispatcher.cs" />
     <Compile Include="ProcessManagers\IProcessManager.cs" />
     <Compile Include="ProcessManagers\IProcessManagerRepository.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
+    <Compile Include="Queries\QueryTypeMapping.cs" />
     <Compile Include="TaskExtensions.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />

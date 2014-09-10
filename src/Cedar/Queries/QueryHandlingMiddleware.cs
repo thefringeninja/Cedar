@@ -12,12 +12,16 @@
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
 
+
     public static class QueryHandlingMiddleware
     {
         private static readonly MethodInfo DispatchQueryMethodInfo = typeof(HandlerModulesDispatchQuery)
             .GetMethod("DispatchQuery", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleQueries(HandlerSettings options, string queryPath = "/query")
+        public static MidFunc HandleQueries(HandlerSettings options, 
+            Func<IOwinContext, Task<Type>> getInputType = null, 
+            Func<IOwinContext, Task<Type>> getOutputType = null, 
+            string queryPath = "/query")
         {
             Guard.EnsureNotNull(options, "options");
 
@@ -39,7 +43,12 @@
 
                 try
                 {
-                    return HandleQuery(context, Guid.NewGuid(), queryPath, options);
+                    return HandleQuery(
+                        context, 
+                        Guid.NewGuid(), 
+                        options, 
+                        getInputType ?? QueryTypeMapping.InputTypeFromPathSegment(options, queryPath), 
+                        getOutputType ?? QueryTypeMapping.OutputTypeFromAcceptHeader(options));
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -53,31 +62,20 @@
             };
         }
 
-        private static async Task HandleQuery(IOwinContext context, Guid queryId, string queryPath, HandlerSettings options)
+        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IOwinContext, Task<Type>> getInputType,
+            Func<IOwinContext, Task<Type>> getOutputType)
         {
-            string contentType = context.Request.ContentType;
-            var inputType = options.ContentTypeMapper.GetFromContentType(context.Request.Path.Value.Remove(0, queryPath.Length + 1));
+            var inputType = await getInputType(context);
 
             if (inputType == null)
             {
-                await context.HandleNotFound(new NotSupportedException(), options);
                 return;
             }
 
-            if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) || inputType == null)
-            {
-                // Not a json entity OR not content type not registered, unsupported
-                await context.HandleUnsupportedMediaType(new NotSupportedException(), options);
-                return;
-            }
-            
-            string accepts = context.Request.Accept;
+            var outputType = await getOutputType(context);
 
-            // TODO: JPB parse accept header correctly
-            var outputType = options.ContentTypeMapper.GetFromContentType(accepts);
             if (outputType == null)
             {
-                await context.HandleNotAcceptable(new NotSupportedException(), options);
                 return;
             }
 
@@ -94,7 +92,6 @@
             });
             context.Response.StatusCode = 200;
             context.Response.ReasonPhrase = "OK";
-            context.Response.ContentType = accepts;
         }
     }
 }
