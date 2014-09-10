@@ -1,6 +1,7 @@
 ﻿namespace Cedar.Queries
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -18,9 +19,9 @@
         private static readonly MethodInfo DispatchQueryMethodInfo = typeof(HandlerModulesDispatchQuery)
             .GetMethod("DispatchQuery", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleQueries(HandlerSettings options, 
-            Func<IOwinContext, Task<Type>> getInputType = null, 
-            Func<IOwinContext, Task<Type>> getOutputType = null, 
+        public static MidFunc HandleQueries(HandlerSettings options,
+            Func<IDictionary<string, object>, Type> getInputType = null,
+            Func<IDictionary<string, object>, Type> getOutputType = null, 
             string queryPath = "/query")
         {
             Guard.EnsureNotNull(options, "options");
@@ -44,11 +45,15 @@
                 try
                 {
                     return HandleQuery(
-                        context, 
-                        Guid.NewGuid(), 
-                        options, 
-                        getInputType ?? QueryTypeMapping.InputTypeFromPathSegment(options, queryPath), 
+                        context,
+                        Guid.NewGuid(),
+                        options,
+                        getInputType ?? QueryTypeMapping.InputTypeFromPathSegment(options, queryPath),
                         getOutputType ?? QueryTypeMapping.OutputTypeFromAcceptHeader(options));
+                }
+                catch (HttpStatusException ex)
+                {
+                    return context.HandleHttpStatusException(ex, options);
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -62,22 +67,12 @@
             };
         }
 
-        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IOwinContext, Task<Type>> getInputType,
-            Func<IOwinContext, Task<Type>> getOutputType)
+        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IDictionary<string, object>, Type> getInputType,
+            Func<IDictionary<string, object>, Type> getOutputType)
         {
-            var inputType = await getInputType(context);
+            var inputType = getInputType(context.Environment);
 
-            if (inputType == null)
-            {
-                return;
-            }
-
-            var outputType = await getOutputType(context);
-
-            if (outputType == null)
-            {
-                return;
-            }
+            var outputType = getOutputType(context.Environment);
 
             object input;
             using (var streamReader = new StreamReader(context.Request.Body))

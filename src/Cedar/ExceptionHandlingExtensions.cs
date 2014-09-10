@@ -7,39 +7,29 @@
     using Cedar.ExceptionModels.Client;
     using Microsoft.Owin;
 
+
     internal static partial class ExceptionHandlingExtensions
     {
         internal static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
-            return context.HandleException(options, 400, "Bad Request", ex);
-        }
+            var exception = new HttpStatusException(ex.Message, 400, ex);
 
-        internal static Task HandleNotFound(this IOwinContext context, Exception ex, HandlerSettings options)
-        {
-            return context.HandleException(options, 404, "Not Found", ex);
-        }
-
-        internal static Task HandleNotAcceptable(this IOwinContext context, Exception ex, HandlerSettings options)
-        {
-            return context.HandleException(options, 406, "Not Acceptable", ex);
-        }
-
-        internal static Task HandleUnsupportedMediaType(this IOwinContext context, Exception ex, HandlerSettings options)
-        {
-            return context.HandleException(options, 415, "Unsupported Media Type", ex);
+            return HandleHttpStatusException(context, exception, options);
         }
 
         internal static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
         {
-            return context.HandleException(options, 500, "Internal Server Error", ex);
+            var exception = new HttpStatusException(ex.Message, 500, ex);
+
+            return HandleHttpStatusException(context, exception, options);
         }
 
-        internal static Task HandleException(this IOwinContext context, HandlerSettings options, int statusCode, string reasonPhrase, Exception ex, string contentType = "application/json")
+        internal static Task HandleHttpStatusException(this IOwinContext context, HttpStatusException exception, HandlerSettings options, string contentType = "application/json")
         {
-            context.Response.StatusCode = statusCode;
-            context.Response.ReasonPhrase = reasonPhrase;
+            context.Response.StatusCode = (int) exception.StatusCode;
+            context.Response.ReasonPhrase = exception.StatusCode.ToString();
             context.Response.ContentType = contentType;
-            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(ex);
+            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(exception.InnerException);
             string exceptionJson = options.Serializer.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;

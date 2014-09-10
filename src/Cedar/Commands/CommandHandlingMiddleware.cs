@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Net;
     using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
@@ -48,6 +49,10 @@
                 {
                     return HandleCommand(context, commandId, options);
                 }
+                catch (HttpStatusException ex)
+                {
+                    return context.HandleHttpStatusException(ex, options);
+                }
                 catch (InvalidOperationException ex)
                 {
                     return context.HandleBadRequest(ex, options);
@@ -66,8 +71,7 @@
             if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) || commandType == null)
             {
                 // Not a json entity, bad request
-                await context.HandleUnsupportedMediaType(new NotSupportedException(), options);
-                return;
+                throw new HttpStatusException("The specified media type is not supported.", HttpStatusCode.UnsupportedMediaType, new NotSupportedException());
             }
             object command;
             using (var streamReader = new StreamReader(context.Request.Body))
