@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Commands;
+    using Cedar.Internal;
     using Cedar.Logging;
     using NEventStore;
     using NEventStore.Client;
@@ -25,7 +26,7 @@
         private readonly Func<ICommit, CancellationToken, Task> _dispatchCommit;
         private readonly Subject<ICommit> _commitsProjectedStream = new Subject<ICommit>();
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
-        private int _isStarted;
+        private InterlockedBoolean _isStarted = new InterlockedBoolean();
         private int _isDisposed;
         private IObserveCommits _commitStream;
         private readonly TransientExceptionRetryPolicy _retryPolicy;
@@ -122,7 +123,7 @@
         /// <returns></returns>
         public async Task Start()
         {
-            if (Interlocked.CompareExchange(ref _isStarted, 1, 0) == 1) //Ensures Start is only called once.
+            if (_isStarted.CompareExchange(true, false))
             {
                 return;
             }
@@ -133,14 +134,8 @@
                 {
                     try
                     {
-                        await _retryPolicy.Retry(async () =>
-                        {
-                            await _dispatchCommit(commit, CancellationToken.None);
-                        }, _disposed.Token);
-                        await _retryPolicy.Retry(async () =>
-                        {
-                            await _checkpointRepository.Put(commit.CheckpointToken);
-                        }, _disposed.Token);
+                        await _retryPolicy.Retry(() => _dispatchCommit(commit, CancellationToken.None), _disposed.Token);
+                        await _retryPolicy.Retry(() => _checkpointRepository.Put(commit.CheckpointToken), _disposed.Token);
                     }
                     catch (Exception ex)
                     {

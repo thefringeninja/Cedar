@@ -1,7 +1,8 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace System.Threading.Tasks
+namespace Cedar.Internal
 {
     using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
 
     internal static class TaskExtensions
     {

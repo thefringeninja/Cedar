@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Cedar.Handlers;
+    using Cedar.Internal;
 
     public interface IProcessManager
     {

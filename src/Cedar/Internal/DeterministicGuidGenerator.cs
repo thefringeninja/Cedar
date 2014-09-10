@@ -1,17 +1,17 @@
-﻿namespace Cedar
+﻿namespace Cedar.Internal
 {
     using System;
     using System.Security.Cryptography;
     using System.Text;
 
-    public class DeterministicGuidGenerator
+    internal class DeterministicGuidGenerator
     {
-        public Guid NameSpace;
+        private Guid _nameSpace;
         private readonly byte[] _namespaceBytes;
 
         public DeterministicGuidGenerator(Guid guidNameSpace)
         {
-            NameSpace = guidNameSpace;
+            _nameSpace = guidNameSpace;
             _namespaceBytes = guidNameSpace.ToByteArray();
             SwapByteOrder(_namespaceBytes);
         }

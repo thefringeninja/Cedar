@@ -28,18 +28,22 @@
         [Fact]
         public async Task When_transient_exception_thrown_once_then_should_retry()
         {
-            var sut = new TransientExceptionRetryPolicy(TimeSpan.FromMilliseconds(1), TimeSpan.FromMilliseconds(10));
+            var sut = new TransientExceptionRetryPolicy(TimeSpan.FromMilliseconds(1), TimeSpan.FromSeconds(1));
             int count = 0;
-            
+            var tcs = new TaskCompletionSource<bool>();
+
             await sut.Retry(() =>
             {
                 count++;
-                if (count == 1) 
-                { 
-                    throw new TransientException();
+                if (count == 2)
+                {
+                    tcs.SetResult(true);
+                    return Task.FromResult(0);
                 }
-                return Task.FromResult(0);
+                throw new TransientException();
             },  CancellationToken.None);
+
+            await tcs.Task;
 
             count.Should().Be(2);
         }
@@ -55,9 +59,9 @@
         }
 
         [Fact]
-        public async Task When_transient_exception_thrown_indefinitely_then_should_repeatedly_retry_until_duration_and_then_throw()
+        public void When_transient_exception_thrown_indefinitely_then_should_repeatedly_retry_until_duration_and_then_throw()
         {
-            var duration = TimeSpan.FromMilliseconds(100);
+            var duration = TimeSpan.FromSeconds(1);
             var stopwatch = Stopwatch.StartNew();
             var sut = new TransientExceptionRetryPolicy(TimeSpan.FromMilliseconds(1), duration);
             int count = 0;
