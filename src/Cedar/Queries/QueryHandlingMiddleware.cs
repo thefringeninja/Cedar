@@ -33,55 +33,35 @@
 
             var acceptableMethods = new[] {"GET", "POST"};
 
-            return next => async env =>
+            return next => env =>
             {
-                Exception caughtException;
-
                 var context = new OwinContext(env);
 
                 if (!context.Request.Path.StartsWithSegments(new PathString(queryPath)))
                 {
-                    await next(env);
-                    return;
+                    return next(env);
                 }
 
                 if (!acceptableMethods.Contains(context.Request.Method))
                 {
-                    await next(env);
-                    return;
+                    return next(env);
                 }
 
-                try
-                {
-                    await HandleQuery(
-                        context,
-                        Guid.NewGuid(),
-                        options,
-                        getInputType ?? QueryTypeMapping.InputTypeFromPathSegment(options, queryPath),
-                        getOutputType ?? QueryTypeMapping.OutputTypeFromAcceptHeader(options));
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    caughtException = ex;
-                }
-
-                var httpStatusException = caughtException as HttpStatusException;
-                if (httpStatusException != null)
-                {
-                    await context.HandleHttpStatusException(httpStatusException, options);
-                    return;
-                }
-                var invalidOperationException = caughtException as InvalidOperationException;
-                if (invalidOperationException != null)
-                {
-                    await context.HandleBadRequest(invalidOperationException, options);
-                    return;
-                }
-                await context.HandleInternalServerError(caughtException, options);
+                return BuildHandlerCall(getInputType, getOutputType, queryPath)
+                    .ExecuteWithExceptionHandling(context, options);
             };
         }
-        
+
+        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(Func<IDictionary<string, object>, Type> getInputType, Func<IDictionary<string, object>, Type> getOutputType, string queryPath)
+        {
+            return (context, options) => HandleQuery(
+                context,
+                Guid.NewGuid(),
+                options,
+                getInputType ?? QueryTypeMapping.InputTypeFromPathSegment(options, queryPath),
+                getOutputType ?? QueryTypeMapping.OutputTypeFromAcceptHeader(options));
+        }
+
         private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IDictionary<string, object>, Type> getInputType,
             Func<IDictionary<string, object>, Type> getOutputType)
         {

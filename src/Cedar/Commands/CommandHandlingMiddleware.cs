@@ -45,23 +45,14 @@
                     // Resource is not a GUID, pass through
                     return next(env);
                 }
-                try
-                {
-                    return HandleCommand(context, commandId, options);
-                }
-                catch (HttpStatusException ex)
-                {
-                    return context.HandleHttpStatusException(ex, options);
-                }
-                catch (InvalidOperationException ex)
-                {
-                    return context.HandleBadRequest(ex, options);
-                }
-                catch (Exception ex)
-                {
-                    return context.HandleInternalServerError(ex, options);
-                }
+
+                return BuildHandlerCall(commandId).ExecuteWithExceptionHandling(context, options);
             };
+        }
+
+        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(Guid commandId)
+        {
+            return (context, options) => HandleCommand(context, commandId, options);
         }
 
         private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerSettings options)

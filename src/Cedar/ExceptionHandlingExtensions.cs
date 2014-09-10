@@ -10,6 +10,35 @@
 
     internal static partial class ExceptionHandlingExtensions
     {
+        internal static async Task ExecuteWithExceptionHandling(this Func<IOwinContext, HandlerSettings, Task> actionToRun, IOwinContext context, HandlerSettings options)
+        {
+            Exception caughtException;
+            
+            try
+            {
+                await actionToRun(context, options);
+                return;
+            }
+            catch (Exception ex)
+            {
+                caughtException = ex;
+            }
+
+            var httpStatusException = caughtException as HttpStatusException;
+            if (httpStatusException != null)
+            {
+                await context.HandleHttpStatusException(httpStatusException, options);
+                return;
+            }
+            var invalidOperationException = caughtException as InvalidOperationException;
+            if (invalidOperationException != null)
+            {
+                await context.HandleBadRequest(invalidOperationException, options);
+                return;
+            }
+            await context.HandleInternalServerError(caughtException, options);
+
+        }
         internal static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, 400, ex);
