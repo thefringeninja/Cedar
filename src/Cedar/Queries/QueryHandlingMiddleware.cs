@@ -17,7 +17,7 @@
         private static readonly MethodInfo DispatchQueryMethodInfo = typeof(HandlerModulesDispatchQuery)
             .GetMethod("DispatchQuery", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleCommands(HandlerSettings options, string queryPath = "/query")
+        public static MidFunc HandleQueries(HandlerSettings options, string queryPath = "/query")
         {
             Guard.EnsureNotNull(options, "options");
 

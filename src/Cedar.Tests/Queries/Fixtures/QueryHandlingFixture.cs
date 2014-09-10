@@ -29,7 +29,7 @@ namespace Cedar.Queries.Fixtures
                     typeof(TestQueryResponse)
                 });
             var options = new DefaultHandlerSettings(handlerModule, queryTypeFromContentTypeResolver);
-            _midFunc = QueryHandlingMiddleware.HandleCommands(options);
+            _midFunc = QueryHandlingMiddleware.HandleQueries(options);
             _messageExecutionSettings = new QueryExecutionSettings(vendor);
         }
 
