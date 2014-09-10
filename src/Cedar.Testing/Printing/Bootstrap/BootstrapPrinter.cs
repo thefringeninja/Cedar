@@ -109,7 +109,7 @@
 
             await _output.WriteLineAsync(String.Format("<div class='alert alert-{0}'>", result.Passed ? "success" : "danger"));
             await _output.WriteLineAsync("<details id='{0}'>");
-            await _output.WriteLineAsync("<summary>" + result.Name.Underscore().Titleize() + " - " + (result.Passed ? "Passed" : "Failed") + "</summary>");
+            await _output.WriteLineAsync("<summary>" + (result.Name ?? "???").Underscore().Titleize() + " - " + (result.Passed ? "Passed" : "Failed") + "</summary>");
             await _output.WriteLineAsync("<pre>");
             await WriteGiven(result.Given);
             await WriteWhen(result.When);
