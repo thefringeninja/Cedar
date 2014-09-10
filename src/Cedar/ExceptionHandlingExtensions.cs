@@ -58,7 +58,7 @@
             context.Response.StatusCode = (int) exception.StatusCode;
             context.Response.ReasonPhrase = exception.StatusCode.ToString();
             context.Response.ContentType = contentType;
-            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(exception.InnerException);
+            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(exception);
             string exceptionJson = options.Serializer.Serialize(exceptionModel);
             byte[] exceptionBytes = Encoding.UTF8.GetBytes(exceptionJson);
             context.Response.ContentLength = exceptionBytes.Length;
