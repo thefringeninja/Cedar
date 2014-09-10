@@ -7,11 +7,11 @@
     using Cedar.Handlers;
     using Newtonsoft.Json;
 
-    internal class DefaultCommandHandlerSettings : CommandHandlerSettings
+    public class DefaultCommandHandlerSettings : CommandHandlerSettings
     {
         private readonly JsonSerializer _jsonSerializer;
 
-        internal DefaultCommandHandlerSettings(
+        public DefaultCommandHandlerSettings(
            [NotNull] HandlerModule handlerModule,
            [NotNull] ICommandTypeResolver commandTypeResolver,
            IExceptionToModelConverter exceptionToModelConverter = null,

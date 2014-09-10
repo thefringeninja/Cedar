@@ -23,7 +23,7 @@ namespace Cedar.Internal
     /// <summary>
     /// Interlocked support for boolean values
     /// </summary>
-    internal class InterlockedBoolean
+    public class InterlockedBoolean
     {
         private int _value;
 
