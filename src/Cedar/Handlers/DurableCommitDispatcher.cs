@@ -133,8 +133,14 @@
                 {
                     try
                     {
-                        await _retryPolicy.Retry(() => _dispatchCommit(commit, CancellationToken.None), _disposed.Token);
-                        await _retryPolicy.Retry(() => _checkpointRepository.Put(commit.CheckpointToken), _disposed.Token);
+                        await _retryPolicy.Retry(async () =>
+                        {
+                            await _dispatchCommit(commit, CancellationToken.None);
+                        }, _disposed.Token);
+                        await _retryPolicy.Retry(async () =>
+                        {
+                            await _checkpointRepository.Put(commit.CheckpointToken);
+                        }, _disposed.Token);
                     }
                     catch (Exception ex)
                     {
@@ -146,7 +152,7 @@
                     }
                     _commitsProjectedStream.OnNext(commit);
                 }).Wait());
-            await _commitStream.Start();
+            _commitStream.Start();
             _compositeDisposable.Add(_commitStream);
             _compositeDisposable.Add(subscription);
         }
