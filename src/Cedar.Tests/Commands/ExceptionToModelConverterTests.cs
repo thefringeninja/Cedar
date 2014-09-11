@@ -1,7 +1,9 @@
 ﻿namespace Cedar.Commands
 {
     using System;
+    using System.Net;
     using Cedar.ContentNegotiation;
+    using Cedar.ExceptionModels;
     using Cedar.ExceptionModels.Client;
     using FluentAssertions;
     using Xunit;
@@ -36,6 +38,16 @@
 
             exceptionModel.Should().BeOfType<ExceptionModel>();
             exceptionModel.Message.Should().Be("message");
+        }
+
+        [Fact]
+        public void When_converting_HttpStatusException_then_should_get_ExceptionModel_of_InnerException()
+        {
+            ExceptionModel exceptionModel = new ExceptionToModelConverter()
+                .Convert(new HttpStatusException("message", HttpStatusCode.NotAcceptable, new InvalidOperationException("a different message")));
+
+            exceptionModel.Should().BeOfType<InvalidOperationExceptionModel>();
+            exceptionModel.Message.Should().Be("a different message");
         }
     }
 }

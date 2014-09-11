@@ -9,7 +9,7 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Commands;
-    using Cedar.ContentNegotiation.Client;
+    using Cedar.Serialization.Client;
     using Microsoft.Owin;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,

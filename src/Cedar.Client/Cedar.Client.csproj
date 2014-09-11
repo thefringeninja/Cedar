@@ -48,20 +48,19 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Commands\Client\CommandExecutionSettings.cs" />
-    <Compile Include="ContentNegotiation\Client\DefaultJsonSerializer.cs" />
-    <Compile Include="ContentNegotiation\Client\ISerializer.cs" />
-    <Compile Include="ContentNegotiation\Client\SerializationExtensions.cs" />
-    <Compile Include="ExceptionModels\Client\HttpStatusExceptionModel.cs" />
+    <Compile Include="Serialization\Client\DefaultJsonSerializer.cs" />
+    <Compile Include="Serialization\Client\ISerializer.cs" />
+    <Compile Include="Serialization\Client\SerializationExtensions.cs" />
+    <Compile Include="ExceptionModels\Client\HttpExtensions.cs" />
+    <Compile Include="ExceptionModels\Client\IModelToExceptionConverter.cs" />
+    <Compile Include="ExceptionModels\Client\ModelToExceptionConverter.cs" />
     <Compile Include="MessageExecutionSettings.cs" />
-    <Compile Include="ContentNegotiation\Client\DefaultJsonSerializerSettings.cs" />
+    <Compile Include="Serialization\Client\DefaultJsonSerializerSettings.cs" />
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />
-    <Compile Include="ContentNegotiation\Client\HttpContentExtensions.cs" />
     <Compile Include="IMessageExecutionSettings.cs" />
-    <Compile Include="ContentNegotiation\Client\IModelToExceptionConverter.cs" />
-    <Compile Include="ContentNegotiation\Client\ModelToExceptionConverter.cs" />
     <Compile Include="Queries\Client\QueryExecutionSettings.cs" />
     <Compile Include="StringExtensions.cs" />
-    <Compile Include="ContentNegotiation\Client\TypeSwitch.cs" />
+    <Compile Include="ExceptionModels\Client\TypeSwitch.cs" />
     <Compile Include="ExceptionModels\Client\ArgumentExceptionModel.cs" />
     <Compile Include="ExceptionModels\Client\ArgumentNullExceptionModel.cs" />
     <Compile Include="ExceptionModels\Client\ExceptionModel.cs" />

@@ -4,8 +4,9 @@
     using Cedar.Annotations;
     using Cedar.Commands;
     using Cedar.ContentNegotiation;
-    using Cedar.ContentNegotiation.Client;
+    using Cedar.ExceptionModels;
     using Cedar.Handlers;
+    using Cedar.Serialization.Client;
 
     public abstract class HandlerSettings
     {

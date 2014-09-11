@@ -1,4 +1,4 @@
-namespace Cedar.ContentNegotiation.Client
+namespace Cedar.Serialization.Client
 {
     using System;
     using System.IO;

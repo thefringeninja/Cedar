@@ -3,8 +3,8 @@
     using System;
     using System.Text;
     using System.Threading.Tasks;
-    using Cedar.ContentNegotiation.Client;
     using Cedar.ExceptionModels.Client;
+    using Cedar.Serialization.Client;
     using Microsoft.Owin;
 
 

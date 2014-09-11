@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using Cedar.Annotations;
     using Cedar.ContentNegotiation;
+    using Cedar.ExceptionModels;
     using Cedar.Handlers;
 
     public class DefaultHandlerSettings : HandlerSettings

@@ -83,7 +83,7 @@
     </Compile>
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
-    <Compile Include="ExceptionHandlingExtensions.cs" />
+    <Compile Include="ExceptionModels\ExceptionHandlingExtensions.cs" />
     <Compile Include="HttpStatusException.cs" />
     <Compile Include="Internal\DeterministicGuidGenerator.cs" />
     <Compile Include="Internal\InterlockedBoolean.cs" />
@@ -98,10 +98,10 @@
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
     <Compile Include="ContentNegotiation\DefaultContentTypeMapper.cs" />
-    <Compile Include="ContentNegotiation\ExceptionToModelConverter.cs" />
+    <Compile Include="ExceptionModels\ExceptionToModelConverter.cs" />
     <Compile Include="Commands\Guard.cs" />
     <Compile Include="ContentNegotiation\IContentTypeMapper.cs" />
-    <Compile Include="ContentNegotiation\IExceptionToModelConverter.cs" />
+    <Compile Include="ExceptionModels\IExceptionToModelConverter.cs" />
     <Compile Include="Commands\HandlerModuleExtensions.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
