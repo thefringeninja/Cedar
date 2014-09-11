@@ -1,6 +1,7 @@
 ﻿namespace Cedar.Queries.Client
 {
-    using Cedar.ContentNegotiation.Client;
+    using Cedar.ExceptionModels.Client;
+    using Cedar.Serialization.Client;
 
     public class QueryExecutionSettings : MessageExecutionSettings
     {

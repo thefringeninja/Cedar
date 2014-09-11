@@ -4,6 +4,7 @@ namespace Cedar.Example.Tests
     using System.Linq;
     using Cedar.Annotations;
     using Cedar.ContentNegotiation;
+    using Cedar.ExceptionModels;
     using Cedar.Handlers;
 
     internal class DefaultHandlerSettings : HandlerSettings

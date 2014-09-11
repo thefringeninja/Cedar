@@ -5,7 +5,7 @@ namespace Cedar.ExceptionModels.Client
     using System.Net.Http;
     using System.Reflection;
     using System.Threading.Tasks;
-    using Cedar.ContentNegotiation.Client;
+    using Cedar.Serialization.Client;
 
     internal static class HttpContentExtensions
     {

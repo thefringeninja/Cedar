@@ -6,8 +6,8 @@ namespace Cedar.Commands.Client
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
-    using Cedar.ContentNegotiation.Client;
     using Cedar.ExceptionModels.Client;
+    using Cedar.Serialization.Client;
 
     public static class HttpClientExtensions
     {
