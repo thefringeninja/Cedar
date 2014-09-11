@@ -26,7 +26,7 @@
         private readonly Func<ICommit, CancellationToken, Task> _dispatchCommit;
         private readonly Subject<ICommit> _projectedCommitsStream = new Subject<ICommit>();
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
-        private InterlockedBoolean _isStarted = new InterlockedBoolean();
+        private readonly InterlockedBoolean _isStarted = new InterlockedBoolean();
         private int _isDisposed;
         private IObserveCommits _commitStream;
         private readonly TransientExceptionRetryPolicy _retryPolicy;
@@ -123,11 +123,12 @@
         /// <returns></returns>
         public async Task Start()
         {
-            if (_isStarted.CompareExchange(true, false))
+            if (_isStarted.EnsureCalledOnce())
             {
                 return;
             }
-            string checkpointToken = await _checkpointRepository.Get(); //TODO retry and exception on failure
+            string checkpointToken = null;
+            await _retryPolicy.Retry(async () => checkpointToken = await _checkpointRepository.Get(), _disposed.Token);
             _commitStream = _eventStoreClient.ObserveFrom(checkpointToken); //TODO replace with EventStoreClient in NES v6
             var subscription = _commitStream
                 .Subscribe(commit => Task.Run(async () =>

@@ -87,6 +87,7 @@
     <Compile Include="HttpStatusException.cs" />
     <Compile Include="Internal\DeterministicGuidGenerator.cs" />
     <Compile Include="Internal\InterlockedBoolean.cs" />
+    <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
     <Compile Include="ProcessManagers\ICommandDispatcher.cs" />
