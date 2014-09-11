@@ -32,15 +32,16 @@ namespace Cedar.Queries.Client
             }
             if (response.StatusCode == HttpStatusCode.BadRequest)
             {
-                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
-                throw settings.ModelToExceptionConverter.Convert(exceptionModel);
+                var exception = await settings.Serializer.ReadException(response.Content, settings.ModelToExceptionConverter);
+                throw exception;
             }
             if (response.StatusCode == HttpStatusCode.InternalServerError)
             {
-                var exceptionModel = await settings.Serializer.ReadObject<ExceptionModel>(response.Content);
-                throw settings.ModelToExceptionConverter.Convert(exceptionModel);
+                var exception = await settings.Serializer.ReadException(response.Content, settings.ModelToExceptionConverter);
+                throw exception;
             }
-            return await settings.Serializer.ReadObject<TOutput>(response.Content);
+            var jsonString = await response.Content.ReadAsStringAsync();
+            return (TOutput)settings.Serializer.Deserialize(jsonString, typeof (TOutput));
         }
     }
 }

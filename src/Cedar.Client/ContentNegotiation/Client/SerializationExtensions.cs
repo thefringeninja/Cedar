@@ -2,6 +2,7 @@ namespace Cedar.ContentNegotiation.Client
 {
     using System;
     using System.IO;
+    using System.Net.Http;
 
     public static class SerializationExtensions
     {

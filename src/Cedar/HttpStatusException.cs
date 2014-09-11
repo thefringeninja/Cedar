@@ -3,7 +3,7 @@
     using System;
     using System.Net;
 
-    public class HttpStatusException : Exception
+    internal class HttpStatusException : Exception
     {
         private readonly HttpStatusCode _statusCode;
 

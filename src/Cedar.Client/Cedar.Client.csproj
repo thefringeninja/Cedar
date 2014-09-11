@@ -51,11 +51,10 @@
     <Compile Include="ContentNegotiation\Client\DefaultJsonSerializer.cs" />
     <Compile Include="ContentNegotiation\Client\ISerializer.cs" />
     <Compile Include="ContentNegotiation\Client\SerializationExtensions.cs" />
-    <Compile Include="ExceptionModels\Client\HttpStatusExceptionModel.cs" />
+    <Compile Include="ExceptionModels\Client\HttpContentExtensions.cs" />
     <Compile Include="MessageExecutionSettings.cs" />
     <Compile Include="ContentNegotiation\Client\DefaultJsonSerializerSettings.cs" />
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />
-    <Compile Include="ContentNegotiation\Client\HttpContentExtensions.cs" />
     <Compile Include="IMessageExecutionSettings.cs" />
     <Compile Include="ContentNegotiation\Client\IModelToExceptionConverter.cs" />
     <Compile Include="ContentNegotiation\Client\ModelToExceptionConverter.cs" />
