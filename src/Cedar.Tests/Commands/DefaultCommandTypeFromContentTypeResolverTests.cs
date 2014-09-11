@@ -1,8 +1,9 @@
 ﻿namespace Cedar.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using Cedar.ContentNegotiation;
+    using Cedar.TypeResolution;
     using FluentAssertions;
     using Xunit;
 
@@ -11,7 +12,7 @@
         [Fact]
         public void When_vendor_is_not_supplied_then_should_throw()
         {
-            Action act = () => new DefaultContentTypeMapper(string.Empty, Enumerable.Empty<Type>());
+            Action act = () => new DefaultRequestTypeResolver(string.Empty, Enumerable.Empty<Type>());
 
             act.ShouldThrow<ArgumentException>();
         }
@@ -19,7 +20,7 @@
         [Fact]
         public void When_known_command_types_is_not_supplied_then_should_throw()
         {
-            Action act = () => new DefaultContentTypeMapper("vendor", null);
+            Action act = () => new DefaultRequestTypeResolver("vendor", null);
 
             act.ShouldThrow<ArgumentNullException>();
         }
@@ -27,9 +28,26 @@
         [Fact]
         public void When_command_is_unknown_then_should_return_null()
         {
-            var sut = new DefaultContentTypeMapper("vendor", Enumerable.Empty<Type>());
+            var sut = new DefaultRequestTypeResolver("vendor", Enumerable.Empty<Type>());
 
-            sut.GetFromContentType("unknown").Should().BeNull();
+            sut.ResolveInputType(new FakeRequest())
+                .Should().BeNull();
+        }
+
+        class FakeRequest : IRequest
+        {
+            private readonly Uri _uri = new Uri("http://localhost/");
+            private readonly ILookup<string, string> _headers = new string[]{}.ToLookup(x => x);
+
+            public Uri Uri
+            {
+                get { return _uri; }
+            }
+
+            public ILookup<string, string> Headers
+            {
+                get { return _headers; }
+            }
         }
     }
 }

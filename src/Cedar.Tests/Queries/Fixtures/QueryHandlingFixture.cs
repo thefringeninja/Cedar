@@ -4,8 +4,8 @@ namespace Cedar.Queries.Fixtures
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
-    using Cedar.ContentNegotiation;
     using Cedar.Queries.Client;
+    using Cedar.TypeResolution;
     using Microsoft.Owin;
 
     public class QueryHandlingFixture
@@ -19,7 +19,7 @@ namespace Cedar.Queries.Fixtures
 
             var handlerModule = new TestHandlerModule();
            
-            var queryTypeFromContentTypeResolver = new DefaultContentTypeMapper(
+            var queryTypeFromContentTypeResolver = new DefaultRequestTypeResolver(
                 vendor,
                 new[]
                 {

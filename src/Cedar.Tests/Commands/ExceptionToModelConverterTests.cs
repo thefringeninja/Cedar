@@ -2,7 +2,6 @@
 {
     using System;
     using System.Net;
-    using Cedar.ContentNegotiation;
     using Cedar.ExceptionModels;
     using Cedar.ExceptionModels.Client;
     using FluentAssertions;

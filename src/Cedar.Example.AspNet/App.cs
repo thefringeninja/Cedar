@@ -4,9 +4,9 @@
     using System.Linq;
     using System.Threading;
     using Cedar.Commands;
-    using Cedar.ContentNegotiation;
     using Cedar.Handlers;
     using Cedar.Internal;
+    using Cedar.TypeResolution;
     using NEventStore;
     using NEventStore.Client;
     using MidFunc = System.Func<
@@ -27,7 +27,7 @@
         {
             var settings = new DefaultHandlerSettings(
                 new HandlerModule(),
-                new DefaultContentTypeMapper("cedar", Enumerable.Empty<Type>()));
+                new DefaultRequestTypeResolver("cedar", Enumerable.Empty<Type>()));
             _middleware = CommandHandlingMiddleware.HandleCommands(settings);
 
             _storeEvents = Wireup.Init().UsingInMemoryPersistence().Build();

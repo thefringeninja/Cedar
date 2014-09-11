@@ -68,7 +68,8 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ContentNegotiation\ContentNegotiationExtensions.cs" />
+    <Compile Include="TypeResolution\CedarRequest.cs" />
+    <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="HandlerSettings.cs" />
@@ -97,10 +98,10 @@
     <Compile Include="ProcessManagers\ProcessCompleted.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
-    <Compile Include="ContentNegotiation\DefaultContentTypeMapper.cs" />
+    <Compile Include="TypeResolution\DefaultRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\ExceptionToModelConverter.cs" />
     <Compile Include="Commands\Guard.cs" />
-    <Compile Include="ContentNegotiation\IContentTypeMapper.cs" />
+    <Compile Include="TypeResolution\IRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\IExceptionToModelConverter.cs" />
     <Compile Include="Commands\HandlerModuleExtensions.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
@@ -150,6 +151,8 @@
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
     <Compile Include="Queries\QueryTypeMapping.cs" />
+    <Compile Include="TypeResolution\RequestTypeMappingStrategies.cs" />
+    <Compile Include="TypeResolution\VersionedName.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -6,6 +6,7 @@
     using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using Cedar.TypeResolution;
     using Microsoft.Owin;
 
     using MidFunc = System.Func<
@@ -58,8 +59,10 @@
         private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerSettings options)
         {
             string contentType = context.Request.ContentType;
-            Type commandType = options.ContentTypeMapper.GetFromContentType(contentType);
-            if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) || commandType == null)
+
+            Type commandType;
+            if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase) 
+                || (commandType = options.RequestTypeResolver.ResolveInputType(new CedarRequest(context))) == null)
             {
                 // Not a json entity, bad request
                 throw new HttpStatusException("The specified media type is not supported.", HttpStatusCode.UnsupportedMediaType, new NotSupportedException());
