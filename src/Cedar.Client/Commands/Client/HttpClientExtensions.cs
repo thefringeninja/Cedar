@@ -2,7 +2,6 @@
 namespace Cedar.Commands.Client
 {
     using System;
-    using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
@@ -23,21 +22,10 @@ namespace Cedar.Commands.Client
                 Content = httpContent
             };
             request.Headers.Accept.ParseAdd("application/json");
+
             HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead);
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                throw new InvalidOperationException("Got 404 Not Found for {0}".FormatWith(request.RequestUri));
-            }
-            if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var exception = await settings.Serializer.ReadException(response.Content, settings.ModelToExceptionConverter);
-                throw exception;
-            }
-            if (response.StatusCode == HttpStatusCode.InternalServerError)
-            {
-                var exception = await settings.Serializer.ReadException(response.Content, settings.ModelToExceptionConverter);
-                throw exception;
-            }
+            
+            await response.ThrowOnErrorStatus(request, settings);
         }
     }
 }

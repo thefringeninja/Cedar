@@ -2,13 +2,28 @@ namespace Cedar.ExceptionModels.Client
 {
     using System;
     using System.Linq;
+    using System.Net;
     using System.Net.Http;
     using System.Reflection;
+    using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
     using Cedar.Serialization.Client;
 
-    internal static class HttpContentExtensions
+    internal static class HttpExtensions
     {
+        internal static async Task ThrowOnErrorStatus(this HttpResponseMessage response, HttpRequestMessage request, IMessageExecutionSettings options)
+        {
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new InvalidOperationException("Got 404 Not Found for {0}".FormatWith(request.RequestUri));
+            }
+            if ((int)response.StatusCode >= 400)
+            {
+                var exception = await options.Serializer.ReadException(response.Content, options.ModelToExceptionConverter);
+                ExceptionDispatchInfo.Capture(exception).Throw();
+            }
+
+        }
         internal static async Task<Exception> ReadException(this ISerializer serializer, HttpContent content, IModelToExceptionConverter modelToExceptionConverter)
         {
             var jsonString = await content.ReadAsStringAsync();

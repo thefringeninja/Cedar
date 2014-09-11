@@ -51,7 +51,7 @@
     <Compile Include="Serialization\Client\DefaultJsonSerializer.cs" />
     <Compile Include="Serialization\Client\ISerializer.cs" />
     <Compile Include="Serialization\Client\SerializationExtensions.cs" />
-    <Compile Include="ExceptionModels\Client\HttpContentExtensions.cs" />
+    <Compile Include="ExceptionModels\Client\HttpExtensions.cs" />
     <Compile Include="ExceptionModels\Client\IModelToExceptionConverter.cs" />
     <Compile Include="ExceptionModels\Client\ModelToExceptionConverter.cs" />
     <Compile Include="MessageExecutionSettings.cs" />
