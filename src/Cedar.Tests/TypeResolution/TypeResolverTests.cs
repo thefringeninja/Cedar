@@ -11,10 +11,17 @@
         public void Should_get_command_type()
         {
             var resolver = new DefaultRequestTypeResolver("cedar.tests", new[] {typeof (TypeResolverTests)});
-            
-            var context = new OwinContext();
 
-            context.Request.ContentType = @"application/vnd.cedar.tests.commandtyperesolvertests+json";
+            var context = new OwinContext
+            {
+                Request =
+                {
+                    Protocol = "HTTP/1.1",
+                    Scheme = "http",
+                    Host = new HostString("locahost"),
+                    ContentType = @"application/vnd.cedar.tests.typeresolvertests+json"
+                }
+            };
 
             Type commandType = resolver.ResolveInputType(new CedarRequest(context));
 
