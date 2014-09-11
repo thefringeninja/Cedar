@@ -24,7 +24,7 @@
         private readonly IEventStoreClient _eventStoreClient;
         private readonly ICheckpointRepository _checkpointRepository;
         private readonly Func<ICommit, CancellationToken, Task> _dispatchCommit;
-        private readonly Subject<ICommit> _commitsProjectedStream = new Subject<ICommit>();
+        private readonly Subject<ICommit> _projectedCommitsStream = new Subject<ICommit>();
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
         private InterlockedBoolean _isStarted = new InterlockedBoolean();
         private int _isDisposed;
@@ -114,7 +114,7 @@
             _checkpointRepository = checkpointRepository;
             _dispatchCommit = dispatchCommit;
             _retryPolicy = retryPolicy ?? TransientExceptionRetryPolicy.None();
-            _compositeDisposable.Add(_commitsProjectedStream);
+            _compositeDisposable.Add(_projectedCommitsStream);
         }
 
         /// <summary>
@@ -127,7 +127,7 @@
             {
                 return;
             }
-            string checkpointToken = await _checkpointRepository.Get();
+            string checkpointToken = await _checkpointRepository.Get(); //TODO retry and exception on failure
             _commitStream = _eventStoreClient.ObserveFrom(checkpointToken); //TODO replace with EventStoreClient in NES v6
             var subscription = _commitStream
                 .Subscribe(commit => Task.Run(async () =>
@@ -142,10 +142,10 @@
                         Logger.ErrorException(
                             Messages.ExceptionHasOccuredWhenDispatchingACommit.FormatWith(commit.ToString()),
                             ex);
-                        _commitsProjectedStream.OnError(ex);
+                        _projectedCommitsStream.OnError(ex);
                         throw;
                     }
-                    _commitsProjectedStream.OnNext(commit);
+                    _projectedCommitsStream.OnNext(commit);
                 }).Wait());
             _commitStream.Start();
             _compositeDisposable.Add(_commitStream);
@@ -153,13 +153,14 @@
         }
 
         /// <summary>
-        /// Gets an observable of <see cref="ICommit"/>. When subscribers observe an exception it indicates that
-        /// the <see cref="TransientExceptionRetryPolicy"/> has failed. This would probably
-        /// indicate a serious issue where you may wish to consider terminiating your application.
+        /// Gets an observable of <see cref="ICommit"/> as they have been projectd. When subscribers
+        /// observe an exception it indicates that  the <see cref="TransientExceptionRetryPolicy"/>
+        /// has failed. This would probably indicate a serious issue where you may wish to consider
+        /// terminiating your application.
         /// </summary>
-        public IObservable<ICommit> CommitsProjectedStream
+        public IObservable<ICommit> ProjectedCommitsStream
         {
-            get { return _commitsProjectedStream; }
+            get { return _projectedCommitsStream; }
         }
 
         /// <summary>

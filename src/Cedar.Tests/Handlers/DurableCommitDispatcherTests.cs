@@ -29,7 +29,7 @@
                     Guid streamId = Guid.NewGuid();
                     Guid commitId = Guid.NewGuid();
                     Task<ICommit> commitProjected = host
-                        .CommitsProjectedStream
+                        .ProjectedCommitsStream
                         .Take(1)
                         .ToTask();
 
@@ -67,7 +67,7 @@
                     Guid streamId = Guid.NewGuid();
                     Guid commitId = Guid.NewGuid();
                     Task<ICommit> commitProjected = host
-                        .CommitsProjectedStream
+                        .ProjectedCommitsStream
                         .Take(1)
                         .ToTask();
 
