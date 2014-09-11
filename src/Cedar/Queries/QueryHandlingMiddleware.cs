@@ -9,6 +9,7 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Commands;
+    using Cedar.ExceptionModels;
     using Cedar.Serialization.Client;
     using Microsoft.Owin;
     using MidFunc = System.Func<
