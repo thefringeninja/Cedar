@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Reactive.Disposables;
     using System.Reactive.Subjects;
     using System.Threading;
     using System.Threading.Tasks;
@@ -11,7 +10,6 @@
     using Cedar.Internal;
     using Cedar.Logging;
     using NEventStore;
-    using NEventStore.Client;
 
     /// <summary>
     /// Subscribes to a stream of Commits from NEventStore and dispatches to a handler. It tracks the commit stream checkpoint
@@ -25,12 +23,11 @@
         private readonly ICheckpointRepository _checkpointRepository;
         private readonly Func<ICommit, CancellationToken, Task> _dispatchCommit;
         private readonly Subject<ICommit> _projectedCommitsStream = new Subject<ICommit>();
-        private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
         private readonly InterlockedBoolean _isStarted = new InterlockedBoolean();
         private int _isDisposed;
-        private IObserveCommits _commitStream;
         private readonly TransientExceptionRetryPolicy _retryPolicy;
         private readonly CancellationTokenSource _disposed = new CancellationTokenSource();
+        private IDisposable _subscription;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DurableCommitDispatcher"/> class.
@@ -114,7 +111,6 @@
             _checkpointRepository = checkpointRepository;
             _dispatchCommit = dispatchCommit;
             _retryPolicy = retryPolicy ?? TransientExceptionRetryPolicy.None();
-            _compositeDisposable.Add(_projectedCommitsStream);
         }
 
         /// <summary>
@@ -129,9 +125,7 @@
             }
             string checkpointToken = null;
             await _retryPolicy.Retry(async () => checkpointToken = await _checkpointRepository.Get(), _disposed.Token);
-            _commitStream = _eventStoreClient.ObserveFrom(checkpointToken); //TODO replace with EventStoreClient in NES v6
-            var subscription = _commitStream
-                .Subscribe(commit => Task.Run(async () =>
+            _subscription = _eventStoreClient.Subscribe(checkpointToken, async commit =>
                 {
                     try
                     {
@@ -147,10 +141,7 @@
                         throw;
                     }
                     _projectedCommitsStream.OnNext(commit);
-                }).Wait());
-            _commitStream.Start();
-            _compositeDisposable.Add(_commitStream);
-            _compositeDisposable.Add(subscription);
+                });
         }
 
         /// <summary>
@@ -170,9 +161,9 @@
         /// </summary>
         public void PollNow()
         {
-            if (_commitStream != null)
+            if (_eventStoreClient != null)
             {
-                _commitStream.PollNow();
+                _eventStoreClient.RetrieveNow();
             }
         }
 
@@ -186,7 +177,8 @@
                 return;
             }
             _disposed.Cancel();
-            _compositeDisposable.Dispose();
+            _projectedCommitsStream.Dispose();
+            _subscription.Dispose();
         }
     }
 }
