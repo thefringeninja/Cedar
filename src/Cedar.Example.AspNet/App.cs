@@ -5,10 +5,10 @@
     using System.Threading;
     using Cedar.Commands;
     using Cedar.Handlers;
+    using Cedar.Handlers.TempImportFromNES;
     using Cedar.Internal;
     using Cedar.TypeResolution;
     using NEventStore;
-    using NEventStore.Client;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
@@ -31,7 +31,7 @@
             _middleware = CommandHandlingMiddleware.HandleCommands(settings);
 
             _storeEvents = Wireup.Init().UsingInMemoryPersistence().Build();
-            var eventStoreClient = new EventStoreClient(new PollingClient(_storeEvents.Advanced));
+            var eventStoreClient = new EventStoreClient(_storeEvents.Advanced);
 
             _durableCommitDispatcher = new DurableCommitDispatcher(
                 eventStoreClient,

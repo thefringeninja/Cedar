@@ -82,6 +82,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Messages.resx</DependentUpon>
     </Compile>
+    <Compile Include="Handlers\TempImportFromNES\LruCache.cs" />
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
     <Compile Include="ExceptionModels\ExceptionHandlingExtensions.cs" />
@@ -127,7 +128,7 @@
     <Compile Include="Domain\Persistence\RepositoryExtensions.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
-    <Compile Include="Handlers\EventStoreClient.cs">
+    <Compile Include="Handlers\TempImportFromNES\EventStoreClient.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Handlers\ICheckpointRepository.cs">

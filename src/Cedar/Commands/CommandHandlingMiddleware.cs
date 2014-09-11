@@ -6,6 +6,7 @@
     using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using Cedar.ExceptionModels;
     using Cedar.TypeResolution;
     using Microsoft.Owin;
 

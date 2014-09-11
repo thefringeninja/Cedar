@@ -5,6 +5,7 @@
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
     using System.Threading.Tasks;
+    using Cedar.Handlers.TempImportFromNES;
     using FluentAssertions;
     using NEventStore;
     using NEventStore.Client;
@@ -21,7 +22,7 @@
                 var handlerModule = new TestHandlerModule(dispatchedEvents);
 
                 using (var host = new DurableCommitDispatcher(
-                    new EventStoreClient(new PollingClient(eventStore.Advanced)),
+                    new EventStoreClient(eventStore.Advanced),
                     new InMemoryCheckpointRepository(),
                     handlerModule))
                 {
@@ -59,7 +60,7 @@
                 var handlerModule = new TestHandlerModule(projectedEvents);
 
                 using (var host = new DurableCommitDispatcher(
-                    new EventStoreClient(new PollingClient(eventStore.Advanced)),
+                    new EventStoreClient(eventStore.Advanced),
                     new InMemoryCheckpointRepository(),
                     handlerModule.DispatchCommit))
                 {

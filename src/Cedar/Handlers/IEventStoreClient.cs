@@ -1,9 +1,13 @@
 ﻿namespace Cedar.Handlers
 {
-    using NEventStore.Client;
+    using System;
+    using System.Threading.Tasks;
+    using NEventStore;
 
     public interface IEventStoreClient
     {
-        IObserveCommits ObserveFrom(string checkpoint);
+        IDisposable Subscribe(string checkpoint, Func<ICommit, Task> onCommit);
+
+        void RetrieveNow();
     }
 }

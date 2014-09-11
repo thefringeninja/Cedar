@@ -1,4 +1,4 @@
-﻿namespace Cedar
+﻿namespace Cedar.ExceptionModels
 {
     using System;
     using System.Text;
@@ -7,13 +7,13 @@
     using Cedar.Serialization.Client;
     using Microsoft.Owin;
 
-
-    internal static partial class ExceptionHandlingExtensions
+    internal static class ExceptionHandlingExtensions
     {
-        internal static async Task ExecuteWithExceptionHandling(this Func<IOwinContext, HandlerSettings, Task> actionToRun, IOwinContext context, HandlerSettings options)
+        internal static async Task ExecuteWithExceptionHandling(
+            this Func<IOwinContext, HandlerSettings, Task> actionToRun,
+            IOwinContext context, HandlerSettings options)
         {
             Exception caughtException;
-            
             try
             {
                 await actionToRun(context, options);
@@ -39,21 +39,22 @@
             await context.HandleInternalServerError(caughtException, options);
 
         }
-        internal static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
+
+        private static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, 400, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
-        internal static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
+        private static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, 500, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
-        internal static Task HandleHttpStatusException(this IOwinContext context, HttpStatusException exception, HandlerSettings options, string contentType = "application/json")
+        private static Task HandleHttpStatusException(this IOwinContext context, HttpStatusException exception, HandlerSettings options, string contentType = "application/json")
         {
             context.Response.StatusCode = (int) exception.StatusCode;
             context.Response.ReasonPhrase = exception.StatusCode.ToString();

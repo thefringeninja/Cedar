@@ -10,6 +10,7 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Commands;
+    using Cedar.ExceptionModels;
     using Cedar.Serialization.Client;
     using Cedar.TypeResolution;
     using Microsoft.Owin;
