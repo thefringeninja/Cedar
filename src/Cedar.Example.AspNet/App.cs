@@ -5,10 +5,10 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Commands;
-    using Cedar.ContentNegotiation;
     using Cedar.Handlers;
     using Cedar.Handlers.TempImportFromNES;
     using Cedar.Internal;
+    using Cedar.TypeResolution;
     using Microsoft.Owin;
     using NEventStore;
     using MidFunc = System.Func<
@@ -29,7 +29,7 @@
         {
             var settings = new DefaultHandlerSettings(
                 new HandlerModule(),
-                new DefaultContentTypeMapper("cedar", Enumerable.Empty<Type>()));
+                new DefaultRequestTypeResolver("cedar", Enumerable.Empty<Type>()));
 
             var commitDispatcherFailed = new TaskCompletionSource<Exception>();
             //MidFunc blah = CommandHandlingMiddleware.HandleCommands(settings);
