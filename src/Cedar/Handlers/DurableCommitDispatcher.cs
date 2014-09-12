@@ -22,7 +22,7 @@
         private readonly IEventStoreClient _eventStoreClient;
         private readonly ICheckpointRepository _checkpointRepository;
         private readonly Func<ICommit, CancellationToken, Task> _dispatchCommit;
-        private readonly Subject<ICommit> _projectedCommitsStream = new Subject<ICommit>();
+        private readonly Subject<ICommit> _projectedCommits = new Subject<ICommit>();
         private readonly InterlockedBoolean _isStarted = new InterlockedBoolean();
         private int _isDisposed;
         private readonly TransientExceptionRetryPolicy _retryPolicy;
@@ -123,13 +123,16 @@
             {
                 return;
             }
-            string checkpointToken = null;
-            await _retryPolicy.Retry(async () => checkpointToken = await _checkpointRepository.Get(), _disposed.Token); //TODO should have different retry policy? 
+
+            string checkpointToken = await _checkpointRepository.Get();
+
+           /* string checkpointToken = null;
+            await _retryPolicy.Retry(async () => checkpointToken = await _checkpointRepository.Get(), _disposed.Token); //TODO should have different retry policy? */
             _subscription = _eventStoreClient.Subscribe(checkpointToken, async commit =>
                 {
                     try
                     {
-                        await _retryPolicy.Retry(() => _dispatchCommit(commit, CancellationToken.None), _disposed.Token);
+                        await _retryPolicy.Retry(() => _dispatchCommit(commit, _disposed.Token), _disposed.Token);
                         await _retryPolicy.Retry(() => _checkpointRepository.Put(commit.CheckpointToken), _disposed.Token);
                     }
                     catch (Exception ex)
@@ -137,10 +140,10 @@
                         Logger.ErrorException(
                             Messages.ExceptionHasOccuredWhenDispatchingACommit.FormatWith(commit.ToString()),
                             ex);
-                        _projectedCommitsStream.OnError(ex);
+                        _projectedCommits.OnError(ex);
                         throw;
                     }
-                    _projectedCommitsStream.OnNext(commit);
+                    _projectedCommits.OnNext(commit);
                 });
         }
 
@@ -150,9 +153,9 @@
         /// has failed. This would probably indicate a serious issue where you may wish to consider
         /// terminiating your application.
         /// </summary>
-        public IObservable<ICommit> ProjectedCommitsStream
+        public IObservable<ICommit> ProjectedCommits
         {
-            get { return _projectedCommitsStream; }
+            get { return _projectedCommits; }
         }
 
         /// <summary>
@@ -177,7 +180,7 @@
                 return;
             }
             _disposed.Cancel();
-            _projectedCommitsStream.Dispose();
+            _projectedCommits.Dispose();
             _subscription.Dispose();
         }
     }
