@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Reflection;
     using System.Security.Claims;
     using System.Threading.Tasks;
@@ -11,6 +12,7 @@
     using Cedar.Commands;
     using Cedar.ExceptionModels;
     using Cedar.Serialization.Client;
+    using Cedar.TypeResolution;
     using Microsoft.Owin;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
@@ -48,27 +50,31 @@
                     return next(env);
                 }
 
-                return BuildHandlerCall(getInputType, getOutputType, queryPath)
+                return BuildHandlerCall()
                     .ExecuteWithExceptionHandling(context, options);
             };
         }
 
-        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(Func<IDictionary<string, object>, Type> getInputType, Func<IDictionary<string, object>, Type> getOutputType, string queryPath)
+        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall()
         {
             return (context, options) => HandleQuery(
                 context,
                 Guid.NewGuid(),
-                options,
-                getInputType ?? QueryTypeMapping.InputTypeFromPathSegment(options, queryPath),
-                getOutputType ?? QueryTypeMapping.OutputTypeFromAcceptHeader(options));
+                options);
         }
 
-        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IDictionary<string, object>, Type> getInputType,
-            Func<IDictionary<string, object>, Type> getOutputType)
+        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options)
         {
-            var inputType = getInputType(context.Environment);
+            var request = new CedarRequest(context);
+            
+            var inputType = options.RequestTypeResolver.ResolveInputType(request);
 
-            var outputType = getOutputType(context.Environment);
+            if (inputType == null)
+            {
+                throw new HttpStatusException("Unable to find the query type", HttpStatusCode.BadRequest, new NotSupportedException());
+            }
+
+            var outputType = options.RequestTypeResolver.ResolveOutputType(request);
 
             object input;
             using (var streamReader = new StreamReader(context.Request.Body))

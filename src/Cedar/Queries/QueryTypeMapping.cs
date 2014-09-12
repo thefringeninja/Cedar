@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Net;
-    using Cedar.ContentNegotiation;
+    using Cedar.TypeResolution;
     using Microsoft.Owin;
 
     public static class QueryTypeMapping
@@ -14,7 +14,7 @@
             {
                 var context = new OwinContext(env);
                 
-                var type = options.ContentTypeMapper.GetFromContentType(context.Request.Path.Value.Remove(0, queryPath.Length + 1));
+                var type = options.RequestTypeResolver.ResolveInputType(new CedarRequest(context));
                 if (type == null)
                 {
                     // because we are using the path here and the type is not registered, the resource "doesn't exist"
@@ -36,7 +36,7 @@
             return env =>
             {
                 var context = new OwinContext(env);
-                var type = options.ContentTypeMapper.FindBest(context);
+                var type = options.RequestTypeResolver.ResolveOutputType(new CedarRequest(context));
 
                 if (type == null)
                 {
