@@ -124,7 +124,7 @@
                 return;
             }
             string checkpointToken = null;
-            await _retryPolicy.Retry(async () => checkpointToken = await _checkpointRepository.Get(), _disposed.Token);
+            await _retryPolicy.Retry(async () => checkpointToken = await _checkpointRepository.Get(), _disposed.Token); //TODO should have different retry policy? 
             _subscription = _eventStoreClient.Subscribe(checkpointToken, async commit =>
                 {
                     try
