@@ -41,7 +41,7 @@ namespace Cedar.Example.Handlers
 
     public class Command1Validator
     {
-        public static Command1Validator Instance = new Command1Validator();
+        public static readonly Command1Validator Instance = new Command1Validator();
     }
 
     public class CancelAggregate { }

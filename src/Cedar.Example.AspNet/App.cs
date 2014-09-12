@@ -3,11 +3,13 @@
     using System;
     using System.Linq;
     using System.Threading;
+    using System.Threading.Tasks;
     using Cedar.Commands;
     using Cedar.ContentNegotiation;
     using Cedar.Handlers;
     using Cedar.Handlers.TempImportFromNES;
     using Cedar.Internal;
+    using Microsoft.Owin;
     using NEventStore;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
@@ -28,8 +30,11 @@
             var settings = new DefaultHandlerSettings(
                 new HandlerModule(),
                 new DefaultContentTypeMapper("cedar", Enumerable.Empty<Type>()));
-            _middleware = CommandHandlingMiddleware.HandleCommands(settings);
 
+            var commitDispatcherFailed = new TaskCompletionSource<Exception>();
+            //MidFunc blah = CommandHandlingMiddleware.HandleCommands(settings);
+            //_middleware = CreateGate(commitDispatcherFailed.Task)
+            _middleware = CommandHandlingMiddleware.HandleCommands(settings);
             _storeEvents = Wireup.Init().UsingInMemoryPersistence().Build();
             var eventStoreClient = new EventStoreClient(_storeEvents.Advanced);
 
@@ -39,19 +44,29 @@
                 new HandlerModule(),
                 TransientExceptionRetryPolicy.Indefinite(TimeSpan.FromMilliseconds(500)));
 
-            _durableCommitDispatcher.ProjectedCommitsStream.Subscribe(
+            _durableCommitDispatcher.ProjectedCommits.Subscribe(
                 _ => { },
-                ex =>
-                {
-                    //TODO a handler has failed fatally, need to shut down application.
-                });
+                commitDispatcherFailed.SetResult);
 
-            Initialize();
+            _durableCommitDispatcher.Start().Wait();
         }
 
-        private async void Initialize()
+        private MidFunc CreateGate(Task<Exception> commitDispatcherFailed)
         {
-            await _durableCommitDispatcher.Start();
+            return 
+                next =>
+                async env =>
+                {
+                    if (commitDispatcherFailed.IsCompleted) 
+                    { 
+                        var owinContext = new OwinContext(env);
+                        owinContext.Response.StatusCode = 500;
+                        owinContext.Response.ReasonPhrase = "Internal Server Error";
+                        owinContext.Response.Write(commitDispatcherFailed.Result.ToString());
+                        return;
+                    }
+                    await next(env);
+                };
         }
 
         public static App Instance

@@ -47,6 +47,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="App_Packages\LibLog.1.0\Logging.cs" />
     <Compile Include="Commands\Client\CommandExecutionSettings.cs" />
     <Compile Include="Serialization\Client\DefaultJsonSerializer.cs" />
     <Compile Include="Serialization\Client\ISerializer.cs" />
@@ -66,14 +67,6 @@
     <Compile Include="ExceptionModels\Client\ExceptionModel.cs" />
     <Compile Include="ExceptionModels\Client\InvalidOperationExceptionModel.cs" />
     <Compile Include="ExceptionModels\Client\NotSupportedExceptionModel.cs" />
-    <Compile Include="Logging\ILog.cs" />
-    <Compile Include="Logging\ILogProvider.cs" />
-    <Compile Include="Logging\LogExtensions.cs" />
-    <Compile Include="Logging\LoggerExecutionWrapper.cs" />
-    <Compile Include="Logging\LogLevel.cs" />
-    <Compile Include="Logging\LogProvider.cs" />
-    <Compile Include="Logging\LogProviders\Log4NetLogProvider.cs" />
-    <Compile Include="Logging\LogProviders\NLogProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\Client\HttpClientExtensions.cs" />
   </ItemGroup>

@@ -6,12 +6,10 @@
     public class Global : HttpApplication
     {
 
-        public Global()
-        {}
-
         protected void Application_Start(object sender, EventArgs e)
         {
-            //var instance = App.Instance;
+            // The activation order of Global and Strtup
+            var instance = App.Instance;
         }
 
         protected void Session_Start(object sender, EventArgs e)
