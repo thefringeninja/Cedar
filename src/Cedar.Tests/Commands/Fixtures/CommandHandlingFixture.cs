@@ -5,8 +5,8 @@ namespace Cedar.Commands.Fixtures
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
-    using Cedar.ContentNegotiation;
     using Cedar.Handlers;
+    using Cedar.TypeResolution;
     using Microsoft.Owin;
 
     public class CommandHandlingFixture
@@ -20,7 +20,7 @@ namespace Cedar.Commands.Fixtures
 
             var handlerModule = new TestHandlerModule();
            
-            var commandTypeFromContentTypeResolver = new DefaultContentTypeMapper(
+            var commandTypeFromContentTypeResolver = new DefaultRequestTypeResolver(
                 vendor,
                 new[]
                 {

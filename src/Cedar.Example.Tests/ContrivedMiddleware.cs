@@ -5,11 +5,11 @@
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands;
-    using Cedar.ContentNegotiation;
     using Cedar.Handlers;
     using Cedar.Queries;
     using Cedar.Queries.Client;
     using Cedar.Testing;
+    using Cedar.TypeResolution;
     using Microsoft.Owin;
     using Newtonsoft.Json;
     using Xunit;
@@ -152,7 +152,7 @@
                 var commands = CommandHandlingMiddleware.HandleCommands(
                     new DefaultHandlerSettings(
                         commandModule,
-                        new DefaultContentTypeMapper(
+                        new DefaultRequestTypeResolver(
                             "vendor",
                             new[]
                             {
@@ -164,7 +164,7 @@
 
                 var queries = QueryHandlingMiddleware.HandleQueries(new DefaultHandlerSettings(
                     queryModule,
-                    new DefaultContentTypeMapper(
+                    new DefaultRequestTypeResolver(
                         "vendor",
                         new[]
                         {

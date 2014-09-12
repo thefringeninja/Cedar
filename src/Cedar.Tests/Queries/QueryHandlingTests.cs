@@ -100,14 +100,14 @@
                     {
                         Headers =
                         {
-                            ContentType = new MediaTypeHeaderValue("application/vnd.vendor.testquery+json")
+                            ContentType = new MediaTypeHeaderValue("application/json")
                         }
                     }
                 };
 
                 request.Headers.Accept.ParseAdd("application/vnd.vendor.testqueryresponse+json");
                 var response = await client.SendAsync(request);
-                response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+                response.StatusCode.Should().Match(code => (int)code >= 400 && (int)code < 500);
             }
         }
 

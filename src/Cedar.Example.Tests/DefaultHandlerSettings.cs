@@ -3,24 +3,24 @@ namespace Cedar.Example.Tests
     using System.Collections.Generic;
     using System.Linq;
     using Cedar.Annotations;
-    using Cedar.ContentNegotiation;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
+    using Cedar.TypeResolution;
 
     internal class DefaultHandlerSettings : HandlerSettings
     {
         internal DefaultHandlerSettings(
             [NotNull] IHandlerResolver handlerModule,
-            [NotNull] IContentTypeMapper contentTypeMapper,
+            [NotNull] IRequestTypeResolver requestTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null)
-            : this(Enumerable.Repeat(handlerModule, 1), contentTypeMapper, exceptionToModelConverter)
+            : this(Enumerable.Repeat(handlerModule, 1), requestTypeResolver, exceptionToModelConverter)
         {}
 
         internal DefaultHandlerSettings(
             [NotNull] IEnumerable<IHandlerResolver> handlerModules,
-            [NotNull] IContentTypeMapper contentTypeMapper,
+            [NotNull] IRequestTypeResolver requestTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null)
-            : base(handlerModules, contentTypeMapper, exceptionToModelConverter)
+            : base(handlerModules, requestTypeResolver, exceptionToModelConverter)
         {
         }
     }

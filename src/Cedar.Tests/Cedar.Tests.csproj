@@ -106,7 +106,7 @@
     </Compile>
     <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />
     <Compile Include="Commands\CommandHandlingTests.cs" />
-    <Compile Include="Commands\CommandTypeResolverTests.cs" />
+    <Compile Include="TypeResolution\TypeResolverTests.cs" />
     <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolverTests.cs" />
     <Compile Include="Commands\ExceptionToModelConverterTests.cs" />
     <Compile Include="Commands\Fixtures\CommandHandlingFixture.cs" />
@@ -132,6 +132,7 @@
     <Compile Include="Queries\Fixtures\TestQueryWithoutHandler.cs" />
     <Compile Include="Queries\Fixtures\TestMessageHandlerModule.cs" />
     <Compile Include="TinyIoC.cs" />
+    <Compile Include="TypeResolution\TypeResolverVersioningTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
