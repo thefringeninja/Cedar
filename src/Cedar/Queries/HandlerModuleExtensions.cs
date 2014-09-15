@@ -63,5 +63,30 @@
 
             return await queryMessage.Source.Task;
         }
+
+        public static ICreateHandlerBuilder HandleQuery<TInput, TOutput>(
+            this IHandlerBuilder<QueryMessage<TInput, TOutput>> handler, Func<TInput, CancellationToken, Task<TOutput>> query)
+        {
+            return handler.Handle(async (message, ct) =>
+            {
+                try
+                {
+                    var result = await query(message.Input, ct);
+                    
+                    if (ct.IsCancellationRequested)
+                    {
+                        message.Source.TrySetCanceled();
+                    }
+                    else
+                    {
+                        message.Source.TrySetResult(result);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    message.Source.TrySetException(ex);
+                }
+            });
+        }
     }
 }

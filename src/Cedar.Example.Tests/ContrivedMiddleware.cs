@@ -71,20 +71,6 @@
             public string Value { get; set; }
         }
 
-        class QueryHandler : IQueryHandler<Query, QueryResult>
-        {
-            private readonly QueryResult _result;
-
-            public QueryHandler(QueryResult result)
-            {
-                _result = result;
-            }
-
-            public Task<QueryResult> PerformQuery(Query input)
-            {
-                return Task.FromResult(_result);
-            }
-        }
         [Fact]
         public async Task Passes()
         {
@@ -160,7 +146,8 @@
                             })));
 
                 var queryModule = new QueryHandlerModule();
-                queryModule.For(new QueryHandler(result));
+                queryModule.For<Query, QueryResult>()
+                    .HandleQuery(_ => Task.FromResult(result));
 
                 var queries = QueryHandlingMiddleware.HandleQueries(new DefaultHandlerSettings(
                     queryModule,

@@ -148,7 +148,6 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\HandlerModuleExtensions.cs" />
-    <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\QueryHandlerModule.cs" />
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />

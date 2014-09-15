@@ -7,24 +7,13 @@
     {
         public TestHandlerModule()
         {
-            For(new ThrowingTestQueryHandler());
-            For(new TestQueryHandler());
-        }
-
-        class ThrowingTestQueryHandler : IQueryHandler<TestQueryWhoseHandlerThrows, TestQueryResponse>
-        {
-            public Task<TestQueryResponse> PerformQuery(TestQueryWhoseHandlerThrows input)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        class TestQueryHandler : IQueryHandler<TestQuery, TestQueryResponse>
-        {
-            public Task<TestQueryResponse> PerformQuery(TestQuery input)
-            {
-                return Task.FromResult(new TestQueryResponse());
-            }
+            For<TestQueryWhoseHandlerThrows, TestQueryResponse>()
+                .HandleQuery(_ =>
+                {
+                    throw new InvalidOperationException();
+                });
+            For<TestQuery, TestQueryResponse>()
+                .HandleQuery(_ => Task.FromResult(new TestQueryResponse()));
         }
     }
 }
