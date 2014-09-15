@@ -152,7 +152,6 @@
     <Compile Include="Queries\QueryHandlerModule.cs" />
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
-    <Compile Include="Queries\QueryTypeMapping.cs" />
     <Compile Include="TypeResolution\RequestTypeMappingStrategies.cs" />
     <Compile Include="TypeResolution\VersionedName.cs" />
   </ItemGroup>
