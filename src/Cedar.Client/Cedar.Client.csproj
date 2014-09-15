@@ -47,7 +47,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="App_Packages\LibLog.1.0\Logging.cs" />
+    <Compile Include="App_Packages\LibLog.1.2\Logging.cs" />
     <Compile Include="Commands\Client\CommandExecutionSettings.cs" />
     <Compile Include="Serialization\Client\DefaultJsonSerializer.cs" />
     <Compile Include="Serialization\Client\ISerializer.cs" />

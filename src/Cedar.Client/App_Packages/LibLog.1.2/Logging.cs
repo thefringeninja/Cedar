@@ -1,7 +1,7 @@
 //===============================================================================
-// LibraryLogger
+// LibLog
 //
-// https://github.com/damianh/LibraryLogger
+// https://github.com/damianh/LibLog
 //===============================================================================
 // Copyright © 2011-2014 Damian Hickey.  All rights reserved.
 //
@@ -146,6 +146,11 @@ namespace Cedar.Logging
     {
         private static ILogProvider _currentLogProvider;
 
+        public static ILog For<T>()
+        {
+            return GetLogger(typeof(T));
+        }
+
         public static ILog GetCurrentClassLogger()
         {
             var stackFrame = new StackFrame(1, false);
@@ -174,7 +179,11 @@ namespace Cedar.Logging
             {
                 return new NLogLogProvider();
             }
-            return Log4NetLogProvider.IsLoggerAvailable() ? new Log4NetLogProvider() : null;
+            if (Log4NetLogProvider.IsLoggerAvailable())
+            {
+                return new Log4NetLogProvider();
+            }
+            return EntLibLogProvider.IsLoggerAvailable() ? new EntLibLogProvider() : null;
         }
 
         public class NoOpLogger : ILog
@@ -242,6 +251,8 @@ namespace Cedar.Logging
 namespace Cedar.Logging.LogProviders
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq.Expressions;
     using System.Reflection;
 
@@ -284,17 +295,16 @@ namespace Cedar.Logging.LogProviders
         {
             Type logManagerType = GetLogManagerType();
             MethodInfo method = logManagerType.GetMethod("GetLogger", new[] { typeof(string) });
-            ParameterExpression resultValue;
-            ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
-            MethodCallExpression methodCall = Expression.Call(null, method, new Expression[] { resultValue = keyParam });
-            return Expression.Lambda<Func<string, object>>(methodCall, new[] { resultValue }).Compile();
+            ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
+            MethodCallExpression methodCall = Expression.Call(null, method, new Expression[] { nameParam });
+            return Expression.Lambda<Func<string, object>>(methodCall, new[] { nameParam }).Compile();
         }
 
         public class NLogLogger : ILog
         {
             private readonly dynamic _logger;
 
-            internal NLogLogger(object logger)
+            internal NLogLogger(dynamic logger)
             {
                 _logger = logger;
             }
@@ -427,17 +437,16 @@ namespace Cedar.Logging.LogProviders
         {
             Type logManagerType = GetLogManagerType();
             MethodInfo method = logManagerType.GetMethod("GetLogger", new[] { typeof(string) });
-            ParameterExpression resultValue;
-            ParameterExpression keyParam = Expression.Parameter(typeof(string), "key");
-            MethodCallExpression methodCall = Expression.Call(null, method, new Expression[] { resultValue = keyParam });
-            return Expression.Lambda<Func<string, object>>(methodCall, new[] { resultValue }).Compile();
+            ParameterExpression nameParam = Expression.Parameter(typeof(string), "name");
+            MethodCallExpression methodCall = Expression.Call(null, method, new Expression[] { nameParam });
+            return Expression.Lambda<Func<string, object>>(methodCall, new[] { nameParam }).Compile();
         }
 
         public class Log4NetLogger : ILog
         {
             private readonly dynamic _logger;
 
-            internal Log4NetLogger(object logger)
+            internal Log4NetLogger(dynamic logger)
             {
                 _logger = logger;
             }
@@ -512,6 +521,356 @@ namespace Cedar.Logging.LogProviders
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.Debug(messageFunc(), exception);
+                        }
+                        break;
+                }
+            }
+        }
+    }
+
+    public class EntLibLogProvider : ILogProvider
+    {
+        private static bool _providerIsAvailableOverride = true;
+        private readonly MethodInfo _logEntryMethod;
+        private readonly Func<string, string, TraceEventType, object> _createEntryFunc;
+
+        public EntLibLogProvider()
+        {
+            if (!IsLoggerAvailable())
+            {
+                throw new InvalidOperationException("Microsoft.Practices.EnterpriseLibrary.Logging.Logger not found");
+            }
+            _logEntryMethod = GetLoggerMethod();
+            _createEntryFunc = GetCreateEntryFunc();
+        }
+
+        public static bool ProviderIsAvailableOverride
+        {
+            get { return _providerIsAvailableOverride; }
+            set { _providerIsAvailableOverride = value; }
+        }
+
+        public ILog GetLogger(string name)
+        {
+            return new EntLibLogger(name, _createEntryFunc, _logEntryMethod);
+        }
+
+        public static bool IsLoggerAvailable()
+        {
+            return ProviderIsAvailableOverride && GetEntryType() != null;
+        }
+
+        private static MethodInfo GetLoggerMethod()
+        {
+            var loggingType = GetLoggingType("Logger");
+            return loggingType.GetMethod("Write", new[] { GetEntryType() });
+        }
+
+        private static Type GetEntryType()
+        {
+            return GetLoggingType("LogEntry");
+        }
+
+        private static Type GetLoggingType(string name)
+        {
+            return Type.GetType(string.Format("Microsoft.Practices.EnterpriseLibrary.Logging.{0}, Microsoft.Practices.EnterpriseLibrary.Logging", name));
+        }
+
+        private static Func<string, string, TraceEventType, object> GetCreateEntryFunc()
+        {
+            var entryType = GetEntryType();
+
+            var logNameParameter = Expression.Parameter(typeof(string), "logName");
+            var messageParameter = Expression.Parameter(typeof(string), "message");
+            var severityParameter = Expression.Parameter(typeof(TraceEventType), "severity");
+
+            var memberInit = Expression.MemberInit(Expression.New(entryType), new[]
+            {
+                Expression.Bind(entryType.GetProperty("Message"), messageParameter),
+                Expression.Bind(entryType.GetProperty("Severity"), severityParameter),
+                Expression.Bind(entryType.GetProperty("TimeStamp"),
+                    Expression.Property(null, typeof (DateTime).GetProperty("UtcNow"))),
+                Expression.Bind(entryType.GetProperty("Categories"),
+                    Expression.ListInit(
+                        Expression.New(typeof (List<string>)),
+                        typeof (List<string>).GetMethod("Add", new[] {typeof (string)}),
+                        logNameParameter))
+            });
+            return Expression.Lambda<Func<string, string, TraceEventType, object>>(
+                memberInit,
+                logNameParameter,
+                messageParameter,
+                severityParameter).Compile();
+        }
+
+        public class EntLibLogger : ILog
+        {
+            private readonly string _loggerName;
+            private readonly Func<string, string, TraceEventType, object> _createLogEntryFunc;
+            private readonly MethodInfo _writeMethod;
+
+            internal EntLibLogger(string loggerName, Func<string, string, TraceEventType, object> createLogEntryFunc, MethodInfo writeMethod)
+            {
+                _loggerName = loggerName;
+                _createLogEntryFunc = createLogEntryFunc;
+                _writeMethod = writeMethod;
+            }
+
+            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            {
+                var severity = MapSeverity(logLevel);
+                object entry = _createLogEntryFunc(_loggerName, messageFunc(), severity);
+                _writeMethod.Invoke(null, new[] { entry });
+            }
+
+            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
+                where TException : Exception
+            {
+                var severity = MapSeverity(logLevel);
+                var message = messageFunc() + Environment.NewLine + exception;
+                object entry = _createLogEntryFunc(_loggerName, message, severity);
+                _writeMethod.Invoke(null, new[] { entry });
+            }
+
+            private static TraceEventType MapSeverity(LogLevel logLevel)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Fatal:
+                        return TraceEventType.Critical;
+                    case LogLevel.Error:
+                        return TraceEventType.Error;
+                    case LogLevel.Warn:
+                        return TraceEventType.Warning;
+                    case LogLevel.Info:
+                        return TraceEventType.Information;
+                    default:
+                        return TraceEventType.Verbose;
+                }
+            }
+        }
+    }
+
+    public class SerilogLogProvider : ILogProvider
+    {
+        private readonly Func<string, object> _getLoggerByNameDelegate;
+        private static bool _providerIsAvailableOverride = true;
+
+        public SerilogLogProvider()
+        {
+            if (!IsLoggerAvailable())
+            {
+                throw new InvalidOperationException("Serilog.Log not found");
+            }
+            _getLoggerByNameDelegate = GetForContextMethodCall();
+        }
+
+        public static bool ProviderIsAvailableOverride
+        {
+            get { return _providerIsAvailableOverride; }
+            set { _providerIsAvailableOverride = value; }
+        }
+
+        public ILog GetLogger(string name)
+        {
+            return new SerilogLogger(_getLoggerByNameDelegate(name));
+        }
+
+        public static bool IsLoggerAvailable()
+        {
+            return ProviderIsAvailableOverride && GetLogManagerType() != null;
+        }
+
+        private static Type GetLogManagerType()
+        {
+            return Type.GetType("Serilog.Log, Serilog");
+        }
+
+        private static Func<string, object> GetForContextMethodCall()
+        {
+            Type logManagerType = GetLogManagerType();
+            MethodInfo method = logManagerType.GetMethod("ForContext", new[] { typeof(string) , typeof(object), typeof(bool)});
+            ParameterExpression propertyNameParam = Expression.Parameter(typeof(string), "propertyName");
+            ParameterExpression valueParam = Expression.Parameter(typeof(object), "value");
+            ParameterExpression destructureObjectsParam = Expression.Parameter(typeof(bool), "destructureObjects");
+            MethodCallExpression methodCall = Expression.Call(null, method, new Expression[]
+            {
+                propertyNameParam, 
+                valueParam,
+                destructureObjectsParam
+            });
+            var func = Expression.Lambda<Func<string, object, bool, object>>(methodCall, new[]
+            {
+                propertyNameParam,
+                valueParam,
+                destructureObjectsParam
+            }).Compile();
+            return name => func("Name", name, false);
+        }
+
+        public class SerilogLogger : ILog
+        {
+            private readonly object _logger;
+            private static readonly object DebugLevel;
+            private static readonly object ErrorLevel;
+            private static readonly object FatalLevel;
+            private static readonly object InformationLevel;
+            private static readonly object VerboseLevel;
+            private static readonly object WarningLevel;
+            private static readonly Func<object, object, bool> IsEnabled;
+            private static readonly Action<object, object, string> Write;
+            private static readonly Action<object, object, Exception, string> WriteException;
+
+            static SerilogLogger()
+            {
+                var logEventTypeType = Type.GetType("Serilog.Events.LogEventLevel, Serilog");
+                DebugLevel = Enum.Parse(logEventTypeType, "Debug");
+                ErrorLevel = Enum.Parse(logEventTypeType, "Error");
+                FatalLevel = Enum.Parse(logEventTypeType, "Fatal");
+                InformationLevel = Enum.Parse(logEventTypeType, "Information");
+                VerboseLevel = Enum.Parse(logEventTypeType, "Verbose");
+                WarningLevel = Enum.Parse(logEventTypeType, "Warning");
+
+                // Func<object, object, bool> isEnabled = (logger, level) => { return ((ILogger)logger).IsEnabled(level); }
+                var loggerType = Type.GetType("Serilog.ILogger, Serilog");
+                MethodInfo isEnabledMethodInfo = loggerType.GetMethod("IsEnabled");
+                ParameterExpression instanceParam = Expression.Parameter(typeof(object));
+                UnaryExpression instanceCast = Expression.Convert(instanceParam, loggerType);
+                ParameterExpression levelParam = Expression.Parameter(typeof(object));
+                UnaryExpression levelCast = Expression.Convert(levelParam, logEventTypeType);
+                MethodCallExpression isEnabledMethodCall = Expression.Call(instanceCast, isEnabledMethodInfo, levelCast);
+                IsEnabled = Expression.Lambda<Func<object, object, bool>>(isEnabledMethodCall, new[]
+                {
+                    instanceParam,
+                    levelParam
+                }).Compile();
+
+                // Action<object, object, string> Write =
+                // (logger, level, message) => { ((ILogger)logger).Write(level, message, new object[]); }
+                MethodInfo writeMethodInfo = loggerType.GetMethod("Write", new[] { logEventTypeType, typeof(string), typeof(object[]) });
+                ParameterExpression messageParam = Expression.Parameter(typeof(string));
+                ConstantExpression propertyValuesParam = Expression.Constant(new object[0]);
+                MethodCallExpression writeMethodExp = Expression.Call(instanceCast, writeMethodInfo, levelCast, messageParam, propertyValuesParam);
+                Write = Expression.Lambda<Action<object, object, string>>(writeMethodExp, new[]
+                {
+                    instanceParam,
+                    levelParam,
+                    messageParam
+                }).Compile();
+
+                // Action<object, object, string, Exception> WriteException =
+                // (logger, level, exception, message) => { ((ILogger)logger).Write(level, exception, message, new object[]); }
+                MethodInfo writeExceptionMethodInfo = loggerType.GetMethod("Write", new[]
+                {
+                    logEventTypeType,
+                    typeof(Exception), 
+                    typeof(string),
+                    typeof(object[])
+                });
+                ParameterExpression exceptionParam = Expression.Parameter(typeof(Exception));
+                writeMethodExp = Expression.Call(
+                    instanceCast,
+                    writeExceptionMethodInfo,
+                    levelCast,
+                    exceptionParam,
+                    messageParam,
+                    propertyValuesParam);
+                WriteException = Expression.Lambda<Action<object, object, Exception, string>>(writeMethodExp, new[]
+                {
+                    instanceParam,
+                    levelParam,
+                    exceptionParam,
+                    messageParam,
+                }).Compile();
+            }
+
+            internal SerilogLogger(object logger)
+            {
+                _logger = logger;
+            }
+
+            public void Log(LogLevel logLevel, Func<string> messageFunc)
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        if (IsEnabled(_logger, DebugLevel))
+                        {
+                            Write(_logger, DebugLevel, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Info:
+                        if (IsEnabled(_logger, InformationLevel))
+                        {
+                            Write(_logger, InformationLevel, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Warn:
+                        if (IsEnabled(_logger, WarningLevel))
+                        {
+                            Write(_logger, WarningLevel, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Error:
+                        if (IsEnabled(_logger, ErrorLevel))
+                        {
+                            Write(_logger, ErrorLevel, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Fatal:
+                        if (IsEnabled(_logger, FatalLevel))
+                        {
+                            Write(_logger, FatalLevel, messageFunc());
+                        }
+                        break;
+                    default:
+                        if (IsEnabled(_logger, VerboseLevel))
+                        {
+                            Write(_logger, VerboseLevel, messageFunc());
+                        }
+                        break;
+                }
+            }
+
+            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
+                where TException : Exception
+            {
+                switch (logLevel)
+                {
+                    case LogLevel.Debug:
+                        if (IsEnabled(_logger, DebugLevel))
+                        {
+                            WriteException(_logger, DebugLevel, exception, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Info:
+                        if (IsEnabled(_logger, InformationLevel))
+                        {
+                            WriteException(_logger, InformationLevel, exception, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Warn:
+                        if (IsEnabled(_logger, WarningLevel))
+                        {
+                            WriteException(_logger, WarningLevel, exception, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Error:
+                        if (IsEnabled(_logger, ErrorLevel))
+                        {
+                            WriteException(_logger, ErrorLevel, exception, messageFunc());
+                        }
+                        break;
+                    case LogLevel.Fatal:
+                        if (IsEnabled(_logger, FatalLevel))
+                        {
+                            WriteException(_logger, FatalLevel, exception, messageFunc());
+                        }
+                        break;
+                    default:
+                        if (IsEnabled(_logger, VerboseLevel))
+                        {
+                            WriteException(_logger, VerboseLevel, exception, messageFunc());
                         }
                         break;
                 }
