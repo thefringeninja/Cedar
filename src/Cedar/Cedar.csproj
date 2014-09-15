@@ -68,6 +68,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Commands\CommandHandlerModule.cs" />
     <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
