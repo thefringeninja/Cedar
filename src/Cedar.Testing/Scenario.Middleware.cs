@@ -42,9 +42,9 @@
             return new Middleware.HttpClientQueryRequest<TResponse>(authorization, query);
         }
 
-        public static Middleware.WithUsers ForMiddleware(MidFunc midFunc, string commandPath = null, [CallerMemberName] string scenarioName = null)
+        public static Middleware.WithUsers ForMiddleware(MidFunc midFunc, string vendor = null, string commandPath = null, [CallerMemberName] string scenarioName = null)
         {
-            return new Middleware.ScenarioBuilder(midFunc, commandPath: commandPath, name: scenarioName);
+            return new Middleware.ScenarioBuilder(midFunc, commandPath: commandPath, name: scenarioName, vendor: vendor);
         }
 
         public static class Middleware
@@ -90,7 +90,7 @@
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
-                public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string commandPath = null, string name = null)
+                public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string vendor = null, string commandPath = null, string name = null)
                 {
                     _name = name;
                     next = next ?? (env =>
@@ -101,7 +101,7 @@
                         return Task.FromResult(true);
                     });
 
-                    _messageExecutionSettings = new CommandExecutionSettings("vendor", path: commandPath);
+                    _messageExecutionSettings = new CommandExecutionSettings(vendor ?? "vendor", path: commandPath ?? "commands");
                     
                     _appFunc = midFunc(next);
                     
@@ -146,7 +146,7 @@
                             new HttpClient(
                                 new OwinHttpMessageHandler(_appFunc))
                             {
-                                BaseAddress = new Uri("http://localhost"),
+                                BaseAddress = new Uri("http://localhost/"),
                                 DefaultRequestHeaders =
                                 {
                                     Authorization = user.AuthorizationHeader
