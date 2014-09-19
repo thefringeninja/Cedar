@@ -21,13 +21,7 @@ namespace Cedar.Queries.Fixtures
            
             var queryTypeFromContentTypeResolver = new DefaultRequestTypeResolver(
                 vendor,
-                new[]
-                {
-                    typeof (TestQuery),
-                    typeof (TestQueryWithoutHandler),
-                    typeof (TestQueryWhoseHandlerThrows),
-                    typeof(TestQueryResponse)
-                });
+                handlerModule);
             var options = new DefaultHandlerSettings(handlerModule, queryTypeFromContentTypeResolver);
             _midFunc = QueryHandlingMiddleware.HandleQueries(options);
             _messageExecutionSettings = new QueryExecutionSettings(vendor);

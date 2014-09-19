@@ -68,6 +68,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Commands\CommandHandlerModule.cs" />
     <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
@@ -147,11 +148,9 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\HandlerModuleExtensions.cs" />
-    <Compile Include="Queries\IQueryHandler.cs" />
     <Compile Include="Queries\QueryHandlerModule.cs" />
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
-    <Compile Include="Queries\QueryTypeMapping.cs" />
     <Compile Include="TypeResolution\RequestTypeMappingStrategies.cs" />
     <Compile Include="TypeResolution\VersionedName.cs" />
   </ItemGroup>

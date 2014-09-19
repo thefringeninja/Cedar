@@ -32,12 +32,12 @@ namespace Cedar.TypeResolution
             return request.Headers["Content-Type"];
         }
 
-        public static IEnumerable<string> FromPath(this IRequest request)
+        public static IEnumerable<string> FromPath(this IRequest request, string vendorName)
         {
             var result = request.Uri.AbsolutePath.Split(new[] {'/'}, StringSplitOptions.RemoveEmptyEntries);
             if (false == result.Any())
                 yield break;
-            yield return result.Last();
+            yield return "application/vnd." + vendorName + "." + result.Last() + "+json";
         }
 
         public static IEnumerable<string> FromAcceptHeader(this IRequest request)

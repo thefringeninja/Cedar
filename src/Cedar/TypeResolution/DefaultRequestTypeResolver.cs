@@ -70,7 +70,7 @@
             Guard.EnsureNotNull(knownTypes, "knownTypes");
 
             _vendorName = vendorName;
-            _getInputMediaTypes = getInputMediaTypes ?? (request => request.FromContentType().Union(request.FromPath()));
+            _getInputMediaTypes = getInputMediaTypes ?? (request => request.FromContentType().Union(request.FromPath(_vendorName)));
             _getOutputMediaTypes = getOutputMediaTypes ?? (request => request.FromAcceptHeader());
             _mapping = knownTypes.Select(type => new TypeDescriptor(vendorName, type, getVersionedName ?? RequestTypeMappingStrategies.FromTypeName))
                 .ToLookup(x => x.Name, StringComparer.InvariantCultureIgnoreCase);

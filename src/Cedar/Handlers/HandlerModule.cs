@@ -47,7 +47,7 @@
         {
             if (!_handlersByMessageType.ContainsKey(typeof(TMessage)))
             {
-                return null;
+                return Enumerable.Empty<Handler<TMessage>>();
             }
             return _handlersByMessageType[typeof(TMessage)]
                 .Select(handler => new Handler<TMessage>((message, ct) => handler(message, ct)));
