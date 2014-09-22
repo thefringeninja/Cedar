@@ -108,25 +108,7 @@ namespace Cedar.Testing.TestRunner
             var groupedScenarioResult = runScenario();
 
             return new KeyValuePair<string, ScenarioResult>(groupedScenarioResult.Key,
-                await groupedScenarioResult.Value.ContinueWith<ScenarioResult>(HandleFailingScenario));
-        }
-
-        private static ScenarioResult HandleFailingScenario(Task<ScenarioResult> task)
-        {
-            if (false == task.IsFaulted)
-            {
-                return task.Result;
-            }
-
-            var exception = task.Exception.InnerException as Scenario.ScenarioException;
-
-            // means something really wrong happened
-            if (exception == null)
-            {
-                return new ScenarioResult(null, true, null, null, null, occurredException: task.Exception.InnerException);
-            }
-
-            return exception.ExpectedResult.WithScenarioException(exception);
+                await groupedScenarioResult.Value);
         }
 
         private async Task PrintResults(IEnumerable<IGrouping<string, ScenarioResult>> results)

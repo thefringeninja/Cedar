@@ -1,32 +1,41 @@
 namespace Cedar.Testing.Printing
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
-    internal static class Extensions
+    internal static class PrintingExtensions
     {
-
         public static IEnumerable<string> NicePrint(this object target, string prefix = "\t")
         {
-            if (target == null)
+            if(target == null)
             {
                 yield return prefix + "???";
                 yield break;
             }
 
             var s = target as string;
-            if (s != null)
+            if(s != null)
             {
                 yield return prefix + s;
                 yield break;
             }
 
-            if (target is IEnumerable && false == target is IQueryable)
+            var ex = target as Exception;
+
+            if(ex != null)
             {
-                foreach (var item in (target as IEnumerable))
+                yield return ex.ToString();
+
+                yield break;
+            }
+
+            if(target is IEnumerable && false == target is IQueryable)
+            {
+                foreach(var printed in (target as IEnumerable).Cast<object>().SelectMany(item => item.NicePrint(prefix)))
                 {
-                    yield return prefix + (item ?? "???");
+                    yield return printed;
                 }
                 yield break;
             }

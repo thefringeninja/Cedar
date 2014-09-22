@@ -22,10 +22,7 @@
             await WriteGiven(result.Given);
             await WriteWhen(result.When);
             await WriteExpect(result.Expect);
-            if (result.OccurredException != null)
-            {
-                await WriteOcurredException(result.OccurredException);
-            }
+            await WriteResults(result.Results);
             await WriteFooter();
 
             await _output.FlushAsync();
@@ -71,10 +68,11 @@
             return WriteSection("Expect", expect);
         }
 
-        private Task WriteOcurredException(Exception occurredException)
+        private Task WriteResults(object results)
         {
-            return WriteSection("Exception", occurredException);
+            return WriteSection("Results", results);
         }
+
 
         public async Task PrintCategoryHeader(string category)
         {

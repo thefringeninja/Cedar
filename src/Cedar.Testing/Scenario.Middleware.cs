@@ -42,9 +42,9 @@
             return new Middleware.HttpClientQueryRequest<TResponse>(authorization, query);
         }
 
-        public static Middleware.WithUsers ForMiddleware(MidFunc midFunc, string commandPath = null, [CallerMemberName] string scenarioName = null)
+        public static Middleware.WithUsers ForMiddleware(MidFunc midFunc, string vendor = null, string commandPath = null, [CallerMemberName] string scenarioName = null)
         {
-            return new Middleware.ScenarioBuilder(midFunc, commandPath: commandPath, name: scenarioName);
+            return new Middleware.ScenarioBuilder(midFunc, commandPath: commandPath, name: scenarioName, vendor: vendor);
         }
 
         public static class Middleware
@@ -61,7 +61,7 @@
 
             public interface Then : IScenario
             {
-                Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
+                Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
 
                 Then ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
                     params Expression<Func<TResponse, bool>>[] assertions);
@@ -85,12 +85,13 @@
                 private readonly IList<IAssertion> _assertions;
                 private IHttpClientRequest[] _given = new IHttpClientRequest[0];
                 private IHttpClientRequest _when;
-                private Exception _occurredException;
                 private readonly IMessageExecutionSettings _messageExecutionSettings;
                 private bool _passed;
                 private readonly Stopwatch _timer;
+                private object _results;
+                private object[] _expect;
 
-                public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string commandPath = null, string name = null)
+                public ScenarioBuilder(MidFunc midFunc, AppFunc next = null, string vendor = null, string commandPath = null, string name = null)
                 {
                     _name = name;
                     next = next ?? (env =>
@@ -101,7 +102,7 @@
                         return Task.FromResult(true);
                     });
 
-                    _messageExecutionSettings = new CommandExecutionSettings("vendor", path: commandPath);
+                    _messageExecutionSettings = new CommandExecutionSettings(vendor ?? "vendor", path: commandPath ?? "commands");
                     
                     _appFunc = midFunc(next);
                     
@@ -119,8 +120,9 @@
 
                     _runThen = async () =>
                     {
+                        _expect = _assertions.ToArray();
                         var results = await Task.WhenAll(_assertions.Select(assertion => assertion.Run()));
-
+                        _results = results;
                         var failed = (from result in results
                             from assertionResult in result
                             where !assertionResult.Passed
@@ -146,7 +148,7 @@
                             new HttpClient(
                                 new OwinHttpMessageHandler(_appFunc))
                             {
-                                BaseAddress = new Uri("http://localhost"),
+                                BaseAddress = new Uri("http://localhost/"),
                                 DefaultRequestHeaders =
                                 {
                                     Authorization = user.AuthorizationHeader
@@ -173,16 +175,17 @@
                     return this;
                 }
 
-                public Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null)
+                public Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
                     where TException : Exception
                 {
-                    isMatch = isMatch ?? (_ => true);
+                    _expect = isMatch != null ? new object[] { typeof(TException), isMatch } : new[] { typeof(TException) };
 
                     _runThen = () =>
                     {
-                        ((ScenarioResult) this).AssertExceptionMatches(_occurredException, isMatch);
+                        ((ScenarioResult)this).ThenShouldThrow(_results, isMatch);
                         return Task.FromResult(true);
                     };
+                    
 
                     return this;
                 }
@@ -217,11 +220,11 @@
                     {
                         await _runWhen();
                     }
-                    catch (AggregateException ex)
+                    catch (Exception ex)
                     {
-                        _occurredException = ex;
+                        _results = ex;
                     }
-
+                    
                     await _runThen();
 
                     _passed = true;
@@ -248,7 +251,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._assertions, builder._timer.Elapsed, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._results, builder._timer.Elapsed);
                 }
             }
 

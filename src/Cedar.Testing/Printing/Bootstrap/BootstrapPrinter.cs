@@ -114,10 +114,7 @@
             await WriteGiven(result.Given);
             await WriteWhen(result.When);
             await WriteExpect(result.Expect);
-            if (result.OccurredException != null)
-            {
-                await WriteOcurredException(result.OccurredException);
-            }
+            await WriteResults(result.Results);
             await _output.WriteLineAsync("</pre>");
             await _output.WriteLineAsync("</details>");
             await _output.WriteLineAsync("</div>");
@@ -149,9 +146,9 @@
             return WriteSection("Expect", expect);
         }
 
-        private async Task WriteOcurredException(Exception occurredException)
+        private Task WriteResults(object expect)
         {
-            await WriteSection("Exception", occurredException, "");
+            return WriteSection("Results", expect);
         }
 
         private async Task WriteSection(string sectionName, object section, string prefix = "\t")

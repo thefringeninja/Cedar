@@ -73,7 +73,7 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="MessageEqualityComparer.cs" />
     <Compile Include="Printing\Bootstrap\BootstrapPrinter.cs" />
-    <Compile Include="Printing\Extensions.cs" />
+    <Compile Include="Printing\PrintingExtensions.cs" />
     <Compile Include="Printing\IScenarioResultPrinter.cs" />
     <Compile Include="Printing\Markdown\MarkdownPrinter.cs" />
     <Compile Include="Printing\PlainText\PlainTextPrinter.cs" />
