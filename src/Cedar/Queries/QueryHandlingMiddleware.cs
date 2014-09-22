@@ -51,17 +51,18 @@
                     return next(env);
                 }
 
-                return BuildHandlerCall()
+                return BuildHandlerCall(getInputStream)
                     .ExecuteWithExceptionHandling(context, options);
             };
         }
 
-        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall()
+        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(Func<IRequest, Stream> getInputStream = null)
         {
             return (context, options) => HandleQuery(
                 context,
                 Guid.NewGuid(),
-                options);
+                options,
+                getInputStream);
         }
 
         private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IRequest, Stream> getInputStream = null)
