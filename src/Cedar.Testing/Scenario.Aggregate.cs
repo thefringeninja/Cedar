@@ -39,7 +39,7 @@
 
                 Then ThenNothingHappened();
 
-                Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
+                Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
             }
 
             internal class ScenarioBuilder<T> : Given<T> where T : IAggregate
@@ -55,7 +55,7 @@
                 private object[] _given;
                 private Expression<Func<T, Task>> _when;
                 private object[] _expect;
-                private Exception _occurredException;
+                private object _results;
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
@@ -107,6 +107,9 @@
                     _runThen = aggregate =>
                     {
                         var uncommittedEvents = new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
+                        
+                        _results = uncommittedEvents;
+                        
                         if (false == uncommittedEvents.SequenceEqual(expectedEvents, MessageEqualityComparer.Instance))
                         {
                             throw new ScenarioException(this, "The ocurred events did not equal the expected events.");
@@ -123,6 +126,9 @@
                     _runThen = aggregate =>
                     {
                         var uncommittedEvents = new List<object>(aggregate.GetUncommittedEvents().Cast<object>());
+                        
+                        _results = uncommittedEvents;
+                        
                         if (uncommittedEvents.Any())
                         {
                             throw new ScenarioException(this, "No events were expected, yet some events occurred.");
@@ -131,11 +137,14 @@
                     return this;
                 }
 
-                public Then ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception
+                public Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception
                 {
                     GuardThenNotSet();
-                    isMatch = isMatch ?? (_ => true);
-                    _runThen = _ => ((ScenarioResult)this).AssertExceptionMatches(_occurredException, isMatch);
+                    
+                    _expect = isMatch != null ? new object[] {typeof(TException), isMatch} : new[] {typeof(TException)};
+
+                    _runThen = _ => ((ScenarioResult)this).ThenShouldThrow(_results, isMatch);
+
                     return this;
                 }
 
@@ -170,7 +179,7 @@
                     }
                     catch (Exception ex)
                     {
-                        _occurredException = ex;
+                        _results = ex;
                     }
 
                     _runThen(aggregate);
@@ -183,7 +192,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._timer.Elapsed, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._results, builder._timer.Elapsed);
                 }
             }
         }

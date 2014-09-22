@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reactive.Subjects;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Cedar.ProcessManagers;
@@ -49,22 +48,22 @@
                 
                 private readonly Action<IProcessManager> _runGiven;
                 private readonly Action<IProcessManager> _runWhen;
+                private readonly Action<IProcessManager> _runThen;
                 
                 private Action<IProcessManager> _checkCommands;
                 private Action<IProcessManager> _checkEvents;
-                private Action<IProcessManager> _runThen;
 
                 private object[] _given;
                 private object _when;
                 private object[] _expectedCommands;
                 private object[] _expectedEvents;
+                private object _results;
 
                 private IEnumerable<object> expect
                 {
                     get { return _expectedCommands.Union(_expectedEvents); }
                 }
 
-                private Exception _occurredException;
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
@@ -93,6 +92,9 @@
 
                     _runThen = process =>
                     {
+                        _results = process.GetUndispatchedCommands()
+                            .Union(process.GetUncommittedEvents());
+
                         _checkCommands(process);
                         _checkEvents(process);
                     };
@@ -121,10 +123,10 @@
                     }
                     catch (Exception ex)
                     {
-                        _occurredException = ex;
+                        _results = ex;
                     }
 
-                    _checkCommands(process);
+                    _runThen(process);
 
                     _passed = true;
 
@@ -202,7 +204,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<TProcess> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder.expect, builder._timer.Elapsed, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder.expect, builder._results, builder._timer.Elapsed);
                 }
             }
         }
