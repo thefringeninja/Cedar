@@ -8,12 +8,12 @@
         public TestHandlerModule()
         {
             For<TestQueryWhoseHandlerThrows, TestQueryResponse>()
-                .HandleQuery(_ =>
+                .HandleQuery((_, __) =>
                 {
                     throw new InvalidOperationException();
                 });
             For<TestQuery, TestQueryResponse>()
-                .HandleQuery(_ => Task.FromResult(new TestQueryResponse()));
+                .HandleQuery((_, __) => Task.FromResult(new TestQueryResponse()));
         }
     }
 }
