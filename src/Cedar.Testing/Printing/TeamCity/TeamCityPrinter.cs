@@ -13,8 +13,9 @@
             return String.Format(TeamCityServiceMessageFormat, "testStarted", String.Format("name='{0}'", name));
         }
 
-        private static string Failed(string name, Exception exception)
+        private static string Failed(string name, Exception exception = null)
         {
+            exception = exception ?? new Exception();
             return String.Format(TeamCityServiceMessageFormat, "testFailed",
                 String.Format("name='{0}' message='{1}' details='{2}'", name, exception.Message, exception));
         }
@@ -65,7 +66,7 @@
 
             if (false == result.Passed)
             {
-                await _output.WriteLineAsync(Failed(result.Name, result.OccurredException));
+                await _output.WriteLineAsync(Failed(result.Name, result.Results as Exception));
             }
 
             await _output.WriteLineAsync(Finished(result.Name, result.Duration));

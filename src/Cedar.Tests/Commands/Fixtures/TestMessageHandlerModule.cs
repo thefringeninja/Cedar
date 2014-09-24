@@ -2,15 +2,14 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Cedar.Handlers;
 
-    public class TestHandlerModule : HandlerModule
+    public class TestHandlerModule : CommandHandlerModule
     {
         public TestHandlerModule()
         {
-            For<CommandMessage<TestCommand>>()
+            For<TestCommand>()
                 .Handle((_, __) => Task.FromResult(0));
-            For<CommandMessage<TestCommandWhoseHandlerThrows>>()
+            For<TestCommandWhoseHandlerThrows>()
                 .Handle((_, __) => { throw new InvalidOperationException(); });
         }
     }

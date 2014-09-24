@@ -1,7 +1,6 @@
 ﻿namespace Cedar.Testing.TestRunner
 {
     using System;
-    using System.Diagnostics;
     using PowerArgs;
 
     class Program

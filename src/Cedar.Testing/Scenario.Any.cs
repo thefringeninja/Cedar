@@ -28,7 +28,7 @@
             public interface Then<T> : IScenario
             {
                 Then<T> ThenShouldEqual(T other);
-                Then<T> ThenShouldThrow<TException>(Func<TException, bool> isMatch = null) where TException : Exception;
+                Then<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
             }
 
             internal class ScenarioBuilder<T> : Given<T>
@@ -41,7 +41,7 @@
                 private T _given;
                 private Expression<Func<T, Task<T>>> _when;
                 private T _expect;
-                private Exception _occurredException;
+                private object _results;
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
@@ -80,12 +80,10 @@
                     return this;
                 }
 
-                public Then<T> ThenShouldThrow<TException>(Func<TException, bool> isMatch = null)
+                public Then<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
                     where TException : Exception
                 {
-                    isMatch = isMatch ?? (_ => true);
-
-                    _runThen = _ => ((ScenarioResult)this).AssertExceptionMatches(_occurredException, isMatch);
+                    _runThen = _ =>  ((ScenarioResult)this).ThenShouldThrow(_results, isMatch);
 
                     return this;
                 }
@@ -115,7 +113,7 @@
                     }
                     catch (Exception ex)
                     {
-                        _occurredException = ex;
+                        _results = ex;
                     }
 
                     _runThen(_expect);
@@ -127,7 +125,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._timer.Elapsed, builder._occurredException);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._results, builder._timer.Elapsed);
                 }
             }
         }

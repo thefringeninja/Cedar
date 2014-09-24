@@ -79,7 +79,8 @@
             object input;
             using (var streamReader = new StreamReader(context.Request.Body))
             {
-                input = options.Serializer.Deserialize(streamReader, inputType);
+                input = options.Serializer.Deserialize(streamReader, inputType) 
+                    ?? Activator.CreateInstance(inputType);
             }
             var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
             var dispatchQuery = DispatchQueryMethodInfo.MakeGenericMethod(inputType, outputType);
