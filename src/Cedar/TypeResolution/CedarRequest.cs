@@ -12,9 +12,8 @@ namespace Cedar.TypeResolution
         private readonly ILookup<string, string> _headers;
         public CedarRequest(IDictionary<string, object> env)
             :this(new OwinContext(env))
-        {
-            
-        }
+        {}
+
         public CedarRequest(IOwinContext context)
         {
             Guard.EnsureNotNull(context, "context");

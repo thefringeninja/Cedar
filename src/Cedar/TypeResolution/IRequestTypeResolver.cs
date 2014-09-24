@@ -8,6 +8,7 @@
     public interface IRequestTypeResolver
     {
         Type ResolveInputType(IRequest request);
+
         Type ResolveOutputType(IRequest request);
     }
 }
