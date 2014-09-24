@@ -147,7 +147,7 @@
 
                 var queryModule = new QueryHandlerModule();
                 queryModule.For<Query, QueryResult>()
-                    .HandleQuery(_ => Task.FromResult(result));
+                    .HandleQuery((_, __) => Task.FromResult(result));
 
                 var queries = QueryHandlingMiddleware.HandleQueries(new DefaultHandlerSettings(
                     queryModule,
