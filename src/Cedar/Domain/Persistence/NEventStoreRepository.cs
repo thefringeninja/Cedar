@@ -33,21 +33,6 @@ namespace Cedar.Domain.Persistence
             _conflictDetector = conflictDetector;
         }
 
-        public virtual TAggregate GetById<TAggregate>(Guid id) where TAggregate : class, IAggregate
-        {
-            return GetById<TAggregate>(Bucket.Default, id);
-        }
-
-        public virtual TAggregate GetById<TAggregate>(Guid id, int versionToLoad) where TAggregate : class, IAggregate
-        {
-            return GetById<TAggregate>(Bucket.Default, id, versionToLoad);
-        }
-
-        public TAggregate GetById<TAggregate>(string bucketId, Guid id) where TAggregate : class, IAggregate
-        {
-            return GetById<TAggregate>(bucketId, id, int.MaxValue);
-        }
-
         public TAggregate GetById<TAggregate>(string bucketId, Guid id, int versionToLoad)
             where TAggregate : class, IAggregate
         {
@@ -55,11 +40,6 @@ namespace Cedar.Domain.Persistence
             IAggregate aggregate = GetAggregate<TAggregate>(stream);
             ApplyEventsToAggregate(versionToLoad, stream, aggregate);
             return aggregate as TAggregate;
-        }
-
-        public virtual Task Save(IAggregate aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders)
-        {
-            return Save(Bucket.Default, aggregate, commitId, updateHeaders);
         }
 
         public async Task Save(string bucketId, IAggregate aggregate, Guid commitId,

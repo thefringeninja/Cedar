@@ -15,9 +15,8 @@ namespace Cedar.TypeResolution
 
         public CedarRequest(IDictionary<string, object> env)
             :this(new OwinContext(env))
-        {
-            
-        }
+        {}
+
         public CedarRequest(IOwinContext context)
         {
             Guard.EnsureNotNull(context, "context");
