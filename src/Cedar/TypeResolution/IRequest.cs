@@ -9,6 +9,7 @@
         Uri Uri { get; }
 
         ILookup<string, string> Headers { get; }
+
         Stream Body { get; }
     }
 }

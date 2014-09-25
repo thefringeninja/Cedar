@@ -39,7 +39,6 @@
         {
             private readonly Uri _uri = new Uri("http://localhost/");
             private readonly ILookup<string, string> _headers = new string[]{}.ToLookup(x => x);
-            private Stream _body;
 
             public Uri Uri
             {
