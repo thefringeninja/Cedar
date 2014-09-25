@@ -49,8 +49,20 @@ task ILMerge -depends Compile {
 	
 	$dllDir = "$srcDir\Cedar.Client\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Client.dll "
-	@("NewtonSoft.Json") |% { $inputDlls = "$input_dlls $dllDir\$_.dll" }
+	@("Newtonsoft.Json") |% { $inputDlls = "$input_dlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$buildOutputDir\Cedar.Client.dll $inputDlls"
+
+	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
+	$inputDlls = "$dllDir\Cedar.Testing.dll "
+	@("Microsoft.Owin", "NewtonSoft.Json", "Inflector", "Owin", "OwinHttpMessageHandler", "System.Reactive.Core", "System.Reactive.Interfaces", 
+		"System.Reactive.Linq") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$buildOutputDir\Cedar.Testing.dll $inputDlls"
+
+	$dllDir = "$srcDir\Cedar.Testing.TestRunner\bin\Release"
+	$inputDlls = "$dllDir\Cedar.Testing.TestRunner.exe "
+	@("Microsoft.Owin", "PowerArgs", "NewtonSoft.Json", "Inflector", "Owin", "OwinHttpMessageHandler", "System.Reactive.Core", "System.Reactive.Interfaces", 
+		"System.Reactive.Linq") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:exe /log /out:$buildOutputDir\Cedar.Testing.TestRunner.exe $inputDlls"
 }
 
 task CreateNuGetPackages -depends ILMerge {
