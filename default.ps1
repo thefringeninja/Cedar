@@ -49,7 +49,7 @@ task ILMerge -depends Compile {
 	
 	$dllDir = "$srcDir\Cedar.Client\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Client.dll "
-	@("Newtonsoft.Json") |% { $inputDlls = "$input_dlls $dllDir\$_.dll" }
+	@("Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$buildOutputDir\Cedar.Client.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
