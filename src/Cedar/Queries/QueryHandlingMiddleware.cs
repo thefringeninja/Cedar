@@ -30,6 +30,7 @@
         public static MidFunc HandleQueries(HandlerSettings options,
             Func<IDictionary<string, object>, Type> getInputType = null,
             Func<IDictionary<string, object>, Type> getOutputType = null, 
+            Func<IRequest, Stream> getInputStream = null, 
             string queryPath = "/query")
         {
             Guard.EnsureNotNull(options, "options");
@@ -50,21 +51,24 @@
                     return next(env);
                 }
 
-                return BuildHandlerCall()
+                return BuildHandlerCall(getInputStream)
                     .ExecuteWithExceptionHandling(context, options);
             };
         }
 
-        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall()
+        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(Func<IRequest, Stream> getInputStream = null)
         {
             return (context, options) => HandleQuery(
                 context,
                 Guid.NewGuid(),
-                options);
+                options,
+                getInputStream);
         }
 
-        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options)
+        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IRequest, Stream> getInputStream = null)
         {
+            getInputStream = getInputStream ?? DefaultGetInputStream;
+
             var request = new CedarRequest(context);
             
             var inputType = options.RequestTypeResolver.ResolveInputType(request);
@@ -77,12 +81,15 @@
             var outputType = options.RequestTypeResolver.ResolveOutputType(request);
 
             object input;
-            using (var streamReader = new StreamReader(context.Request.Body))
+            
+            using (var streamReader = new StreamReader(getInputStream(request)))
             {
-                input = options.Serializer.Deserialize(streamReader, inputType) 
+                input = options.Serializer.Deserialize(streamReader, inputType)
                     ?? Activator.CreateInstance(inputType);
             }
+
             var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
+            
             var dispatchQuery = DispatchQueryMethodInfo.MakeGenericMethod(inputType, outputType);
 
             var task = dispatchQuery.Invoke(null, new[]
@@ -98,6 +105,12 @@
             await context.Response.WriteAsync(body);
             context.Response.StatusCode = 200;
             context.Response.ReasonPhrase = "OK";
+        }
+
+
+        private static Stream DefaultGetInputStream(IRequest request)
+        {
+            return request.Body;
         }
 
         [UsedImplicitly]
