@@ -13,7 +13,7 @@
                     throw new InvalidOperationException();
                 });
             For<TestQuery, TestQueryResponse>()
-                .Handle((_, __) => Task.FromResult(new TestQueryResponse()));
+                .Handle(async (message, __) => message.Source.SetResult(new TestQueryResponse()));
         }
     }
 }
