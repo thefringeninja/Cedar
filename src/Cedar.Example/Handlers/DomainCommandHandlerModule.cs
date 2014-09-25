@@ -17,7 +17,7 @@ namespace Cedar.Example.Handlers
                 .DenyAnonymous()
                 .RequiresClaim(claim => claim.Type == ClaimTypes.Email)
                 .ValidateWith(Command1Validator.Instance)
-                .Handle((message, ct) => repository().Save(new Aggregate1(message.Command), message.CommandId));
+                .Handle((message, ct) => repository().Save(new Aggregate1(message.Command), message.CommandId, ct));
 
             For<CommandMessage<CancelAggregate>>()
                 .LogExceptions()

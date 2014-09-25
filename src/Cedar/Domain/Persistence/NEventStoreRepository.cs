@@ -3,6 +3,7 @@ namespace Cedar.Domain.Persistence
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
     using NEventStore;
     using NEventStore.Persistence;
@@ -33,17 +34,22 @@ namespace Cedar.Domain.Persistence
             _conflictDetector = conflictDetector;
         }
 
-        public TAggregate GetById<TAggregate>(string bucketId, Guid id, int versionToLoad)
+        public Task<TAggregate> GetById<TAggregate>(string bucketId, Guid id, int versionToLoad, CancellationToken cancellationToken)
             where TAggregate : class, IAggregate
         {
             IEventStream stream = _eventStore.OpenStream(bucketId, id, 0, versionToLoad);
             IAggregate aggregate = GetAggregate<TAggregate>(stream);
             ApplyEventsToAggregate(versionToLoad, stream, aggregate);
-            return aggregate as TAggregate;
+            //TODO NES 6 async support
+            return Task.FromResult(aggregate as TAggregate); 
         }
 
-        public async Task Save(string bucketId, IAggregate aggregate, Guid commitId,
-            Action<IDictionary<string, object>> updateHeaders)
+        public async Task Save(
+            string bucketId,
+            IAggregate aggregate,
+            Guid commitId,
+            Action<IDictionary<string, object>> updateHeaders,
+            CancellationToken cancellationToken)
         {
             Dictionary<string, object> headers = PrepareHeaders(aggregate, updateHeaders);
             while (true)
