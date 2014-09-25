@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using Cedar.TypeResolution;
     using FluentAssertions;
@@ -38,6 +39,7 @@
         {
             private readonly Uri _uri = new Uri("http://localhost/");
             private readonly ILookup<string, string> _headers = new string[]{}.ToLookup(x => x);
+            private Stream _body;
 
             public Uri Uri
             {
@@ -47,6 +49,11 @@
             public ILookup<string, string> Headers
             {
                 get { return _headers; }
+            }
+
+            public Stream Body
+            {
+                get { return new MemoryStream(); }
             }
         }
     }
