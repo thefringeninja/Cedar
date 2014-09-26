@@ -8,9 +8,9 @@
     {
         private readonly JsonSerializer _jsonSerializer;
 
-        public DefaultJsonSerializer(JsonSerializerSettings serializerSettings = null)
+        internal DefaultJsonSerializer()
         {
-            _jsonSerializer = JsonSerializer.Create(serializerSettings ?? DefaultJsonSerializerSettings.Settings);
+            _jsonSerializer = JsonSerializer.Create(DefaultJsonSerializerSettings.Settings);
         }
 
         public object Deserialize(TextReader reader, Type type)
