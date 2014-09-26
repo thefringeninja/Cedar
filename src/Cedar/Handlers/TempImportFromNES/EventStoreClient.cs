@@ -4,6 +4,7 @@ namespace Cedar.Handlers.TempImportFromNES
     using System.Collections.Concurrent;
     using System.Linq;
     using System.Reactive.Linq;
+    using System.Reactive.PlatformServices;
     using System.Threading.Tasks;
     using Cedar.Internal;
     using NEventStore;
@@ -23,6 +24,11 @@ namespace Cedar.Handlers.TempImportFromNES
         private readonly InterlockedBoolean _isRetrieving = new InterlockedBoolean();
         private readonly IDisposable _retrieveTimer;
         private readonly LruCache<string, ICommit[]> _commitsCache = new LruCache<string, ICommit[]>(100);
+
+        static EventStoreClient()
+        {
+            PlatformEnlightenmentProvider.Current = new CurrentPlatformEnlightenmentProvider();
+        }
 
         public EventStoreClient(
             IPersistStreams persistStreams,
