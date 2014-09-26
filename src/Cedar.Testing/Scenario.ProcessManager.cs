@@ -111,22 +111,29 @@
                 {
                     _timer.Start();
 
-                    var process = _factory(
-                        _processId,
-                        _correlationId);
-
-                    _runGiven(process);
-                    
                     try
                     {
-                        _runWhen(process);
+                        var process = _factory(
+                            _processId,
+                            _correlationId);
+
+                        _runGiven(process);
+
+                        try
+                        {
+                            _runWhen(process);
+                        }
+                        catch (Exception ex)
+                        {
+                            _results = ex;
+                        }
+
+                        _runThen(process);
                     }
                     catch (Exception ex)
                     {
                         _results = ex;
                     }
-
-                    _runThen(process);
 
                     _passed = true;
 
