@@ -228,12 +228,13 @@
                         }
 
                         await _runThen();
+
+                        _passed = true;
                     }
                     catch (Exception ex)
                     {
                         _results = ex;
                     }
-                    _passed = true;
                     
                     _timer.Stop();
 
