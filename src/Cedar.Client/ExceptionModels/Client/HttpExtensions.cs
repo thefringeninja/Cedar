@@ -9,9 +9,9 @@ namespace Cedar.ExceptionModels.Client
     using System.Threading.Tasks;
     using Cedar.Serialization.Client;
 
-    internal static class HttpExtensions
+    public static class HttpExtensions
     {
-        internal static async Task ThrowOnErrorStatus(this HttpResponseMessage response, HttpRequestMessage request, IMessageExecutionSettings options)
+        public static async Task ThrowOnErrorStatus(this HttpResponseMessage response, HttpRequestMessage request, IMessageExecutionSettings options)
         {
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
@@ -24,7 +24,8 @@ namespace Cedar.ExceptionModels.Client
             }
 
         }
-        internal static async Task<Exception> ReadException(this ISerializer serializer, HttpContent content, IModelToExceptionConverter modelToExceptionConverter)
+
+        public static async Task<Exception> ReadException(this ISerializer serializer, HttpContent content, IModelToExceptionConverter modelToExceptionConverter)
         {
             var jsonString = await content.ReadAsStringAsync();
 
