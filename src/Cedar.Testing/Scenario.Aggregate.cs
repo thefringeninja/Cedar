@@ -169,21 +169,27 @@
                 {
                     _timer.Start();
 
-                    var aggregate = _factory(_aggregateId);
-
-                    _runGiven(aggregate);
-
                     try
                     {
-                        await _runWhen(aggregate);
+                        var aggregate = _factory(_aggregateId);
+
+                        _runGiven(aggregate);
+
+                        try
+                        {
+                            await _runWhen(aggregate);
+                        }
+                        catch (Exception ex)
+                        {
+                            _results = ex;
+                        }
+
+                        _runThen(aggregate);
                     }
                     catch (Exception ex)
                     {
                         _results = ex;
                     }
-
-                    _runThen(aggregate);
-
                     _passed = true;
                     
                     _timer.Stop();

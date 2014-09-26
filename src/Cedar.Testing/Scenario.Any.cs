@@ -105,19 +105,25 @@
                 async Task<ScenarioResult> IScenario.Run()
                 {
                     _timer.Start();
-                    _given = _runGiven();
-
                     try
                     {
-                        _expect = await _runWhen(_given);
+                        _given = _runGiven();
+
+                        try
+                        {
+                            _expect = await _runWhen(_given);
+                        }
+                        catch (Exception ex)
+                        {
+                            _results = ex;
+                        }
+
+                        _runThen(_expect);
                     }
                     catch (Exception ex)
                     {
                         _results = ex;
                     }
-
-                    _runThen(_expect);
-
                     _passed = true;
                     _timer.Stop();
                     return this;
