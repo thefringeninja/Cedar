@@ -3,6 +3,7 @@ properties {
 	$buildNumber = 0
 	$rootDir  = Resolve-Path .\
 	$buildOutputDir = "$rootDir\build"
+	$mergedDir = "$buildOutputDir\merged"
 	$reportsDir = "$buildOutputDir\reports"
 	$srcDir = "$rootDir\src"
 	$solutionFilePath = "$srcDir\$projectName.sln"
@@ -32,31 +33,30 @@ task RunTests -depends Compile {
 	$xunitRunner = "$srcDir\packages\xunit.runners.1.9.2\tools\xunit.console.clr4.exe"
 
 	.$xunitRunner "$srcDir\Cedar.Tests\bin\Release\Cedar.Tests.dll" /html "$reportsDir\xUnit\$project\index.html"
-
 }
 
 task ILMerge -depends Compile {
-	New-Item $buildOutputDir -Type Directory -ErrorAction SilentlyContinue
+	New-Item $mergedDir -Type Directory -ErrorAction SilentlyContinue
 	$dllDir = "$srcDir\Cedar\bin\Release"
 	$inputDlls = "$dllDir\Cedar.dll"
 	@("Microsoft.Owin", "Newtonsoft.Json", "Owin", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
 		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
-	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$buildOutputDir\Cedar.dll $inputDlls"
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Client\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Client.dll "
 	@("Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
-	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$buildOutputDir\Cedar.Client.dll $inputDlls"
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.Client.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Testing.dll "
 	@("Microsoft.Owin", "NewtonSoft.Json", "Inflector", "Owin", "OwinHttpMessageHandler") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
-	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$buildOutputDir\Cedar.Testing.dll $inputDlls"
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.Testing.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing.TestRunner\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Testing.TestRunner.exe "
 	@("Microsoft.Owin", "PowerArgs", "NewtonSoft.Json", "Inflector", "Owin", "OwinHttpMessageHandler") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
-	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:exe /log /out:$buildOutputDir\Cedar.Testing.TestRunner.exe $inputDlls"
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:exe /log /out:$mergedDir\Cedar.Testing.TestRunner.exe $inputDlls"
 }
 
 task CreateNuGetPackages -depends ILMerge {

@@ -18,8 +18,8 @@
 		<dependencies/>
     </metadata>
     <files>
-        <file src="..\..\build\Cedar.Client.dll" target="lib\net45" />
-        <file src="..\..\build\Cedar.Client.pdb" target="lib\net45" />
+        <file src="..\..\build\merged\Cedar.Client.dll" target="lib\net45" />
+        <file src="..\..\build\merged\Cedar.Client.pdb" target="lib\net45" />
         <file src="bin\Release\Cedar.Client.xml" target="lib\net45" />
     </files>
 </package>

@@ -18,11 +18,11 @@
 		</dependencies>
     </metadata>
     <files>
-      <file src="..\..\build\Cedar.Testing.dll" target="lib\net45" />
-      <file src="..\..\build\Cedar.Testing.pdb" target="lib\net45" />
-      <file src="..\..\build\Cedar.Testing.TestRunner.exe" target="tools" />
-      <file src="..\..\build\Cedar.Testing.TestRunner.pdb" target="tools" />
-      <file src="..\..\build\Cedar.Testing.dll" target="tools" />
-      <file src="..\..\build\Cedar.Testing.pdb" target="tools" />
+      <file src="..\..\build\merged\Cedar.Testing.dll" target="lib\net45" />
+      <file src="..\..\build\merged\Cedar.Testing.pdb" target="lib\net45" />
+      <file src="..\..\build\merged\Cedar.Testing.TestRunner.exe" target="tools" />
+      <file src="..\..\build\merged\Cedar.Testing.TestRunner.pdb" target="tools" />
+      <file src="..\..\build\merged\Cedar.Testing.dll" target="tools" />
+      <file src="..\..\build\merged\Cedar.Testing.pdb" target="tools" />
     </files>
 </package>
