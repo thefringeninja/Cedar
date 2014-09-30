@@ -66,12 +66,16 @@
                     _name = name;
                     _runGiven = aggregate =>
                     {
-                        foreach (var @event in _given)
+                        foreach (var @event in _given ?? new object[0])
                         {
                             aggregate.ApplyEvent(@event);
                         }
                     };
                     _runWhen = aggregate => _when.Compile()(aggregate);
+                    _runThen = _ =>
+                    {
+                        throw new InvalidOperationException("Then not set.");
+                    };
 
                     _timer = new Stopwatch();
                 }
