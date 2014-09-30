@@ -72,10 +72,6 @@
                         }
                     };
                     _runWhen = aggregate => _when.Compile()(aggregate);
-                    _runThen = _ =>
-                    {
-                        throw new InvalidOperationException("Then not set.");
-                    };
 
                     _timer = new Stopwatch();
                 }
@@ -188,6 +184,11 @@
                             _results = ex;
 
                             return this;
+                        }
+
+                        if (_runThen == null)
+                        {
+                            throw new InvalidOperationException("Then not set.");
                         }
 
                         _runThen(aggregate);
