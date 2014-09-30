@@ -70,6 +70,8 @@
                         {
                             aggregate.ApplyEvent(@event);
                         }
+
+                        aggregate.ClearUncommittedEvents();
                     };
                     _runWhen = aggregate => _when.Compile()(aggregate);
 
