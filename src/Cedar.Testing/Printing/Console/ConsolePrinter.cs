@@ -12,7 +12,7 @@
 
         public ConsolePrinter(Func<string, TextWriter> _)
         {
-            _inner = new PlainTextPrinter(_ => Console.Out);
+            _inner = new PlainTextPrinter(file => Console.Out);
         }
 
         public void Dispose()
