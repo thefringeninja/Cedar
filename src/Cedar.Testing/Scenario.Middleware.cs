@@ -225,15 +225,20 @@
                         catch (Exception ex)
                         {
                             _results = ex;
+
+                            return this;
                         }
 
                         await _runThen();
+
+                        _passed = true;
                     }
                     catch (Exception ex)
                     {
                         _results = ex;
+
+                        return this;
                     }
-                    _passed = true;
                     
                     _timer.Stop();
 

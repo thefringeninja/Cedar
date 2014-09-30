@@ -116,16 +116,23 @@
                         catch (Exception ex)
                         {
                             _results = ex;
+
+                            return this;
                         }
 
                         _runThen(_expect);
+
+                        _passed = true;
                     }
                     catch (Exception ex)
                     {
                         _results = ex;
+
+                        return this;
                     }
-                    _passed = true;
+
                     _timer.Stop();
+                    
                     return this;
                 }
 

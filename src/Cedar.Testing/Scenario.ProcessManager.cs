@@ -126,16 +126,20 @@
                         catch (Exception ex)
                         {
                             _results = ex;
+
+                            return this;
                         }
 
                         _runThen(process);
+
+                        _passed = true;
                     }
                     catch (Exception ex)
                     {
                         _results = ex;
-                    }
 
-                    _passed = true;
+                        return this;
+                    }
 
                     _timer.Stop();
 
