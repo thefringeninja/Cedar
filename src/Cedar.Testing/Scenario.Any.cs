@@ -116,6 +116,8 @@
                         catch (Exception ex)
                         {
                             _results = ex;
+
+                            return this;
                         }
 
                         _runThen(_expect);
@@ -125,8 +127,12 @@
                     catch (Exception ex)
                     {
                         _results = ex;
+
+                        return this;
                     }
+
                     _timer.Stop();
+                    
                     return this;
                 }
 

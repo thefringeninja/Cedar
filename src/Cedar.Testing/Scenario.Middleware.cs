@@ -225,6 +225,8 @@
                         catch (Exception ex)
                         {
                             _results = ex;
+
+                            return this;
                         }
 
                         await _runThen();
@@ -234,6 +236,8 @@
                     catch (Exception ex)
                     {
                         _results = ex;
+
+                        return this;
                     }
                     
                     _timer.Stop();

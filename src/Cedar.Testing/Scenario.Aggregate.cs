@@ -182,6 +182,8 @@
                         catch (Exception ex)
                         {
                             _results = ex;
+
+                            return this;
                         }
 
                         _runThen(aggregate);
@@ -191,9 +193,12 @@
                     catch (Exception ex)
                     {
                         _results = ex;
+                        
+                        return this;
                     }
-                    
+
                     _timer.Stop();
+                    
                     return this;
                 }
 
