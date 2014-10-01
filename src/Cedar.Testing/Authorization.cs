@@ -11,7 +11,7 @@ namespace Cedar.Testing
             return new BasicAuthorization(userName, password);
         }
         
-        class BasicAuthorization : IAuthorization
+        private class BasicAuthorization : IAuthorization
         {
             private readonly string _userName;
 

@@ -21,9 +21,9 @@
                 return;
             }
 
-            var runner = new ScenarioRunner(options);
-
-            runner.Run().Wait();
+            new ScenarioRunner(options)
+                .Run()
+                .Wait();
         }
     }
 }

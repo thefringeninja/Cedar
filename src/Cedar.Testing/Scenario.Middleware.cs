@@ -42,37 +42,37 @@
             return new Middleware.HttpClientQueryRequest<TResponse>(authorization, query);
         }
 
-        public static Middleware.WithUsers ForMiddleware(MidFunc midFunc, string vendor = null, string commandPath = null, [CallerMemberName] string scenarioName = null)
+        public static Middleware.IWithUsers ForMiddleware(MidFunc midFunc, string vendor = null, string commandPath = null, [CallerMemberName] string scenarioName = null)
         {
             return new Middleware.ScenarioBuilder(midFunc, commandPath: commandPath, name: scenarioName, vendor: vendor);
         }
 
         public static class Middleware
         {
-            public interface WithUsers : Given
+            public interface IWithUsers : IGiven
             {
-                Given WithUsers(params IAuthorization[] users);
+                IGiven WithUsers(params IAuthorization[] users);
             }
 
-            public interface Given : When
+            public interface IGiven : IWhen
             {
-                When Given(params IHttpClientRequest[] given);
+                IWhen Given(params IHttpClientRequest[] given);
             }
 
-            public interface Then : IScenario
+            public interface IThen : IScenario
             {
-                Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
+                IThen ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
 
-                Then ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
+                IThen ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
                     params Expression<Func<TResponse, bool>>[] assertions);
             }
 
-            public interface When : Then
+            public interface IWhen : IThen
             {
-                Then When(IHttpClientRequest when);
+                IThen When(IHttpClientRequest when);
             }
 
-            internal class ScenarioBuilder : WithUsers
+            internal class ScenarioBuilder : IWithUsers
             {
                 private readonly string _name;
                 private readonly AppFunc _appFunc;
@@ -81,7 +81,7 @@
                 private readonly Func<Task> _runGiven;
                 private readonly Func<Task> _runWhen;
                 private Func<Task> _runThen;
-                
+
                 private readonly IList<IAssertion> _assertions;
                 private IHttpClientRequest[] _given = new IHttpClientRequest[0];
                 private IHttpClientRequest _when;
@@ -140,7 +140,7 @@
                     _timer = new Stopwatch();
                 }
 
-                public Given WithUsers(params IAuthorization[] users)
+                public IGiven WithUsers(params IAuthorization[] users)
                 {
                     foreach (IAuthorization user in users)
                     {
@@ -161,21 +161,21 @@
                 }
 
 
-                public When Given(params IHttpClientRequest[] given)
+                public IWhen Given(params IHttpClientRequest[] given)
                 {
                     _given = given;
 
                     return this;
                 }
 
-                public Then When(IHttpClientRequest when)
+                public IThen When(IHttpClientRequest when)
                 {
                     _when = when;
                     
                     return this;
                 }
 
-                public Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
+                public IThen ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
                     where TException : Exception
                 {
                     _expect = isMatch != null ? new object[] { typeof(TException), isMatch } : new[] { typeof(TException) };
@@ -190,7 +190,7 @@
                     return this;
                 }
 
-                public Then ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
+                public IThen ThenShould<TResponse>(IHttpClientRequest<TResponse> response,
                     params Expression<Func<TResponse, bool>>[] assertions)
                 {
                     _assertions.Add(new AsyncAssertion<TResponse>(() => Send(response), assertions));
@@ -299,12 +299,16 @@
                 private readonly Func<Task<TResponse>> _execute;
                 private readonly Expression<Func<TResponse, bool>>[] _assertions;
 
-                public AsyncAssertion(Func<Task<TResponse>> execute,
-                    params Expression<Func<TResponse, bool>>[] assertions)
+                public AsyncAssertion(Func<Task<TResponse>> execute, params Expression<Func<TResponse, bool>>[] assertions)
                 {
-                    if (assertions == null) throw new ArgumentNullException("assertions");
-                    if (assertions.Length == 0)
+                    if(assertions == null)
+                    {
+                        throw new ArgumentNullException("assertions");
+                    }
+                    if(assertions.Length == 0)
+                    {
                         throw new ArgumentException("Expected at least one assertion.", "assertions");
+                    }
 
                     _execute = execute;
                     _assertions = assertions;
@@ -322,8 +326,9 @@
 
                 public override string ToString()
                 {
-                    return _assertions.Aggregate(new StringBuilder(),
-                        (builder, assertion) => builder.Append(assertion).AppendLine()).ToString();
+                    return _assertions
+                        .Aggregate(new StringBuilder(), (builder, assertion) => builder.Append(assertion).AppendLine())
+                        .ToString();
                 }
             }
 
@@ -338,20 +343,28 @@
             }
 
             internal class HttpClientCommandRequest<TCommand> : IHttpClientRequest
-                where TCommand: class 
+                where TCommand : class
             {
                 private readonly IAuthorization _authorization;
+                private readonly TCommand _command;
+                private readonly Guid _id;
+                private readonly Func<HttpClient, IMessageExecutionSettings, Task<Unit>> _sender;
 
                 public HttpClientCommandRequest(IAuthorization authorization, TCommand command, Guid? commandId = null)
                 {
-                    if (authorization == null) throw new ArgumentNullException("authorization");
-                    if (command == null) throw new ArgumentNullException("command");
+                    if(authorization == null)
+                    {
+                        throw new ArgumentNullException("authorization");
+                    }
+                    if(command == null)
+                    {
+                        throw new ArgumentNullException("command");
+                    }
 
                     _authorization = authorization;
-                    Command = command;
-                    Id = commandId ?? Guid.NewGuid();
-
-                    Sender = async (client, settings) =>
+                    _command = command;
+                    _id = commandId ?? Guid.NewGuid();
+                    _sender = async (client, settings) =>
                     {
                         await client.ExecuteCommand(
                             command,
@@ -361,34 +374,62 @@
                     };
                 }
 
-                public TCommand Command { get; private set; }
-                public Func<HttpClient, IMessageExecutionSettings, Task<Unit>> Sender { get; private set; }
-                public string AuthorizationId { get { return _authorization.Id; }}
-                public Guid Id { get; private set; }
+                public Func<HttpClient, IMessageExecutionSettings, Task<Unit>> Sender
+                {
+                    get { return _sender; }
+                }
+
+                public string AuthorizationId
+                {
+                    get { return _authorization.Id; }
+                }
+
+                public Guid Id
+                {
+                    get { return _id; }
+                }
 
                 public override string ToString()
                 {
-                    return Command + " (running as " + _authorization + ")";
+                    return _command + " (running as " + _authorization + ")";
                 }
             }
 
             internal class HttpClientQueryRequest<TResponse> : IHttpClientRequest<TResponse>
             {
                 private readonly IAuthorization _authorization;
+                private readonly Guid _id;
+                private readonly Func<HttpClient, IMessageExecutionSettings, Task<TResponse>> _sender;
 
-                public HttpClientQueryRequest(IAuthorization authorization, Func<HttpClient, Task<TResponse>> query,
+                public HttpClientQueryRequest(
+                    IAuthorization authorization,
+                    Func<HttpClient, Task<TResponse>> query,
                     Guid? id = null)
                 {
-                    if (authorization == null) throw new ArgumentNullException("authorization");
+                    if(authorization == null)
+                    {
+                        throw new ArgumentNullException("authorization");
+                    }
 
                     _authorization = authorization;
-                    Id = id ?? Guid.NewGuid();
-                    Sender = (client, _) => query(client);
+                    _id = id ?? Guid.NewGuid();
+                    _sender = (client, _) => query(client);
                 }
 
-                public Func<HttpClient, IMessageExecutionSettings, Task<TResponse>> Sender { get; private set; }
-                public string AuthorizationId { get { return _authorization.Id; } }
-                public Guid Id { get; private set; }
+                public Func<HttpClient, IMessageExecutionSettings, Task<TResponse>> Sender
+                {
+                    get { return _sender; }
+                }
+
+                public string AuthorizationId
+                {
+                    get { return _authorization.Id; }
+                }
+
+                public Guid Id
+                {
+                    get { return _id; }
+                }
             }
             
             public class Unit
@@ -397,11 +438,6 @@
 
                 private Unit()
                 {}
-
-                public static Task<Unit> Return
-                {
-                    get { return Task.FromResult(Nothing); }
-                }
             }
         }
     }

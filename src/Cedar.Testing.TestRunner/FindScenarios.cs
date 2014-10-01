@@ -8,20 +8,21 @@
 
     public static class FindScenarios
     {
-        public static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> InType(Type type)
-        {
-            return from method in type.GetMethods()
-                let constructor=  type.GetConstructor(Type.EmptyTypes)
-                where constructor != null
-                      && method.ReturnType == typeof (Task<ScenarioResult>)
-                select FromMethodInfo(method, constructor);
-        }
         public static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> InAssemblies(params Assembly[] assemblies)
         {
             return from assembly in assemblies
                 from type in assembly.GetTypes()
                 from result in InType(type)
                 select result;
+        }
+
+        private static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> InType(Type type)
+        {
+            return from method in type.GetMethods()
+                let constructor=  type.GetConstructor(Type.EmptyTypes)
+                where constructor != null
+                      && method.ReturnType == typeof (Task<ScenarioResult>)
+                select FromMethodInfo(method, constructor);
         }
 
         private static Func<KeyValuePair<string, Task<ScenarioResult>>> FromMethodInfo(MethodInfo method, ConstructorInfo constructor)

@@ -23,16 +23,17 @@ namespace Cedar.Testing.TestRunner
         {
             var assembly = await LoadTestAssembly();
             var results = await RunTests(assembly);
-
             await PrintResults(results.GroupBy(x => x.Key, x => x.Value));
         }
 
         private async Task<Assembly> LoadTestAssembly()
         {
             var assembly = _options.Assembly;
-            
-            if (false == Path.HasExtension(assembly))
+
+            if(false == Path.HasExtension(assembly))
+            {
                 assembly = assembly + ".dll";
+            }
             
             using (var stream = File.OpenRead(assembly))
             {

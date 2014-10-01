@@ -24,7 +24,10 @@ namespace Cedar.Testing.TestRunner
             get { return _formatters; }
             set
             {
-                if (value == null || value.Length == 0) return;
+                if(value == null || value.Length == 0)
+                {
+                    return;
+                }
                 _formatters = value;
             }
         }
@@ -42,11 +45,12 @@ namespace Cedar.Testing.TestRunner
 
         public string GetOutputWithExtension(string fileExtension)
         {
-            if (String.IsNullOrWhiteSpace(Output)) throw new InvalidOperationException();
+            if(String.IsNullOrWhiteSpace(Output))
+            {
+                throw new InvalidOperationException();
+            }
 
-            var outputPath = Path.ChangeExtension(Path.Combine(Output, Path.GetFileName(Assembly)), fileExtension);
-
-            return outputPath;
+            return Path.ChangeExtension(Path.Combine(Output, Path.GetFileName(Assembly)), fileExtension);
         }
     }
 }

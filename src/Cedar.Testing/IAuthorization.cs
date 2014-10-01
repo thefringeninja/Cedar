@@ -5,6 +5,7 @@ namespace Cedar.Testing
     public interface IAuthorization
     {
         string Id { get; }
+
         AuthenticationHeaderValue AuthorizationHeader { get; }
     }
 }

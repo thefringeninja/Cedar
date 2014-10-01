@@ -11,7 +11,7 @@
 
     public static partial class Scenario
     {
-        public static Aggregate.Given<T> ForAggregate<T>(Func<string, T> factory = null, string aggregateId = null, [CallerMemberName] string scenarioName = null) where T : IAggregate
+        public static Aggregate.IGiven<T> ForAggregate<T>(Func<string, T> factory = null, string aggregateId = null, [CallerMemberName] string scenarioName = null) where T : IAggregate
         {
             aggregateId = aggregateId ?? "testid";
             factory = factory ?? (id => (T) new DefaultAggregateFactory().Build(typeof (T), id));
@@ -21,28 +21,27 @@
 
         public static class Aggregate
         {
-
-            public interface Given<T> : When<T> where T : IAggregate
+            public interface IGiven<T> : IWhen<T> where T : IAggregate
             {
-                When<T> Given(params object[] events);
+                IWhen<T> Given(params object[] events);
             }
 
-            public interface When<T> : Then where T : IAggregate
+            public interface IWhen<T> : IThen where T : IAggregate
             {
-                Then When(Expression<Func<T, Task>> when);
-                Then When(Expression<Action<T>> when);
+                IThen When(Expression<Func<T, Task>> when);
+                IThen When(Expression<Action<T>> when);
             }
 
-            public interface Then : IScenario
+            public interface IThen : IScenario
             {
-                Then Then(params object[] expectedEvents);
+                IThen Then(params object[] expectedEvents);
 
-                Then ThenNothingHappened();
+                IThen ThenNothingHappened();
 
-                Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
+                IThen ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
             }
 
-            internal class ScenarioBuilder<T> : Given<T> where T : IAggregate
+            internal class ScenarioBuilder<T> : IGiven<T> where T : IAggregate
             {
                 private readonly Func<string, T> _factory;
                 private readonly string _aggregateId;
@@ -78,19 +77,19 @@
                     _timer = new Stopwatch();
                 }
 
-                public When<T> Given(params object[] events)
+                public IWhen<T> Given(params object[] events)
                 {
                     _given = events;
                     return this;
                 }
 
-                public Then When(Expression<Func<T, Task>> when)
+                public IThen When(Expression<Func<T, Task>> when)
                 {
                     _when = when;
                     return this;
                 }
 
-                public Then When(Expression<Action<T>> when)
+                public IThen When(Expression<Action<T>> when)
                 {
                     var body = Expression.Block(
                         when.Body,
@@ -101,7 +100,7 @@
                     return this;
                 }
 
-                public Then Then(params object[] expectedEvents)
+                public IThen Then(params object[] expectedEvents)
                 {
                     GuardThenNotSet();
                     _expect = expectedEvents;
@@ -120,7 +119,7 @@
                     return this;
                 }
 
-                public Then ThenNothingHappened()
+                public IThen ThenNothingHappened()
                 {
                     GuardThenNotSet();
                     _expect = new object[0];
@@ -139,7 +138,7 @@
                     return this;
                 }
 
-                public Then ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception
+                public IThen ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception
                 {
                     GuardThenNotSet();
                     

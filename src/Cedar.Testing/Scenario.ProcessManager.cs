@@ -10,7 +10,7 @@
 
     public static partial class Scenario
     {
-        public static ProcessManager.Given ForProcess<TProcess>(Guid correlationId, ProcessManager.ProcessManagerFactory factory = null, [CallerMemberName] string scenarioName = null)
+        public static ProcessManager.IGiven ForProcess<TProcess>(Guid correlationId, ProcessManager.ProcessManagerFactory factory = null, [CallerMemberName] string scenarioName = null)
             where TProcess : IProcessManager
         {
             return new ProcessManager.ScenarioBuilder<TProcess>(correlationId, factory, scenarioName);
@@ -20,25 +20,26 @@
         {
             public delegate IProcessManager ProcessManagerFactory(string id, Guid correlationId);
 
-
-            public interface Given : When
+            public interface IGiven : IWhen
             {
-                When Given(params object[] events);
+                IWhen Given(params object[] events);
             }
 
-            public interface When : Then
+            public interface IWhen : IThen
             {
-                Then When(object @event);
+                IThen When(object @event);
             }
 
-            public interface Then : IScenario
+            public interface IThen : IScenario
             {
-                Then ThenCompletes();
-                Then ThenNothingWasSent();
-                Then Then(params object[] events);
+                IThen ThenCompletes();
+
+                IThen ThenNothingWasSent();
+
+                IThen Then(params object[] events);
             }
 
-            internal class ScenarioBuilder<TProcess> : Given
+            internal class ScenarioBuilder<TProcess> : IGiven
                 where TProcess: IProcessManager
             {
                 private readonly Guid _correlationId;
@@ -59,7 +60,7 @@
                 private object[] _expectedEvents;
                 private object _results;
 
-                private IEnumerable<object> expect
+                private IEnumerable<object> Expect
                 {
                     get { return _expectedCommands.Union(_expectedEvents); }
                 }
@@ -153,21 +154,21 @@
                     return scenario.Run().GetAwaiter();
                 }
 
-                public When Given(params object[] events)
+                public IWhen Given(params object[] events)
                 {
                     _given = events;
                     
                     return this;
                 }
 
-                public Then When(object @event)
+                public IThen When(object @event)
                 {
                     _when = @event;
 
                     return this;
                 }
 
-                public Then Then(params object[] commands)
+                public IThen Then(params object[] commands)
                 {
                     _expectedCommands = commands;
                     
@@ -183,7 +184,7 @@
                     return this;
                 }
 
-                public Then ThenNothingWasSent()
+                public IThen ThenNothingWasSent()
                 {
                     _expectedCommands = new object[0];
 
@@ -197,7 +198,7 @@
                     return this;
                 }
 
-                public Then ThenCompletes()
+                public IThen ThenCompletes()
                 {
                     var events = _expectedEvents = new []{new ProcessCompleted{CorrelationId = _correlationId, ProcessId = _processId}};
 
@@ -215,7 +216,7 @@
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<TProcess> builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder.expect, builder._results, builder._timer.Elapsed);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder.Expect, builder._results, builder._timer.Elapsed);
                 }
             }
         }

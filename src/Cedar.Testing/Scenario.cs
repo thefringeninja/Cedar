@@ -5,7 +5,16 @@
 
     public static partial class Scenario
     {
-        public static void ThenShouldThrow<TException>(this ScenarioResult scenario, object result, Expression<Func<TException, bool>> isMatch = null)
+        public class FatalScenarioException : Exception
+        {
+            public FatalScenarioException(string scenarioName, Exception innerException)
+                : base(
+                    String.Format("Scenario {0} failed to run. Please see the InnerException for details.",
+                        scenarioName), innerException)
+            { }
+        }
+
+        private static void ThenShouldThrow<TException>(this ScenarioResult scenario, object result, Expression<Func<TException, bool>> isMatch = null)
             where TException : Exception
         {
             if(false == result is TException)
@@ -40,16 +49,7 @@
             }
         }
 
-        public class FatalScenarioException : Exception
-        {
-            public FatalScenarioException(string scenarioName, Exception innerException)
-                : base(
-                    String.Format("Scenario {0} failed to run. Please see the InnerException for details.",
-                        scenarioName), innerException)
-            {}
-        }
-
-        public class ScenarioException : Exception
+        private class ScenarioException : Exception
         {
             public ScenarioResult ExpectedResult
             {

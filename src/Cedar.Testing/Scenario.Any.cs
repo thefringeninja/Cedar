@@ -8,30 +8,31 @@
 
     public static partial class Scenario
     {
-        public static Any.Given<T> For<T>([CallerMemberName] string scenarioName = null)
+        public static Any.IGiven<T> For<T>([CallerMemberName] string scenarioName = null)
         {
             return new Any.ScenarioBuilder<T>(scenarioName);
         }
 
         public static class Any
         {
-            public interface Given<T> : When<T>
+            public interface IGiven<T> : IWhen<T>
             {
-                When<T> Given(T instance);
+                IWhen<T> Given(T instance);
             }
 
-            public interface When<T> : Then<T>
+            public interface IWhen<T> : IThen<T>
             {
-                Then<T> When(Expression<Func<T, Task<T>>> when);
+                IThen<T> When(Expression<Func<T, Task<T>>> when);
             }
 
-            public interface Then<T> : IScenario
+            public interface IThen<T> : IScenario
             {
-                Then<T> ThenShouldEqual(T other);
-                Then<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
+                IThen<T> ThenShouldEqual(T other);
+
+                IThen<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
             }
 
-            internal class ScenarioBuilder<T> : Given<T>
+            internal class ScenarioBuilder<T> : IGiven<T>
             {
                 private readonly string _name;
                 
@@ -54,21 +55,21 @@
                     _timer = new Stopwatch();
                 }
 
-                public When<T> Given(T instance)
+                public IWhen<T> Given(T instance)
                 {
                     _given = instance;
 
                     return this;
                 }
 
-                public Then<T> When(Expression<Func<T, Task<T>>> when)
+                public IThen<T> When(Expression<Func<T, Task<T>>> when)
                 {
                     _when = when;
 
                     return this;
                 }
 
-                public Then<T> ThenShouldEqual(T other)
+                public IThen<T> ThenShouldEqual(T other)
                 {
                     _runThen = instance =>
                     {
@@ -80,7 +81,7 @@
                     return this;
                 }
 
-                public Then<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
+                public IThen<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
                     where TException : Exception
                 {
                     _runThen = _ =>  ((ScenarioResult)this).ThenShouldThrow(_results, isMatch);
