@@ -18,6 +18,7 @@
             public interface IGiven<T> : IWhen<T>
             {
                 IWhen<T> Given(T instance);
+                IWhen<T> Given(Expression<Func<T>> given);
             }
 
             public interface IWhen<T> : IThen<T>
@@ -39,7 +40,7 @@
                 private readonly Func<T> _runGiven;
                 private readonly Func<T, Task<T>> _runWhen;
                 private Action<T> _runThen = _ => { };
-                private T _given;
+                private Expression<Func<T>> _given;
                 private Expression<Func<T, Task<T>>> _when;
                 private T _expect;
                 private object _results;
@@ -50,14 +51,19 @@
                 {
                     _name = name;
 
-                    _runGiven = () => _given;
+                    _runGiven = () => _given.Compile()();
                     _runWhen = instance => _when.Compile()(instance);
                     _timer = new Stopwatch();
                 }
 
                 public IWhen<T> Given(T instance)
                 {
-                    _given = instance;
+                    return Given(() => instance);
+                }
+
+                public IWhen<T> Given(Expression<Func<T>> given)
+                {
+                    _given = given;
 
                     return this;
                 }
@@ -75,7 +81,7 @@
                     {
                         if (false == instance.Equals(other))
                         {
-                            throw new ScenarioException(this, String.Format("{0} was expected to equal {1}.", instance, other));
+                            throw new ScenarioException(String.Format("{0} was expected to equal {1}.", instance, other));
                         }
                     };
                     return this;
@@ -108,17 +114,26 @@
                     _timer.Start();
                     try
                     {
-                        _given = _runGiven();
+                        T sut;
 
                         try
                         {
-                            _expect = await _runWhen(_given);
+                            sut = _runGiven();
+                        }
+                        catch (Exception ex)
+                        {
+                            _results = new ScenarioException(ex.Message);
+
+                            return this;
+                        }
+
+                        try
+                        {
+                            _expect = await _runWhen(sut);
                         }
                         catch (Exception ex)
                         {
                             _results = ex;
-
-                            return this;
                         }
 
                         _runThen(_expect);

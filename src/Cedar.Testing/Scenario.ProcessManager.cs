@@ -177,7 +177,7 @@
                         if (false == process.GetUndispatchedCommands()
                             .SequenceEqual(commands, MessageEqualityComparer.Instance))
                         {
-                            throw new ScenarioException(this, "The ocurred commands did not equal the expected commands.");
+                            throw new ScenarioException("The ocurred commands did not equal the expected commands.");
                         }
                     };
 
@@ -192,7 +192,7 @@
                     {
                         if (process.GetUndispatchedCommands().Any())
                         {
-                            throw new ScenarioException(this, "No commands were expected, yet some commands occurred.");
+                            throw new ScenarioException("No commands were expected, yet some commands occurred.");
                         }
                     };
                     return this;
@@ -207,7 +207,7 @@
                         if (false == process.GetUndispatchedCommands()
                            .SequenceEqual(events, MessageEqualityComparer.Instance))
                         {
-                            throw new ScenarioException(this, "The ocurred events did not equal the expected events.");
+                            throw new ScenarioException("The ocurred events did not equal the expected events.");
                         }
                     };
 

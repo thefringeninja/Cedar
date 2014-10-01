@@ -97,10 +97,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ContrivedAggregate.cs" />
-    <Compile Include="ContrivedMiddleware.cs" />
     <Compile Include="starbucks_should.cs" />
-    <Compile Include="ContrivedValueObject.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -108,6 +108,9 @@
     </Compile>
     <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />
     <Compile Include="Commands\CommandHandlingTests.cs" />
+    <Compile Include="Testing\AggregateTests.cs" />
+    <Compile Include="Testing\MiddlewareTests.cs" />
+    <Compile Include="Testing\ValueObjectTests.cs" />
     <Compile Include="TypeResolution\TypeResolverTests.cs" />
     <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolverTests.cs" />
     <Compile Include="Commands\ExceptionToModelConverterTests.cs" />
@@ -138,6 +141,10 @@
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
       <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>
       <Name>Cedar.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cedar.Testing\Cedar.Testing.csproj">
+      <Project>{de625b35-8644-4f57-8aa0-2792f19ec435}</Project>
+      <Name>Cedar.Testing</Name>
     </ProjectReference>
     <ProjectReference Include="..\Cedar\Cedar.csproj">
       <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>

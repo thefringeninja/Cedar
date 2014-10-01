@@ -8,6 +8,7 @@
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
     using Cedar.Domain;
+    using Cedar.Testing.Printing;
 
     public static partial class Scenario
     {
@@ -113,7 +114,7 @@
                         
                         if (false == uncommittedEvents.SequenceEqual(expectedEvents, MessageEqualityComparer.Instance))
                         {
-                            throw new ScenarioException(this, "The ocurred events did not equal the expected events.");
+                            throw new ScenarioException(string.Format("The ocurred events ({0}) did not equal the expected events ({1}).", uncommittedEvents.NicePrint(), _expect.NicePrint()));
                         }
                     };
                     return this;
@@ -132,7 +133,7 @@
                         
                         if (uncommittedEvents.Any())
                         {
-                            throw new ScenarioException(this, "No events were expected, yet some events occurred.");
+                            throw new ScenarioException("No events were expected, yet some events occurred.");
                         }
                     };
                     return this;
@@ -172,9 +173,21 @@
 
                     try
                     {
-                        var aggregate = _factory(_aggregateId);
+                        T aggregate;
 
-                        _runGiven(aggregate);
+
+                        try
+                        {
+                            aggregate = _factory(_aggregateId);
+
+                            _runGiven(aggregate);
+                        }
+                        catch (Exception ex)
+                        {
+                            _results = new ScenarioException(ex.Message);
+                            
+                            return this;
+                        }
 
                         try
                         {
@@ -183,8 +196,6 @@
                         catch (Exception ex)
                         {
                             _results = ex;
-
-                            return this;
                         }
 
                         if (_runThen == null)

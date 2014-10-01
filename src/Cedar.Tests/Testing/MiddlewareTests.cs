@@ -1,4 +1,4 @@
-﻿namespace Cedar.Example.Tests
+﻿namespace Cedar.Testing
 {
     using System;
     using System.Collections.Generic;
@@ -8,27 +8,9 @@
     using Cedar.Handlers;
     using Cedar.Queries;
     using Cedar.Queries.Client;
-    using Cedar.Testing;
     using Cedar.TypeResolution;
-    using Microsoft.Owin;
     using Newtonsoft.Json;
     using Xunit;
-
-    using AppFunc = System.Func<
-        System.Collections.Generic.IDictionary<string, object>,
-        System.Threading.Tasks.Task
-    >;
-
-    using MidFunc = System.Func<
-        System.Func<
-            System.Collections.Generic.IDictionary<string, object>,
-            System.Threading.Tasks.Task
-        >,
-        System.Func<
-            System.Collections.Generic.IDictionary<string, object>,
-            System.Threading.Tasks.Task
-        >
-    >;
 
     public static class HttpClientExtensions
     {
@@ -40,11 +22,11 @@
         }
     }
 
-    public class ContrivedMiddleware
+    public class MiddlewareTests
     {
         private readonly QueryExecutionSettings _queryExecutionSettings;
 
-        public ContrivedMiddleware()
+        public MiddlewareTests()
         {
             _queryExecutionSettings = new QueryExecutionSettings("vendor");
         }
@@ -65,6 +47,15 @@
                 return "Something else = " + Value;
             }
         }
+
+        class SomethingExploding
+        {
+            public override string ToString()
+            {
+                return "Don't run me.";
+            }
+        }
+
         class Query { }
         class QueryResult
         {
@@ -72,55 +63,80 @@
         }
 
         [Fact]
-        public async Task Passes()
+        public async Task a_passing_middleware_scenario_should()
         {
             var user = Authorization.Basic("user", "password");
 
-            await Scenario.ForMiddleware(MySystem, commandPath:"/commands")
+            var result =await Scenario.ForMiddleware(MySystem, commandPath:"/commands")
                 .WithUsers(user)
                 .Given(user.Does(new Something {Value = "this"}))
                 .When(user.Does(new SomethingElse {Value = "that"}))
                 .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
-                    result => result.Value == "that");
+                    q => q.Value == "that");
+
+            Assert.True(result.Passed);
         }
 
         [Fact]
-        public async Task<ScenarioResult> AlsoPasses()
+        public async Task a_failing_middleware_scenario_should()
         {
             var user = Authorization.Basic("user", "password");
 
-            return await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
-                .WithUsers(user)
-                .Given(user.Does(new Something() { Value = "this" }))
-                .When(user.Does(new SomethingElse() { Value = "that" }))
-                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
-                    result => result.Value == "that");
-        }
-
-        [Fact]
-        public async Task DoesNotPass()
-        {
-            var user = Authorization.Basic("user", "password");
-
-            await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+            var result = await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
                 .WithUsers(user)
                 .Given(user.Does(new Something { Value = "this" }))
                 .When(user.Does(new SomethingElse { Value = "that" }))
                 .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
-                    result => result.Value == "this");
+                    q => q.Value == "this");
+
+            Assert.False(result.Passed);
         }
 
+
         [Fact]
-        public async Task<ScenarioResult> AlsoDoesNotPass()
+        public async Task a_middleware_scenario_throwing_expected_exception_in_given_should()
         {
             var user = Authorization.Basic("user", "password");
 
-            return await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+            var result = await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
                 .WithUsers(user)
-                .Given(user.Does(new Something() { Value = "this" }))
-                .When(user.Does(new SomethingElse() { Value = "that" }))
+                .Given(user.Does(new SomethingExploding()))
+                .When(user.Does(new Something { Value = "this" }))
                 .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
-                    result => result.Value == "this");
+                    q => q.Value == "this");
+
+            Assert.False(result.Passed);
+            Assert.IsType<ScenarioException>(result.Results);
+        }
+        /*
+        [Fact]
+        public async Task a_middleware_scenario_throwing_expected_exception_in_when_should()
+        {
+            var user = Authorization.Basic("user", "password");
+
+            var result = await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+                .WithUsers(user)
+                .Given(user.Does(new Something { Value = "this" }))
+                .When(user.Does(new SomethingExploding()))
+                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
+                    q => q.Value == "this");
+
+            Assert.False(result.Passed);
+            Assert.IsType<Scenario.ScenarioException>(result.Results);
+        }*/
+
+        [Fact]
+        public async Task a_middleware_scenario_throwing_an_expected_exception_should()
+        {
+            var user = Authorization.Basic("user", "password");
+
+            var result = await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+                .WithUsers(user)
+                .Given(user.Does(new Something {Value = "this"}))
+                .When(user.Does(new SomethingExploding()))
+                .ThenShouldThrow<Exception>();
+
+            Assert.True(result.Passed);
         }
 
         static Func<Func<IDictionary<string, object>, Task>, Func<IDictionary<string, object>, Task>> MySystem

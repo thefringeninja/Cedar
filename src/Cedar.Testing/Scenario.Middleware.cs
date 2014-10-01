@@ -130,7 +130,7 @@
 
                         if (failed.Any())
                         {
-                            throw new ScenarioException(this, "One or more assertions failed:" 
+                            throw new ScenarioException("One or more assertions failed:" 
                                 + Environment.NewLine 
                                 + failed.Aggregate(new StringBuilder(), (builder, assertionResult) => builder.Append(assertionResult).AppendLine()));
                         }
@@ -216,8 +216,16 @@
 
                     try
                     {
-                        await _runGiven();
+                        try
+                        {
+                            await _runGiven();
+                        }
+                        catch (Exception ex)
+                        {
+                            _results = new ScenarioException(ex.Message);
 
+                            return this;
+                        }
                         try
                         {
                             await _runWhen();
@@ -225,8 +233,6 @@
                         catch (Exception ex)
                         {
                             _results = ex;
-
-                            return this;
                         }
 
                         await _runThen();
