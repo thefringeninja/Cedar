@@ -130,7 +130,6 @@
     <Compile Include="Queries\Fixtures\TestQueryWhoseHandlerThrows.cs" />
     <Compile Include="Queries\Fixtures\TestQueryWithoutHandler.cs" />
     <Compile Include="Queries\Fixtures\TestMessageHandlerModule.cs" />
-    <Compile Include="TinyIoC.cs" />
     <Compile Include="TypeResolution\TypeResolverVersioningTests.cs" />
   </ItemGroup>
   <ItemGroup>
