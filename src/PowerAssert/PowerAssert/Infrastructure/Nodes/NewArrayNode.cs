@@ -14,7 +14,6 @@ namespace PowerAssert.Infrastructure.Nodes
 
         internal override void Walk(NodeWalker walker, int depth)
         {
-            walker("new " + Type + "[]{");
             foreach (var node in Items.Take(1))
             {
                 node.Walk(walker, depth);
@@ -24,7 +23,6 @@ namespace PowerAssert.Infrastructure.Nodes
                 walker(", ");
                 node.Walk(walker, depth);
             }
-            walker("}");
         }
     }
 }

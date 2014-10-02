@@ -33,6 +33,14 @@ namespace PowerAssertTests
 
         [Test]
         [Ignore("This test will fail for demo purposes")]
+        public void RunTypeOfExpression()
+        {
+            int x = 1;
+            PAssert.IsTrue(() => x.GetType() == typeof(string));
+        }
+
+        [Test]
+        [Ignore("This test will fail for demo purposes")]
         public void RunComplexExpression()
         {
             int x = 11;
@@ -162,6 +170,14 @@ namespace PowerAssertTests
         {
             var b = new object();
             PAssert.IsTrue(() => b is string);
+        }
+
+        [Test]
+        [Ignore("This test will fail for demo purposes")]
+        public void PrintingNewArrayTest()
+        {
+            var array = new int[]{1,2,3};
+            PAssert.IsTrue(() => array.Equals(new[]{4,5,6}));
         }
     }
 }
