@@ -106,6 +106,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="MessageEqualityComparerTests.cs" />
     <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />
     <Compile Include="Commands\CommandHandlingTests.cs" />
     <Compile Include="Testing\AggregateTests.cs" />
@@ -130,7 +131,6 @@
     <Compile Include="Queries\Fixtures\TestQueryWhoseHandlerThrows.cs" />
     <Compile Include="Queries\Fixtures\TestQueryWithoutHandler.cs" />
     <Compile Include="Queries\Fixtures\TestMessageHandlerModule.cs" />
-    <Compile Include="TinyIoC.cs" />
     <Compile Include="TypeResolution\TypeResolverVersioningTests.cs" />
   </ItemGroup>
   <ItemGroup>

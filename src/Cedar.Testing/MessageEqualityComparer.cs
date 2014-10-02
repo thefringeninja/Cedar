@@ -1,6 +1,7 @@
 namespace Cedar.Testing
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -28,6 +29,17 @@ namespace Cedar.Testing
 
             if (type.IsValueType)
                 return x.Equals(y);
+            
+            if(type == typeof(string))
+            {
+                return x.Equals(y);
+            }
+
+            if(typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                return ((IEnumerable) x).OfType<object>()
+                    .SequenceEqual(((IEnumerable) y).OfType<object>(), Instance);
+            }
 
             var fieldValues = from field in type.GetFields()
                 select new
