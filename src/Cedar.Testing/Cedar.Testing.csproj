@@ -61,9 +61,6 @@
     <Compile Include="..\PowerAssert\PowerAssert\Extensions.cs">
       <Link>PowerAssert\Extensions.cs</Link>
     </Compile>
-    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\ExpressionParser.cs">
-      <Link>PowerAssert\Infrastructure\Nodes\ExpressionParser.cs</Link>
-    </Compile>
     <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\NaturalExpressionProcessor.cs">
       <Link>PowerAssert\Infrastructure\NaturalExpressionProcessor.cs</Link>
     </Compile>
@@ -100,8 +97,8 @@
     <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Util.cs">
       <Link>PowerAssert\Infrastructure\Util.cs</Link>
     </Compile>
-    <Compile Include="..\PowerAssert\PowerAssert\PAssert.cs">
-      <Link>PowerAssert\PAssert.cs</Link>
+    <Compile Include="..\PowerAssert\PowerAssert\PAssertFormatter.cs">
+      <Link>PowerAssert\PAssertFormatter.cs</Link>
     </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
