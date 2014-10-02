@@ -25,7 +25,7 @@ namespace PowerAssertTests
             int y = 6;
             DateTime d = new DateTime(2010, 3, 1);
             Expression<Func<bool>> expression = () => x + 5 == d.Month * y;
-            Node constantNode = ExpressionParser.Parse(expression.Body);
+            Node constantNode = NaturalExpressionParser.Parse(expression.Body);
             string[] strings = NodeFormatter.Format(constantNode);
             string s = string.Join(Environment.NewLine, strings);
             Console.Out.WriteLine(s);
