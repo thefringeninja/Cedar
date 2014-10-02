@@ -49,11 +49,11 @@
                 private readonly string _name;
 
                 private readonly Action<T> _runGiven;
-                private readonly Func<T, Task> _runWhen;
+                private Func<T, Task> _runWhen;
                 private Action<T> _runThen;
 
                 private object[] _given;
-                private Expression<Func<T, Task>> _when;
+                private LambdaExpression _when;
                 private object[] _expect;
                 private object _results;
                 private bool _passed;
@@ -73,7 +73,10 @@
 
                         aggregate.ClearUncommittedEvents();
                     };
-                    _runWhen = aggregate => _when.Compile()(aggregate);
+                    _runWhen = _ =>
+                    {
+                        throw new ScenarioException("When not set.");
+                    };
 
                     _timer = new Stopwatch();
                 }
@@ -87,17 +90,18 @@
                 public IThen When(Expression<Func<T, Task>> when)
                 {
                     _when = when;
+                    _runWhen = aggregate => when.Compile()(aggregate); 
                     return this;
                 }
 
                 public IThen When(Expression<Action<T>> when)
                 {
-                    var body = Expression.Block(
-                        when.Body,
-                        Expression.Call(typeof (Task), "FromResult", new[] {typeof (bool)}, Expression.Constant(true)));
-
-                    _when = Expression.Lambda<Func<T, Task>>(body, when.Parameters);
-
+                    _when = when;
+                    _runWhen = aggregate =>
+                    {
+                        when.Compile()(aggregate);
+                        return Task.FromResult(true);
+                    };
                     return this;
                 }
 
