@@ -4,8 +4,10 @@ namespace Cedar.Testing.Printing
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Linq.Expressions;
+    using PowerAssert;
 
-    internal static class PrintingExtensions
+    public static class PrintingExtensions
     {
         public static IEnumerable<string> NicePrint(this object target, string prefix = "\t")
         {
@@ -38,6 +40,10 @@ namespace Cedar.Testing.Printing
                     yield return printed;
                 }
                 yield break;
+            }
+            if(target is LambdaExpression)
+            {
+                yield return PAssertFormatter.CreateSimpleFormatFor((LambdaExpression) target);
             }
 
             yield return prefix + target;

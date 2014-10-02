@@ -59,6 +59,10 @@ namespace PowerAssert.Infrastructure
             {
                 return NewObject((NewExpression) e);
             }
+            if(e is BlockExpression)
+            {
+                return Lambda(e);
+            }
 
             throw new ArgumentOutOfRangeException("e", string.Format("Can't handle expression of class {0} and type {1}", e.GetType().Name, e.NodeType));
         }
