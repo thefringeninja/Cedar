@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="NodeFormatterTest.cs" />
     <Compile Include="ParserTest.cs" />
+    <Compile Include="PAssert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="EndToEndTest.cs" />
     <Compile Include="ThrowsTest.cs" />
