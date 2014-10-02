@@ -44,6 +44,7 @@ namespace Cedar.Testing.Printing
             if(target is LambdaExpression)
             {
                 yield return PAssertFormatter.CreateSimpleFormatFor((LambdaExpression) target);
+                yield break;
             }
 
             yield return prefix + target;
