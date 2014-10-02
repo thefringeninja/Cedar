@@ -49,7 +49,7 @@ namespace PowerAssert.Infrastructure
             }
             if (e.NodeType == ExpressionType.Lambda)
             {
-                return Lambda(e);
+                return Expression(e);
             }
             if (e is TypeBinaryExpression)
             {
@@ -59,12 +59,8 @@ namespace PowerAssert.Infrastructure
             {
                 return NewObject((NewExpression) e);
             }
-            if(e is BlockExpression)
-            {
-                return Lambda(e);
-            }
 
-            throw new ArgumentOutOfRangeException("e", string.Format("Can't handle expression of class {0} and type {1}", e.GetType().Name, e.NodeType));
+            return Expression(e);
         }
 
         private static Node NewObject(NewExpression e)
@@ -96,7 +92,7 @@ namespace PowerAssert.Infrastructure
             }
         }
 
-        static Node Lambda(Expression e)
+        static Node Expression(Expression e)
         {
             return new ConstantNode() { Text = e.ToString() };
         }
@@ -258,17 +254,17 @@ namespace PowerAssert.Infrastructure
             {
                 value = DynamicInvoke(e);
             }
-            catch (TargetInvocationException exception)
+            catch (Exception exception)
             {
-                return FormatTargetInvocationException(exception);
+                return FormatException(exception);
             }
             var formatted = possessive ? FormatObjectPossessive(value) : FormatObject(value);
             return formatted + GetHints(e, value);
         }
 
-        static string FormatTargetInvocationException(TargetInvocationException exception)
+        static string FormatException(Exception exception)
         {
-            var i = exception.InnerException;
+            var i = exception.GetBaseException();
             return string.Format("{0}: {1}", i.GetType().Name, i.Message);
         }
 
@@ -286,7 +282,7 @@ namespace PowerAssert.Infrastructure
                 }
                 catch (TargetInvocationException exception)
                 {
-                    return FormatTargetInvocationException(exception);
+                    return FormatException(exception);
                 }
                 if (Object.Equals(left, right))
                 {
@@ -313,7 +309,7 @@ namespace PowerAssert.Infrastructure
 
         static object DynamicInvoke(Expression e)
         {
-            return Expression.Lambda(e).Compile().DynamicInvoke();
+            return System.Linq.Expressions.Expression.Lambda(e).Compile().DynamicInvoke();
         }
 
         static string FormatObject(object value)
