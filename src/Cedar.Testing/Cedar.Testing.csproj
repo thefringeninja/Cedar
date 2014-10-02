@@ -55,6 +55,54 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\PowerAssert\PowerAssert\Annotations.cs">
+      <Link>PowerAssert\Annotations.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Extensions.cs">
+      <Link>PowerAssert\Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\ExpressionParser.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\ExpressionParser.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\NaturalExpressionProcessor.cs">
+      <Link>PowerAssert\Infrastructure\NaturalExpressionProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\NodeFormatter.cs">
+      <Link>PowerAssert\Infrastructure\NodeFormatter.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\ArrayIndexNode.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\ArrayIndexNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\BinaryNode.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\BinaryNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\ConditionalNode.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\ConditionalNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\ConstantNode.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\ConstantNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\MemberAccessNode.cs">
+      <Link>PowerAssert\Infrastructure\MemberAccessNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\MethodCallNode.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\MethodCallNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\NewArrayNode.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\NewArrayNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\Node.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\Node.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Nodes\UnaryNode.cs">
+      <Link>PowerAssert\Infrastructure\Nodes\UnaryNode.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\Infrastructure\Util.cs">
+      <Link>PowerAssert\Infrastructure\Util.cs</Link>
+    </Compile>
+    <Compile Include="..\PowerAssert\PowerAssert\PAssert.cs">
+      <Link>PowerAssert\PAssert.cs</Link>
+    </Compile>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
