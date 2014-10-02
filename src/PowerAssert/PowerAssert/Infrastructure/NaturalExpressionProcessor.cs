@@ -102,7 +102,7 @@ namespace PowerAssert.Infrastructure
             switch (e.NodeType)
             {
                 case ExpressionType.Convert:
-                    return new UnaryNode() { Prefix = "(" + NameOfType(e.Type) + ")(", Operand = Parse(e.Operand), Suffix = ")", PrefixValue = GetValue(e, false) };
+                    return Parse(e.Operand);
                 case ExpressionType.Not:
                     return new UnaryNode() { Prefix = "!", Operand = Parse(e.Operand), PrefixValue = GetValue(e, false) };
                 case ExpressionType.Negate:
@@ -184,17 +184,17 @@ namespace PowerAssert.Infrastructure
                     Parameters = parameters.Skip(1).ToList(),
                 };
             }
-            else
+            if (e.Type == typeof (Delegate))
             {
-                return new MethodCallNode
-                {
-                    Container = e.Object == null ? new ConstantNode() { Text = e.Method.DeclaringType.Name } : Parse(e.Object),
-                    MemberName = e.Method.Name,
-                    MemberValue = GetValue(e, true),
-                    Parameters = parameters.ToList(),
-                };
+                return parameters.Last();
             }
-
+            return new MethodCallNode
+            {
+                Container = e.Object == null ? new ConstantNode() { Text = e.Method.DeclaringType.Name } : Parse(e.Object),
+                MemberName = e.Method.Name,
+                MemberValue = GetValue(e, true),
+                Parameters = parameters.ToList(),
+            };
         }
 
         
@@ -318,9 +318,20 @@ namespace PowerAssert.Infrastructure
             {
                 return "null";
             }
+            var type = value.GetType();
             if (value is Type)
             {
-                return ((Type) value).Name;
+                if (typeof(MulticastDelegate).IsAssignableFrom(type))
+                {
+                    return String.Empty;
+                }
+                return type.Name;
+            }
+            if (value is MemberInfo)
+            {
+                var info = (MemberInfo) value;
+
+                return info.Name;
             }
             if (value is string)
             {
@@ -344,8 +355,17 @@ namespace PowerAssert.Infrastructure
                 return "{" + string.Join(", ", values.ToArray()) + "}";
             }
             //if (value is Exception) return "the "value.GetType().Name;
-            if (value.GetType().IsValueType) return value.ToString();
-            return ("The" + value.GetType().Name + "'s").Replace('.', ' ');
+            
+            if (type.IsValueType)
+            {
+                return value.ToString();
+            }
+            if (typeof (MulticastDelegate).IsAssignableFrom(type))
+            {
+                return String.Empty;
+            }
+           
+            return ("The" + type.Name + "'s").Replace('.', ' ');
         }
 
         static string FormatObjectPossessive(object value)
@@ -354,9 +374,20 @@ namespace PowerAssert.Infrastructure
             {
                 return "null";
             }
+            var type = value.GetType();
             if (value is Type)
             {
-                return ((Type)value).Name;
+                if (typeof(MulticastDelegate).IsAssignableFrom(type))
+                {
+                    return String.Empty;
+                }
+                return type.Name;
+            }
+            if (value is MemberInfo)
+            {
+                var info = (MemberInfo)value;
+
+                return info.Name;
             }
             if (value is string)
             {
@@ -380,7 +411,14 @@ namespace PowerAssert.Infrastructure
                 return "{" + string.Join(", ", values.ToArray()) + "}";
             }
             //if (value is Exception) return "the "value.GetType().Name;
-            if (value.GetType().IsValueType) return value.ToString();
+            if (type.IsValueType)
+            {
+                return value.ToString();
+            }
+            if (typeof(MulticastDelegate).IsAssignableFrom(type))
+            {
+                return String.Empty;
+            }
             return ("The" + value.GetType().Name + "'s").Replace('.', ' ');
         }
     }

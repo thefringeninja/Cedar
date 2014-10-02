@@ -179,5 +179,27 @@ namespace PowerAssertTests
             var array = new int[]{1,2,3};
             PAssert.IsTrue(() => array.Equals(new[]{4,5,6}));
         }
+
+
+        [Test]
+        [Ignore("This test will fail for demo purposes")]
+        public void PrintingDelegateInvocation()
+        {
+            var array = new int[] { 1, 2, 3 };
+            PAssert.IsTrue(() => array.Any(x => x > 3));
+        }
+
+        [Test]
+        [Ignore("This test will fail for demo purposes")]
+        public void PrintingDelegateMethodGroupInvocation()
+        {
+            var array = new int[] { 1, 2, 3 };
+            PAssert.IsTrue(() => array.Any(GreaterThan3));
+        }
+
+        static bool GreaterThan3(int x)
+        {
+            return x > 3;
+        }
     }
 }
