@@ -44,6 +44,16 @@ namespace Cedar.Domain.Persistence
             return Task.FromResult(aggregate as TAggregate); 
         }
 
+        public Task<TAggregate> GetById<TAggregate>(string bucketId, string id, int versionToLoad, CancellationToken cancellationToken)
+            where TAggregate : class, IAggregate
+        {
+            IEventStream stream = _eventStore.OpenStream(bucketId, id, 0, versionToLoad);
+            IAggregate aggregate = GetAggregate<TAggregate>(stream);
+            ApplyEventsToAggregate(versionToLoad, stream, aggregate);
+            //TODO NES 6 async support
+            return Task.FromResult(aggregate as TAggregate);
+        }
+
         public async Task Save(
             string bucketId,
             IAggregate aggregate,
