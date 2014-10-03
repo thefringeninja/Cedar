@@ -41,6 +41,8 @@
             await WriteBody();
 
             await _output.WriteLineAsync("</html>");
+
+            await _output.FlushAsync();
         }
 
         public string FileExtension
@@ -106,7 +108,6 @@
 
         private async Task WriteResult(ScenarioResult result)
         {
-
             await _output.WriteLineAsync(String.Format("<div class='alert alert-{0}'>", result.Passed ? "success" : "danger"));
             await _output.WriteLineAsync("<details id='{0}'>");
             await _output.WriteLineAsync("<summary>" + (result.Name ?? "???").Underscore().Titleize() + " - " + (result.Passed ? "Passed" : "Failed") + "</summary>");
