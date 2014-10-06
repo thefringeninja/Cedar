@@ -8,41 +8,46 @@
 
     public static partial class Scenario
     {
-        public static Any.IGiven<T> For<T>([CallerMemberName] string scenarioName = null)
+        public static Any.IGiven<T, T> For<T>([CallerMemberName] string scenarioName = null)
         {
-            return new Any.ScenarioBuilder<T>(scenarioName);
+            return For<T, T>(scenarioName);
+        }
+
+        public static Any.IGiven<T, TResult> For<T, TResult>([CallerMemberName] string scenarioName = null)
+        {
+            return new Any.ScenarioBuilder<T, TResult>(scenarioName);
         }
 
         public static class Any
         {
-            public interface IGiven<T> : IWhen<T>
+            public interface IGiven<T, TResult> : IWhen<T, TResult>
             {
-                IWhen<T> Given(T instance);
-                IWhen<T> Given(Expression<Func<T>> given);
+                IWhen<T, TResult> Given(T instance);
+                IWhen<T, TResult> Given(Expression<Func<T>> given);
             }
 
-            public interface IWhen<T> : IThen<T>
+            public interface IWhen<T, TResult> : IThen<TResult>
             {
-                IThen<T> When(Expression<Func<T, Task<T>>> when);
+                IThen<TResult> When(Expression<Func<T, Task<TResult>>> when);
             }
 
-            public interface IThen<T> : IScenario
+            public interface IThen<TResult> : IScenario
             {
-                IThen<T> ThenShouldEqual(T other);
+                IThen<TResult> ThenShouldEqual(TResult other);
 
-                IThen<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
+                IThen<TResult> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null) where TException : Exception;
             }
 
-            internal class ScenarioBuilder<T> : IGiven<T>
+            internal class ScenarioBuilder<T, TResult> : IGiven<T, TResult>
             {
                 private readonly string _name;
                 
                 private readonly Func<T> _runGiven;
-                private readonly Func<T, Task<T>> _runWhen;
-                private Action<T> _runThen = _ => { };
+                private readonly Func<T, Task<TResult>> _runWhen;
+                private Action<TResult> _runThen = _ => { };
                 private Expression<Func<T>> _given;
-                private Expression<Func<T, Task<T>>> _when;
-                private T _expect;
+                private Expression<Func<T, Task<TResult>>> _when;
+                private TResult _expect;
                 private object _results;
                 private bool _passed;
                 private readonly Stopwatch _timer;
@@ -56,26 +61,26 @@
                     _timer = new Stopwatch();
                 }
 
-                public IWhen<T> Given(T instance)
+                public IWhen<T, TResult> Given(T instance)
                 {
                     return Given(() => instance);
                 }
 
-                public IWhen<T> Given(Expression<Func<T>> given)
+                public IWhen<T, TResult> Given(Expression<Func<T>> given)
                 {
                     _given = given;
 
                     return this;
                 }
 
-                public IThen<T> When(Expression<Func<T, Task<T>>> when)
+                public IThen<TResult> When(Expression<Func<T, Task<TResult>>> when)
                 {
                     _when = when;
 
                     return this;
                 }
 
-                public IThen<T> ThenShouldEqual(T other)
+                public IThen<TResult> ThenShouldEqual(TResult other)
                 {
                     _runThen = instance =>
                     {
@@ -87,7 +92,7 @@
                     return this;
                 }
 
-                public IThen<T> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
+                public IThen<TResult> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
                     where TException : Exception
                 {
                     _runThen = _ =>  ((ScenarioResult)this).ThenShouldThrow(_results, isMatch);
@@ -152,7 +157,7 @@
                     return this;
                 }
 
-                public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
+                public static implicit operator ScenarioResult(ScenarioBuilder<T, TResult> builder)
                 {
                     return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._results, builder._timer.Elapsed);
                 }

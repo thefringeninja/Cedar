@@ -18,6 +18,18 @@
         }
 
         [Fact]
+        public async Task a_passing_value_object_with_transformation_scenario_should()
+        {
+            var result = await Scenario.For<DateTime, long>()
+                .Given(new DateTime(2000, 1, 1))
+                .When(date => Task.FromResult(date.AddDays(1).Ticks))
+                .ThenShouldEqual(new DateTime(2000, 1, 2).Ticks);
+
+            Assert.True(result.Passed);
+        }
+
+
+        [Fact]
         public async Task a_failing_value_object_scenario_should()
         {
             var result = await Scenario.For<DateTime>()
