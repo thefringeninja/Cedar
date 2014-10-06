@@ -14,6 +14,7 @@
                 return "Something happened.";
             }
         }
+
         class Aggregate : AggregateBase
         {
             private int _something = 0;
@@ -58,12 +59,35 @@
             {
             }
         }
+
+        class ConstructorBehaviorAggregate : AggregateBase
+        {
+            public ConstructorBehaviorAggregate(Guid id)
+                : base(id.ToString())
+            {
+                RaiseEvent(new SomethingHappened());
+            }
+            protected ConstructorBehaviorAggregate(string id) : base(id)
+            {}
+
+            void Apply(SomethingHappened e) { }
+        }
         [Fact]
         public async Task a_passing_aggregate_scenario_should()
         {
             var result = await Scenario.ForAggregate(id => new Aggregate(id))
                 .Given(new SomethingHappened())
                 .When(a => a.DoSomething())
+                .Then(new SomethingHappened());
+
+            Assert.True(result.Passed);
+        }
+
+        [Fact]
+        public async Task a_passing_aggregate_with_events_raised_in_the_constructor_should()
+        {
+            var result = await Scenario.ForAggregate<ConstructorBehaviorAggregate>()
+                .When(() => new ConstructorBehaviorAggregate(Guid.Empty))
                 .Then(new SomethingHappened());
 
             Assert.True(result.Passed);

@@ -31,6 +31,7 @@
             {
                 IThen When(Expression<Func<T, Task>> when);
                 IThen When(Expression<Action<T>> when);
+                IThen When(Expression<Func<T>> when);
             }
 
             public interface IThen : IScenario
@@ -44,13 +45,14 @@
 
             internal class ScenarioBuilder<T> : IGiven<T> where T : IAggregate
             {
-                private readonly Func<string, T> _factory;
+                private Func<string, T> _factory;
                 private readonly string _aggregateId;
                 private readonly string _name;
 
                 private readonly Action<T> _runGiven;
                 private Func<T, Task> _runWhen;
                 private Action<T> _runThen;
+                private Action<IAggregate> _afterGiven;
 
                 private object[] _given;
                 private LambdaExpression _when;
@@ -64,6 +66,7 @@
                     _factory = factory;
                     _aggregateId = aggregateId;
                     _name = name;
+                    _afterGiven = aggregate => aggregate.ClearUncommittedEvents();
                     _runGiven = aggregate =>
                     {
                         foreach (var @event in _given ?? new object[0])
@@ -71,7 +74,7 @@
                             aggregate.ApplyEvent(@event);
                         }
 
-                        aggregate.ClearUncommittedEvents();
+                        _afterGiven(aggregate);
                     };
                     _runWhen = _ =>
                     {
@@ -102,6 +105,15 @@
                         when.Compile()(aggregate);
                         return Task.FromResult(true);
                     };
+                    return this;
+                }
+
+                public IThen When(Expression<Func<T>> when)
+                {
+                    _when = when;
+                    _factory = _ => when.Compile()();
+                    _runWhen = _ => Task.FromResult(true);
+                    _afterGiven = _ => { };
                     return this;
                 }
 
@@ -178,7 +190,6 @@
                     try
                     {
                         T aggregate;
-
 
                         try
                         {
