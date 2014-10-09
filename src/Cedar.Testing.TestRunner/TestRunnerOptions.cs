@@ -1,9 +1,9 @@
 namespace Cedar.Testing.TestRunner
 {
     using System;
-    using System.IO;
     using PowerArgs;
 
+    [Serializable]
     public class TestRunnerOptions
     {
         private string[] _formatters;
@@ -41,16 +41,6 @@ namespace Cedar.Testing.TestRunner
             {
                 "PlainText"
             };
-        }
-
-        public string GetOutputWithExtension(string fileExtension)
-        {
-            if(String.IsNullOrWhiteSpace(Output))
-            {
-                throw new InvalidOperationException();
-            }
-
-            return Path.ChangeExtension(Path.Combine(Output, Path.GetFileName(Assembly)), fileExtension);
         }
     }
 }
