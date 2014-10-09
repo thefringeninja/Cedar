@@ -45,10 +45,11 @@
             return repository.GetById<TAggregate>(bucketId, id, int.MaxValue, cancellationToken);
         }
 
-        public static Task<TAggregate> GetById<TAggregate>([NotNull] this IRepository repository, string id, CancellationToken cancellationToken)
+        public static Task<TAggregate> GetById<TAggregate>([NotNull] this IRepository repository, string id,
+            CancellationToken cancellationToken)
             where TAggregate : class, IAggregate
         {
-            if (repository == null)
+            if(repository == null)
             {
                 throw new ArgumentNullException("repository");
             }
@@ -56,7 +57,8 @@
             return GetById<TAggregate>(repository, Bucket.Default, id, cancellationToken);
         }
 
-        public static Task<TAggregate> GetById<TAggregate>([NotNull] this IRepository repository, string id, int version, CancellationToken cancellationToken)
+        public static Task<TAggregate> GetById<TAggregate>([NotNull] this IRepository repository, string id, int version,
+            CancellationToken cancellationToken)
             where TAggregate : class, IAggregate
         {
             if (repository == null)
@@ -66,6 +68,21 @@
 
             return repository.GetById<TAggregate>(Bucket.Default, id, version, cancellationToken);
         }
+
+
+        public static Task<TAggregate> GetById<TAggregate>([NotNull] this IRepository repository, string bucketId,
+            Guid id, int versionToLoad, CancellationToken cancellationToken)
+            where TAggregate : class, IAggregate
+        {
+            if(repository == null)
+            {
+                throw new ArgumentNullException("repository");
+            }
+            
+            return repository.GetById<TAggregate>(bucketId, id.ToString(), versionToLoad, cancellationToken);
+        }
+
+
 
         public static Task<TAggregate> GetById<TAggregate>(
             [NotNull] this IRepository repository,

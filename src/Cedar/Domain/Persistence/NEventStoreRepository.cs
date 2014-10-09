@@ -1,6 +1,7 @@
 namespace Cedar.Domain.Persistence
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -11,45 +12,28 @@ namespace Cedar.Domain.Persistence
     public class NEventStoreRepository : IRepository
     {
         private const string AggregateTypeHeader = "AggregateType";
-        private readonly IConflictDetector _conflictDetector;
         private readonly IAggregateFactory _aggregateFactory;
         private readonly IStoreEvents _eventStore;
+        private readonly ConcurrentDictionary<Tuple<string, string>, int> _streamHeads;
 
         public NEventStoreRepository(IStoreEvents eventStore)
-            : this(eventStore, new DefaultAggregateFactory(), new DefaultConflictDetector())
+            : this(eventStore, (IAggregateFactory) new DefaultAggregateFactory())
         {}
 
         public NEventStoreRepository(IStoreEvents eventStore, IAggregateFactory aggregateFactory)
-            : this(eventStore, aggregateFactory, new DefaultConflictDetector())
-        {}
-
-        public NEventStoreRepository(IStoreEvents eventStore, IConflictDetector conflictDetector)
-            : this(eventStore, new DefaultAggregateFactory(), conflictDetector)
-        {}
-
-        public NEventStoreRepository(IStoreEvents eventStore, IAggregateFactory aggregateFactory, IConflictDetector conflictDetector)
         {
             _eventStore = eventStore;
             _aggregateFactory = aggregateFactory;
-            _conflictDetector = conflictDetector;
-        }
-
-        public Task<TAggregate> GetById<TAggregate>(string bucketId, Guid id, int versionToLoad, CancellationToken cancellationToken)
-            where TAggregate : class, IAggregate
-        {
-            IEventStream stream = _eventStore.OpenStream(bucketId, id, 0, versionToLoad);
-            IAggregate aggregate = GetAggregate<TAggregate>(stream);
-            ApplyEventsToAggregate(versionToLoad, stream, aggregate);
-            //TODO NES 6 async support
-            return Task.FromResult(aggregate as TAggregate); 
+            _streamHeads = new ConcurrentDictionary<Tuple<string, string>, int>();
         }
 
         public Task<TAggregate> GetById<TAggregate>(string bucketId, string id, int versionToLoad, CancellationToken cancellationToken)
             where TAggregate : class, IAggregate
         {
-            IEventStream stream = _eventStore.OpenStream(bucketId, id, 0, versionToLoad);
-            IAggregate aggregate = GetAggregate<TAggregate>(stream);
-            ApplyEventsToAggregate(versionToLoad, stream, aggregate);
+            var commits = _eventStore.Advanced.GetFrom(bucketId, id, 0, versionToLoad).ToList();
+            IAggregate aggregate = GetAggregate<TAggregate>(id);
+            var streamHead = ApplyEventsToAggregate(commits, aggregate);
+            _streamHeads.AddOrUpdate(Tuple.Create(bucketId, id), streamHead, (key, _) => streamHead);
             //TODO NES 6 async support
             return Task.FromResult(aggregate as TAggregate);
         }
@@ -64,69 +48,63 @@ namespace Cedar.Domain.Persistence
             Dictionary<string, object> headers = PrepareHeaders(aggregate, updateHeaders);
             while (true)
             {
-                IEventStream stream = PrepareStream(bucketId, aggregate, headers);
-                int commitEventCount = stream.CommittedEvents.Count;
+                int streamHead;
+                
+                if(false == _streamHeads.TryGetValue(Tuple.Create(bucketId, aggregate.Id), out streamHead))
+                {
+                    streamHead = 1;
+                }
+
+                var commitAttempt = new CommitAttempt(bucketId, aggregate.Id, streamHead, commitId, aggregate.Version, DateTime.UtcNow, headers,
+                    aggregate.GetUncommittedEvents().OfType<object>().Select(@event => new EventMessage
+                    {
+                        Body = @event
+                    }));
 
                 try
                 {
                     //TODO NES 6 async support
                     //await stream.CommitChanges(commitId).NotOnCapturedContext()
-                    stream.CommitChanges(commitId);
+                    _eventStore.Advanced.Commit(commitAttempt);
                     aggregate.ClearUncommittedEvents();
                     return;
                 }
-                catch (DuplicateCommitException)
+                catch(DuplicateCommitException)
                 {
-                    stream.ClearChanges();
                     return;
                 }
-                catch (ConcurrencyException e)
+                catch(ConcurrencyException e)
                 {
-                    bool conflict = ThrowOnConflict(stream, commitEventCount);
-                    stream.ClearChanges();
-
-                    if (conflict)
-                    {
-                        throw new ConflictingCommandException(e.Message, e);
-                    }
+                    throw new ConflictingCommandException(e.Message, e);
                 }
-                catch (StorageException e)
+                catch(StorageException e)
                 {
                     throw new PersistenceException(e.Message, e);
                 }
             }
         }
 
-        private IAggregate GetAggregate<TAggregate>(IEventStream stream)
+        private IAggregate GetAggregate<TAggregate>(string streamId)
         {
-            return _aggregateFactory.Build(typeof(TAggregate), stream.StreamId);
+            return _aggregateFactory.Build(typeof(TAggregate), streamId);
         }
 
-        private static void ApplyEventsToAggregate(int versionToLoad, IEventStream stream, IAggregate aggregate)
+        private static int ApplyEventsToAggregate(IEnumerable<ICommit> commits, IAggregate aggregate)
         {
-            if (versionToLoad != 0 && aggregate.Version >= versionToLoad)
-            {
-                return;
-            }
-            foreach (object @event in stream.CommittedEvents.Select(x => x.Body))
-            {
-                aggregate.ApplyEvent(@event);
-            }
-        }
+            int lastStreamRevision = 0;
 
-        private IEventStream PrepareStream(string bucketId, IAggregate aggregate, Dictionary<string, object> headers)
-        {
-            IEventStream stream = _eventStore.CreateStream(bucketId, aggregate.Id);
-            foreach (var item in headers)
+            foreach (var commit in commits)
             {
-                stream.UncommittedHeaders[item.Key] = item.Value;
+                lastStreamRevision = commit.StreamRevision;
+                foreach(var eventMessage in commit.Events)
+                {
+                    aggregate.ApplyEvent(eventMessage.Body);
+                }
             }
-            aggregate.GetUncommittedEvents()
-                .Cast<object>()
-                .Select(x => new EventMessage {Body = x})
-                .ToList()
-                .ForEach(stream.Add);
-            return stream;
+
+            aggregate.ClearUncommittedEvents();
+
+            return lastStreamRevision;
         }
 
         private static Dictionary<string, object> PrepareHeaders(
@@ -142,13 +120,6 @@ namespace Cedar.Domain.Persistence
             }
 
             return headers;
-        }
-
-        private bool ThrowOnConflict(IEventStream stream, int skip)
-        {
-            IEnumerable<object> committed = stream.CommittedEvents.Skip(skip).Select(x => x.Body);
-            IEnumerable<object> uncommitted = stream.UncommittedEvents.Select(x => x.Body);
-            return _conflictDetector.ConflictsWith(uncommitted, committed);
         }
     }
 }

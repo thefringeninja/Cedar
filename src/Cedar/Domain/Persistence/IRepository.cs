@@ -7,9 +7,6 @@ namespace Cedar.Domain.Persistence
 
     public interface IRepository
     {
-        Task<TAggregate> GetById<TAggregate>(string bucketId, Guid id, int version, CancellationToken cancellationToken)
-            where TAggregate : class, IAggregate;
-
         Task<TAggregate> GetById<TAggregate>(string bucketId, string id, int version, CancellationToken cancellationToken)
             where TAggregate : class, IAggregate;
 
