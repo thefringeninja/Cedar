@@ -16,6 +16,7 @@
         public BootstrapPrinter(Func<string, TextWriter> factory)
         {
             _output = factory(FileExtension);
+
             _tableOfContents = new List<Tuple<string, List<ScenarioResult>>>();
         }
 

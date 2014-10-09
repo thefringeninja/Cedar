@@ -1,9 +1,9 @@
 namespace Cedar.Testing.TestRunner
 {
     using System;
-    using System.IO;
     using PowerArgs;
 
+    [Serializable]
     public class TestRunnerOptions
     {
         private string[] _formatters;

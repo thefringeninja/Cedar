@@ -25,7 +25,12 @@ namespace Cedar.Testing.Execution
             _formatters = formatters;
         }
 
-        public async Task Run()
+        public void Run()
+        {
+            RunInternal().Wait();
+        }
+
+        private async Task RunInternal()
         {
             var assembly = await LoadTestAssembly();
             var results = await RunTests(assembly);
@@ -61,7 +66,9 @@ namespace Cedar.Testing.Execution
             if (String.IsNullOrWhiteSpace(_output))
                 return new NonClosingTextWriter(Console.Out);
 
-            return File.CreateText(GetOutputWithExtension(fileExtension));
+            var outputFile = GetOutputWithExtension(fileExtension);
+
+            return File.CreateText(outputFile);
         }
 
         private string GetOutputWithExtension(string fileExtension)
@@ -76,7 +83,7 @@ namespace Cedar.Testing.Execution
 
         private IEnumerable<IScenarioResultPrinter> GetPrinters()
         {
-            var allPrinters = GetAllPrinters();
+            var printerFactories = GetAllPrinterFactories();
 
             if (IsRunningUnderTeamCity)
             {
@@ -86,14 +93,14 @@ namespace Cedar.Testing.Execution
             foreach (var formatter in _formatters)
             {
                 Func<Func<string, TextWriter>, IScenarioResultPrinter> factory;
-                if (allPrinters.TryGetValue(formatter + "Printer", out factory))
+                if (printerFactories.TryGetValue(formatter + "Printer", out factory))
                 {
                     yield return factory(OutputFactory);
                 }
             }
         }
 
-        private static IDictionary<string,Func<Func<string, TextWriter>, IScenarioResultPrinter>> GetAllPrinters()
+        private static IDictionary<string,Func<Func<string, TextWriter>, IScenarioResultPrinter>> GetAllPrinterFactories()
         {
             return (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                 from type in assembly.GetTypes()
