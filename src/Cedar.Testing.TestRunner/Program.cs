@@ -1,6 +1,7 @@
 ﻿namespace Cedar.Testing.TestRunner
 {
     using System;
+    using Cedar.Testing.Execution;
     using PowerArgs;
 
     class Program
@@ -21,7 +22,7 @@
                 return;
             }
 
-            new ScenarioRunner(options)
+            new ScenarioRunner(options.Assembly, options.Teamcity, options.Output, options.Formatters)
                 .Run()
                 .Wait();
         }

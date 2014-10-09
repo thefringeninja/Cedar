@@ -42,15 +42,5 @@ namespace Cedar.Testing.TestRunner
                 "PlainText"
             };
         }
-
-        public string GetOutputWithExtension(string fileExtension)
-        {
-            if(String.IsNullOrWhiteSpace(Output))
-            {
-                throw new InvalidOperationException();
-            }
-
-            return Path.ChangeExtension(Path.Combine(Output, Path.GetFileName(Assembly)), fileExtension);
-        }
     }
 }

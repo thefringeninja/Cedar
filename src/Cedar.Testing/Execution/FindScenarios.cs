@@ -1,4 +1,4 @@
-﻿namespace Cedar.Testing.TestRunner
+namespace Cedar.Testing.Execution
 {
     using System;
     using System.Collections.Generic;

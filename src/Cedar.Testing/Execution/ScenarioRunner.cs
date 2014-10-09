@@ -1,4 +1,4 @@
-namespace Cedar.Testing.TestRunner
+namespace Cedar.Testing.Execution
 {
     using System;
     using System.Collections.Generic;
@@ -10,13 +10,19 @@ namespace Cedar.Testing.TestRunner
     using Cedar.Testing.Printing;
     using Cedar.Testing.Printing.TeamCity;
 
-    public class ScenarioRunner
+    public class ScenarioRunner : MarshalByRefObject, IScenarioRunner
     {
-        private readonly TestRunnerOptions _options;
+        private readonly string _assembly;
+        private readonly bool _isRunningUnderTeamCity;
+        private readonly string _output;
+        private readonly string[] _formatters;
 
-        public ScenarioRunner(TestRunnerOptions options)
+        public ScenarioRunner(string assembly, bool isRunningUnderTeamCity, string output, params string[] formatters)
         {
-            _options = options;
+            _assembly = assembly;
+            _isRunningUnderTeamCity = isRunningUnderTeamCity;
+            _output = output;
+            _formatters = formatters;
         }
 
         public async Task Run()
@@ -28,7 +34,7 @@ namespace Cedar.Testing.TestRunner
 
         private async Task<Assembly> LoadTestAssembly()
         {
-            var assembly = _options.Assembly;
+            var assembly = _assembly;
 
             if(false == Path.HasExtension(assembly))
             {
@@ -47,15 +53,25 @@ namespace Cedar.Testing.TestRunner
 
         private bool IsRunningUnderTeamCity
         {
-            get { return _options.Teamcity; }
+            get { return _isRunningUnderTeamCity; }
         }
 
         private TextWriter OutputFactory(string fileExtension)
         {
-            if (String.IsNullOrWhiteSpace(_options.Output))
+            if (String.IsNullOrWhiteSpace(_output))
                 return new NonClosingTextWriter(Console.Out);
 
-            return File.CreateText(_options.GetOutputWithExtension(fileExtension));
+            return File.CreateText(GetOutputWithExtension(fileExtension));
+        }
+
+        private string GetOutputWithExtension(string fileExtension)
+        {
+            if(String.IsNullOrWhiteSpace(_output))
+            {
+                throw new InvalidOperationException();
+            }
+
+            return Path.ChangeExtension(Path.Combine(_output, Path.GetFileName(_assembly)), fileExtension);
         }
 
         private IEnumerable<IScenarioResultPrinter> GetPrinters()
@@ -67,7 +83,7 @@ namespace Cedar.Testing.TestRunner
                 yield return new TeamCityPrinter(new NonClosingTextWriter(Console.Out));
             }
 
-            foreach (var formatter in _options.Formatters)
+            foreach (var formatter in _formatters)
             {
                 Func<Func<string, TextWriter>, IScenarioResultPrinter> factory;
                 if (allPrinters.TryGetValue(formatter + "Printer", out factory))

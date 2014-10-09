@@ -45,13 +45,11 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="FindScenarios.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>
       </SubType>
     </Compile>
-    <Compile Include="ScenarioRunner.cs" />
     <Compile Include="TestRunnerOptions.cs" />
   </ItemGroup>
   <ItemGroup>
