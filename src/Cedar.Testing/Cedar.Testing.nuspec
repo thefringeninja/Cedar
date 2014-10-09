@@ -8,7 +8,7 @@
         <projectUrl>https://github.com/damianh/Cedar</projectUrl>
         <licenseUrl>https://github.com/damianh/Cedar/blob/master/LICENSE</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <title>Cedar</title>
+        <title>Cedar.Testing</title>
         <description>An opinionated library to assist in building CQRS and Event Sourced applications on NEventStore</description>
         <tags>cqrs event-sourcing domain-driven-design</tags>
         <frameworkAssemblies />
