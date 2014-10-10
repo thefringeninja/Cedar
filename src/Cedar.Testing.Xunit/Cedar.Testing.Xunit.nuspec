@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Cedar.Testing.Xunit</id>
+    <version>0.0.0.0</version>
+    <authors>Damian Hickey, João P. Bragança</authors>
+    <owners>Damian Hickey</owners>
+    <projectUrl>https://github.com/damianh/Cedar</projectUrl>
+    <licenseUrl>https://github.com/damianh/Cedar/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <developmentDependency>true</developmentDependency>
+    <title>Cedar.Testing.Xunit</title>
+    <description>An opinionated library to assist in building CQRS and Event Sourced applications on NEventStore</description>
+    <tags>cqrs event-sourcing domain-driven-design</tags>
+    <frameworkAssemblies />
+    <releaseNotes/>
+    <dependencies>
+      <dependency id="Cedar.Testing" version="[0.0.1,0.2)"/>
+      <dependency id="xunit" version="[1.9,2.0)"/>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="ScenarioAttribute.cs.pp" target="content\net40\App_Packages\Cedar.Testing\Xunit\ScenarioAttribute.cs.pp" />
+  </files>
+</package>
