@@ -1,10 +1,13 @@
-﻿namespace $rootnamespace$.XunitSupport
+﻿// ReSharper disable CheckNamespace
+namespace $rootnamespace$.XunitSupport
+// ReSharper restore CheckNamespace
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using System.Xml;
+	using Cedar.Testing;
     using global::Xunit;
     using global::Xunit.Sdk;
 
