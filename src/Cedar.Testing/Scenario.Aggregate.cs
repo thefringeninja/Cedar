@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
+    using System.Text;
     using System.Threading.Tasks;
     using Cedar.Domain;
     using Cedar.Testing.Printing;
@@ -130,7 +131,15 @@
                         
                         if (false == uncommittedEvents.SequenceEqual(expectedEvents, MessageEqualityComparer.Instance))
                         {
-                            throw new ScenarioException(string.Format("The ocurred events ({0}) did not equal the expected events ({1}).", uncommittedEvents.NicePrint(), _expect.NicePrint()));
+                            throw new ScenarioException(
+                                string.Format(
+                                    "The ocurred events ({0}) did not equal the expected events ({1}).",
+                                    uncommittedEvents.NicePrint()
+                                        .Aggregate(new StringBuilder(), (builder, s) => builder.Append(s))
+                                        .ToString(),
+                                    _expect.NicePrint()
+                                        .Aggregate(new StringBuilder(), (builder, s) => builder.Append(s))
+                                        .ToString()));
                         }
                     };
                     return this;

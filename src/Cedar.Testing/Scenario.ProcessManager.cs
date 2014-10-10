@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.CompilerServices;
+    using System.Text;
     using System.Threading.Tasks;
     using Cedar.ProcessManagers;
 
@@ -177,7 +178,14 @@
                         if (false == process.GetUndispatchedCommands()
                             .SequenceEqual(commands, MessageEqualityComparer.Instance))
                         {
-                            throw new ScenarioException("The ocurred commands did not equal the expected commands.");
+                            throw new ScenarioException(
+                                string.Format(
+                                    "The ocurred commands ({0}) did not equal the expected commands ({1}).",
+                                    process.GetUndispatchedCommands()
+                                        .Aggregate(new StringBuilder(), (builder, s) => builder.Append(s))
+                                        .ToString(),
+                                    _expectedCommands.Aggregate(new StringBuilder(), (builder, s) => builder.Append(s))
+                                        .ToString()));
                         }
                     };
 
