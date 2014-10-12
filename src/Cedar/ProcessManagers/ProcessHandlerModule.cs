@@ -3,68 +3,118 @@ namespace Cedar.ProcessManagers
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
+    using System.Reflection;
     using System.Threading.Tasks;
+    using Cedar.Annotations;
     using Cedar.Handlers;
     using Cedar.Internal;
+
+    public static class ProcessHandlerModule
+    {
+        public static ProcessHandlerModule<TProcess> For<TProcess>(ICommandDispatcher dispatcher,
+            Func<IProcessManagerRepository> repositoryFactory,
+            Func<string, string> buildProcessId = null,
+            string bucketId = null) where TProcess : IProcessManager
+        {
+            return new ProcessHandlerModule<TProcess>(dispatcher, repositoryFactory, buildProcessId, bucketId);
+        }
+    }
 
     public class ProcessHandlerModule<TProcess> : IHandlerResolver
         where TProcess : IProcessManager
     {
-        private const string NAMESPACE = "73A18DFA-17C7-45A8-B57D-0148FDA3096A";
+        private const string CommitIdNamespace = "73A18DFA-17C7-45A8-B57D-0148FDA3096A";
         private readonly ICommandDispatcher _dispatcher;
         private readonly Func<IProcessManagerRepository> _repositoryFactory;
-        private readonly Func<Guid, string> _buildId;
+        private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
-        private readonly HandlerModule _inner;
         private readonly Func<Guid, string, Guid> _buildCommitId;
-        public ProcessHandlerModule(ICommandDispatcher dispatcher, Func<IProcessManagerRepository> repositoryFactory, Func<Guid, string> buildId = null, string bucketId = null)
+        private readonly IDictionary<Type, Func<object, string>> _correlationIdLookup;
+        private readonly IList<Pipe<DomainEventMessage<object>>> _pipes;
+
+        private IHandlerResolver _inner;
+
+        internal ProcessHandlerModule(
+            ICommandDispatcher dispatcher,
+            Func<IProcessManagerRepository> repositoryFactory,
+            Func<string, string> buildProcessId = null,
+            string bucketId = null)
         {
             _dispatcher = dispatcher;
             _repositoryFactory = repositoryFactory;
-            _buildId = buildId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
+            _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
+            _pipes = new List<Pipe<DomainEventMessage<object>>>();
 
-            _inner = new HandlerModule();
-            var generator = new DeterministicGuidGenerator(Guid.Parse(NAMESPACE));
-            
+            var generator = new DeterministicGuidGenerator(Guid.Parse(CommitIdNamespace));
+
             _buildCommitId = (commitId, processId) => generator.Create(commitId + "-" + processId);
+
+            _correlationIdLookup = new Dictionary<Type, Func<object, string>>();
         }
 
-        public void When<TMessage>(params Pipe<DomainEventMessage<TMessage>>[] pipeline)
+        public ProcessHandlerModule<TProcess> CorrelateBy<TMessage>(
+            Func<DomainEventMessage<TMessage>, string> getCorrelationId)
         {
-            pipeline.Aggregate(_inner.For<DomainEventMessage<TMessage>>(), (builder, pipe) => builder.Pipe(pipe),
-                builder => builder.Handle(HandleMessage));
+            _correlationIdLookup[typeof(TMessage)] = message => getCorrelationId((DomainEventMessage<TMessage>) message);
+
+            return this;
         }
 
-        private async Task HandleMessage<TMessage>(DomainEventMessage<TMessage> message, CancellationToken ct)
+        public ProcessHandlerModule<TProcess> Pipe(Pipe<DomainEventMessage<object>> pipe)
         {
-            using (var repository = _repositoryFactory())
-            {
-                var correlationId = message.CorrelationId;
+            _pipes.Add(pipe);
 
-                if (false == correlationId.HasValue) return;
-
-                var processId = _buildId(correlationId.Value);
-
-                var process = await repository.GetById<TProcess>(processId, _bucketId);
-
-                process.ApplyEvent(message.DomainEvent);
-
-                var undispatched = process.GetUndispatchedCommands()
-                    .Select(_dispatcher.Dispatch);
-
-                await Task.WhenAll(undispatched);
-
-                var commitId = _buildCommitId(message.Commit.CommitId, processId);
-
-                await repository.Save(process, commitId, bucketId: _bucketId);
-            }
+            return this;
         }
 
         public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>()
         {
-            return _inner.GetHandlersFor<TMessage>();
+            return (_inner ?? (_inner = BuildHandlerResolver())).GetHandlersFor<TMessage>();
+        }
+
+        private IHandlerResolver BuildHandlerResolver()
+        {
+            return _correlationIdLookup.Keys
+                .Aggregate(new HandlerModule(), HandleMessageType);
+        }
+
+        private HandlerModule HandleMessageType(HandlerModule module, Type messageType)
+        {
+            return (HandlerModule)GetType()
+                .GetMethod("BuildHandler", BindingFlags.NonPublic | BindingFlags.Instance)
+                .MakeGenericMethod(messageType)
+                .Invoke(this, new object[] { module });
+        }
+
+        [UsedImplicitly]
+        private HandlerModule BuildHandler<TMessage>(HandlerModule module)
+        {
+            module.For<DomainEventMessage<TMessage>>()
+                .Handle(async (message, ct) =>
+                {
+                    using (IProcessManagerRepository repository = _repositoryFactory())
+                    {
+                        string correlationId = _correlationIdLookup[typeof(TMessage)](message);
+
+                        string processId = _buildProcessId(correlationId);
+
+                        TProcess process = await repository.GetById<TProcess>(processId, _bucketId);
+
+                        process.ApplyEvent(message.DomainEvent);
+
+                        IEnumerable<Task> undispatched = process.GetUndispatchedCommands()
+                            .Select(_dispatcher.Dispatch);
+
+                        await Task.WhenAll(undispatched);
+
+                        Guid commitId = _buildCommitId(message.Commit.CommitId, processId);
+
+                        await repository.Save(process, commitId, bucketId: _bucketId);
+                    }
+                });
+
+            return module;
         }
     }
 }
