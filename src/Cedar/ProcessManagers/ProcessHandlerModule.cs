@@ -106,7 +106,7 @@ namespace Cedar.ProcessManagers
 
                         TProcess process = await repository.GetById<TProcess>(processId, _bucketId);
 
-                        process.ApplyEvent(message.DomainEvent);
+                        process.ApplyEvent(message);
 
                         IEnumerable<Task> undispatched = process.GetUndispatchedCommands()
                             .Select(_dispatcher.Dispatch);

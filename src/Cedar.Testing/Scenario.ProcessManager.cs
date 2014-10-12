@@ -7,7 +7,10 @@
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
+    using Cedar.Handlers;
     using Cedar.ProcessManagers;
+    using NEventStore;
+    using NEventStore.Persistence;
 
     public static partial class Scenario
     {
@@ -69,6 +72,17 @@
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
+                private static dynamic CreateDomainEvent(object @event)
+                {
+                    return Activator.CreateInstance(
+                        typeof(DomainEventMessage<>).MakeGenericType(@event.GetType()),
+                        new Commit("bucket", "stream", 1, Guid.NewGuid(), 0, DateTime.UtcNow,
+                            null, new Dictionary<string, object>(), new[] {new EventMessage {Body = @event}}),
+                        1,
+                        new Dictionary<string, object>(),
+                        @event);
+                }
+
                 public ScenarioBuilder(Guid correlationId, ProcessManagerFactory factory, string name)
                 {
                     _correlationId = correlationId;
@@ -79,14 +93,20 @@
                     _expectedCommands = new object[0];
                     _expectedEvents = new object[0];
 
-                    _runGiven = process => _given.ForEach(process.ApplyEvent);
+                    _runGiven = process =>
+                    {
+                        foreach(var message in _given.Select(CreateDomainEvent))
+                        {
+                            process.ApplyEvent(message);
+                        }
+                    };
 
                     _runWhen = process =>
                     {
                         process.ClearUncommittedEvents();
                         process.ClearUndispatchedCommands();
 
-                        process.ApplyEvent(_when);
+                        process.ApplyEvent(CreateDomainEvent(_when));
                     };
 
                     _checkCommands = _ => { };

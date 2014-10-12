@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
+    using Cedar.Handlers;
 
     public abstract class ObservableProcessManager : IProcessManager
     {
@@ -57,28 +58,43 @@
             _outbox.Clear();
         }
 
-        public void ApplyEvent(object @event)
+        public void ApplyEvent<TEvent>(DomainEventMessage<TEvent> @event)
         {
             _inbox.OnNext(@event);
             _version++;
         }
-
-        protected void When<T>(IObservable<T> @on, Func<T, IEnumerable<object>> @do)
+        protected void When<TEvent>(IObservable<DomainEventMessage<TEvent>> @on, Func<DomainEventMessage<TEvent>, IEnumerable<object>> @do)
         {
             Send(@on.SelectMany(@do));
         }
 
-        protected void When<T>(IObservable<T> @on, Func<T, object> @do)
+        protected void When<TEvent>(IObservable<DomainEventMessage<TEvent>> @on, Func<DomainEventMessage<TEvent>, object> @do)
         {
             When(@on, e => Enumerable.Repeat(@do(e), 1));
         }
 
-        protected IObservable<T> On<T>()
+        protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, IEnumerable<object>> @do)
         {
-            return _inbox.OfType<T>();
+            Send(@on.SelectMany(@do));
         }
 
-        protected void CompleteWhen<T>(IObservable<T> @on)
+        protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, object> @do)
+        {
+            When(@on, e => Enumerable.Repeat(@do(e), 1));
+        }
+
+        protected IObservable<DomainEventMessage<TEvent>> OnMessage<TEvent>()
+        {
+            return _inbox.OfType<DomainEventMessage<TEvent>>();
+        }
+
+        protected IObservable<TEvent> On<TEvent>()
+        {
+            return _inbox.OfType<DomainEventMessage<TEvent>>()
+                .Select(message => message.DomainEvent);
+        }
+
+        protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)
         {
             @on.Select(_ => new ProcessCompleted
             {

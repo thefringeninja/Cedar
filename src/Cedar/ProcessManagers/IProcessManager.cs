@@ -1,6 +1,7 @@
 ﻿namespace Cedar.ProcessManagers
 {
     using System.Collections.Generic;
+    using Cedar.Handlers;
 
     public interface IProcessManager
     {
@@ -13,6 +14,6 @@
         IEnumerable<object> GetUndispatchedCommands();
         void ClearUndispatchedCommands();
 
-        void ApplyEvent(object @event);
+        void ApplyEvent<TEvent>(DomainEventMessage<TEvent> @event);
     }
 }
