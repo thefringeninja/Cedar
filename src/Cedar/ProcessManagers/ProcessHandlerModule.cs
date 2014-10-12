@@ -4,6 +4,7 @@ namespace Cedar.ProcessManagers
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.Annotations;
@@ -13,12 +14,14 @@ namespace Cedar.ProcessManagers
 
     public static class ProcessHandlerModule
     {
-        public static ProcessHandlerModule<TProcess> For<TProcess>(IHandlerResolver commandDispatcher,
+        public static ProcessHandlerModule<TProcess> For<TProcess>(
+            IHandlerResolver commandDispatcher,
             Func<IProcessManagerRepository> repositoryFactory,
+            ClaimsPrincipal principal,
             Func<string, string> buildProcessId = null,
             string bucketId = null) where TProcess : IProcessManager
         {
-            return new ProcessHandlerModule<TProcess>(commandDispatcher, repositoryFactory, buildProcessId, bucketId);
+            return new ProcessHandlerModule<TProcess>(commandDispatcher, repositoryFactory, principal, buildProcessId, bucketId);
         }
     }
 
@@ -34,6 +37,7 @@ namespace Cedar.ProcessManagers
         
         private readonly IHandlerResolver _commandDispatcher;
         private readonly Func<IProcessManagerRepository> _repositoryFactory;
+        private readonly ClaimsPrincipal _principal;
         private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
         private readonly GenerateCommitId _buildCommitId;
@@ -44,12 +48,14 @@ namespace Cedar.ProcessManagers
 
         internal ProcessHandlerModule(
             IHandlerResolver commandDispatcher,
-            Func<IProcessManagerRepository> repositoryFactory,
-            Func<string, string> buildProcessId = null,
+            Func<IProcessManagerRepository> repositoryFactory, 
+            ClaimsPrincipal principal,
+            Func<string, string> buildProcessId = null, 
             string bucketId = null)
         {
             _commandDispatcher = commandDispatcher;
             _repositoryFactory = repositoryFactory;
+            _principal = principal;
             _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
             _pipes = new List<Pipe<DomainEventMessage<object>>>();
@@ -138,7 +144,7 @@ namespace Cedar.ProcessManagers
                 {
                     _commandDispatcher,
                     Guid.NewGuid(),
-                    null,
+                    _principal,
                     command
                 });
         }
