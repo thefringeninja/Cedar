@@ -19,7 +19,7 @@
 
         public static class ProcessManager
         {
-            public delegate IProcessManager ProcessManagerFactory(string id, Guid correlationId);
+            public delegate IProcessManager ProcessManagerFactory(string id);
 
             public interface IGiven : IWhen
             {
@@ -74,7 +74,7 @@
                     _correlationId = correlationId;
                     _processId = typeof (TProcess).Name + "-" + correlationId;
                     _name = name;
-                    _factory = factory ?? ((id, cid) => (TProcess) Activator.CreateInstance(typeof (TProcess), id, cid));
+                    _factory = factory ?? (id => (TProcess) Activator.CreateInstance(typeof (TProcess), id));
                     _given = new object[0];
                     _expectedCommands = new object[0];
                     _expectedEvents = new object[0];
@@ -115,9 +115,7 @@
 
                     try
                     {
-                        var process = _factory(
-                            _processId,
-                            _correlationId);
+                        var process = _factory(_processId);
 
                         _runGiven(process);
 
@@ -208,7 +206,7 @@
 
                 public IThen ThenCompletes()
                 {
-                    var events = _expectedEvents = new []{new ProcessCompleted{CorrelationId = _correlationId, ProcessId = _processId}};
+                    var events = _expectedEvents = new []{new ProcessCompleted{ProcessId = _processId}};
 
                     _checkEvents = process =>
                     {

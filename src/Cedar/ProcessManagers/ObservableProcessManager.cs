@@ -12,16 +12,13 @@
         private readonly ISubject<object> _inbox;
         private readonly IList<object> _events;
         private readonly string _id;
-        private readonly Guid _correlationId;
 
         private int _version;
 
         protected ObservableProcessManager(
-            string id,
-            Guid correlationId)
+            string id)
         {
             _id = id;
-            _correlationId = correlationId;
             
             _inbox = new ReplaySubject<object>();
             _outbox = new List<object>();
@@ -33,11 +30,6 @@
         public string Id
         {
             get { return _id; }
-        }
-
-        public Guid CorrelationId
-        {
-            get { return _correlationId; }
         }
 
         public int Version
@@ -90,7 +82,6 @@
         {
             @on.Select(_ => new ProcessCompleted
             {
-                CorrelationId = _correlationId,
                 ProcessId = _id
             }).Subscribe(_inbox);
         }

@@ -109,8 +109,8 @@
 
         public class StarbucksProcess : ObservableProcessManager
         {
-            public StarbucksProcess(String id, Guid correlationId)
-                : base(id, correlationId)
+            public StarbucksProcess(String id)
+                : base(id)
             {}
 
             protected override void Subscribe()
