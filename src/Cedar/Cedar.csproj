@@ -93,7 +93,6 @@
     <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
-    <Compile Include="ProcessManagers\ICommandDispatcher.cs" />
     <Compile Include="ProcessManagers\IProcessManager.cs" />
     <Compile Include="ProcessManagers\IProcessManagerRepository.cs" />
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />

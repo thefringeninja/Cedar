@@ -7,25 +7,32 @@ namespace Cedar.ProcessManagers
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using Cedar.Commands;
     using Cedar.Handlers;
     using Cedar.Internal;
 
     public static class ProcessHandlerModule
     {
-        public static ProcessHandlerModule<TProcess> For<TProcess>(ICommandDispatcher dispatcher,
+        public static ProcessHandlerModule<TProcess> For<TProcess>(IHandlerResolver commandDispatcher,
             Func<IProcessManagerRepository> repositoryFactory,
             Func<string, string> buildProcessId = null,
             string bucketId = null) where TProcess : IProcessManager
         {
-            return new ProcessHandlerModule<TProcess>(dispatcher, repositoryFactory, buildProcessId, bucketId);
+            return new ProcessHandlerModule<TProcess>(commandDispatcher, repositoryFactory, buildProcessId, bucketId);
         }
     }
 
     public class ProcessHandlerModule<TProcess> : IHandlerResolver
         where TProcess : IProcessManager
     {
+        // ReSharper disable StaticFieldInGenericType
+        private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
+            .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
+        // ReSharper restore StaticFieldInGenericType
+
         private const string CommitIdNamespace = "73A18DFA-17C7-45A8-B57D-0148FDA3096A";
-        private readonly ICommandDispatcher _dispatcher;
+        
+        private readonly IHandlerResolver _commandDispatcher;
         private readonly Func<IProcessManagerRepository> _repositoryFactory;
         private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
@@ -36,12 +43,12 @@ namespace Cedar.ProcessManagers
         private IHandlerResolver _inner;
 
         internal ProcessHandlerModule(
-            ICommandDispatcher dispatcher,
+            IHandlerResolver commandDispatcher,
             Func<IProcessManagerRepository> repositoryFactory,
             Func<string, string> buildProcessId = null,
             string bucketId = null)
         {
-            _dispatcher = dispatcher;
+            _commandDispatcher = commandDispatcher;
             _repositoryFactory = repositoryFactory;
             _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
@@ -109,7 +116,7 @@ namespace Cedar.ProcessManagers
                         process.ApplyEvent(message);
 
                         IEnumerable<Task> undispatched = process.GetUndispatchedCommands()
-                            .Select(_dispatcher.Dispatch);
+                            .Select(DispatchCommand);
 
                         await Task.WhenAll(undispatched);
 
@@ -120,6 +127,20 @@ namespace Cedar.ProcessManagers
                 });
 
             return module;
+        }
+
+        private Task DispatchCommand(object command)
+        {
+            Guard.EnsureNotNull(command, "command");
+
+            return (Task)DispatchCommandMethodInfo.MakeGenericMethod(command.GetType())
+                .Invoke(null, new[]
+                {
+                    _commandDispatcher,
+                    Guid.NewGuid(),
+                    null,
+                    command
+                });
         }
 
         private delegate Guid GenerateCommitId(Guid incomingCommitId, string processId, int processVersion);
