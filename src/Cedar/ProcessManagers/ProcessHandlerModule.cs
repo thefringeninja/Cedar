@@ -16,12 +16,12 @@ namespace Cedar.ProcessManagers
     {
         public static ProcessHandlerModule<TProcess> For<TProcess>(
             IHandlerResolver commandDispatcher,
-            Func<IProcessManagerRepository> repositoryFactory,
+            IProcessManagerRepository repository,
             ClaimsPrincipal principal,
             Func<string, string> buildProcessId = null,
             string bucketId = null) where TProcess : IProcessManager
         {
-            return new ProcessHandlerModule<TProcess>(commandDispatcher, repositoryFactory, principal, buildProcessId, bucketId);
+            return new ProcessHandlerModule<TProcess>(commandDispatcher, repository, principal, buildProcessId, bucketId);
         }
     }
 
@@ -36,7 +36,7 @@ namespace Cedar.ProcessManagers
         private const string CommitIdNamespace = "73A18DFA-17C7-45A8-B57D-0148FDA3096A";
         
         private readonly IHandlerResolver _commandDispatcher;
-        private readonly Func<IProcessManagerRepository> _repositoryFactory;
+        private readonly IProcessManagerRepository _repository;
         private readonly ClaimsPrincipal _principal;
         private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
@@ -48,13 +48,13 @@ namespace Cedar.ProcessManagers
 
         internal ProcessHandlerModule(
             IHandlerResolver commandDispatcher,
-            Func<IProcessManagerRepository> repositoryFactory, 
+            IProcessManagerRepository repository, 
             ClaimsPrincipal principal,
             Func<string, string> buildProcessId = null, 
             string bucketId = null)
         {
             _commandDispatcher = commandDispatcher;
-            _repositoryFactory = repositoryFactory;
+            _repository = repository;
             _principal = principal;
             _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
@@ -111,25 +111,22 @@ namespace Cedar.ProcessManagers
             module.For<DomainEventMessage<TMessage>>()
                 .Handle(async (message, ct) =>
                 {
-                    using (IProcessManagerRepository repository = _repositoryFactory())
-                    {
-                        string correlationId = _correlationIdLookup[typeof(TMessage)](message);
+                    string correlationId = _correlationIdLookup[typeof(TMessage)](message);
 
-                        string processId = _buildProcessId(correlationId);
+                    string processId = _buildProcessId(correlationId);
 
-                        TProcess process = await repository.GetById<TProcess>(processId, _bucketId);
+                    TProcess process = await _repository.GetById<TProcess>(_bucketId, processId);
 
-                        process.ApplyEvent(message);
+                    process.ApplyEvent(message);
 
-                        IEnumerable<Task> undispatched = process.GetUndispatchedCommands()
-                            .Select(DispatchCommand);
+                    IEnumerable<Task> undispatched = process.GetUndispatchedCommands()
+                        .Select(DispatchCommand);
 
-                        await Task.WhenAll(undispatched);
+                    await Task.WhenAll(undispatched);
 
-                        Guid commitId = _buildCommitId(message.Commit.CommitId, process.Id, process.Version);
+                    Guid commitId = _buildCommitId(message.Commit.CommitId, process.Id, process.Version);
 
-                        await repository.Save(process, commitId, bucketId: _bucketId);
-                    }
+                    await _repository.Save(bucketId: _bucketId, process: process, commitId: commitId, updateHeaders: null);
                 });
 
             return module;
