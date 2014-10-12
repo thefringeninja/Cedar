@@ -4,6 +4,7 @@ namespace Cedar.ProcessManagers
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Text;
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Handlers;
@@ -28,7 +29,7 @@ namespace Cedar.ProcessManagers
         private readonly Func<IProcessManagerRepository> _repositoryFactory;
         private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
-        private readonly Func<Guid, string, Guid> _buildCommitId;
+        private readonly GenerateCommitId _buildCommitId;
         private readonly IDictionary<Type, Func<object, string>> _correlationIdLookup;
         private readonly IList<Pipe<DomainEventMessage<object>>> _pipes;
 
@@ -48,7 +49,11 @@ namespace Cedar.ProcessManagers
 
             var generator = new DeterministicGuidGenerator(Guid.Parse(CommitIdNamespace));
 
-            _buildCommitId = (commitId, processId) => generator.Create(commitId + "-" + processId);
+            _buildCommitId = (previousCommitId, processId, processVersion) => 
+                generator.Create(previousCommitId.ToByteArray()
+                    .Concat(Encoding.UTF8.GetBytes("-" + processId + "-")
+                    .Concat(BitConverter.GetBytes(processVersion)))
+                    .ToArray());
 
             _correlationIdLookup = new Dictionary<Type, Func<object, string>>();
         }
@@ -108,7 +113,7 @@ namespace Cedar.ProcessManagers
 
                         await Task.WhenAll(undispatched);
 
-                        Guid commitId = _buildCommitId(message.Commit.CommitId, processId);
+                        Guid commitId = _buildCommitId(message.Commit.CommitId, process.Id, process.Version);
 
                         await repository.Save(process, commitId, bucketId: _bucketId);
                     }
@@ -116,5 +121,7 @@ namespace Cedar.ProcessManagers
 
             return module;
         }
+
+        private delegate Guid GenerateCommitId(Guid incomingCommitId, string processId, int processVersion);
     }
 }
