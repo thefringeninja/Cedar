@@ -115,7 +115,7 @@ namespace Cedar.ProcessManagers
 
                     string processId = _buildProcessId(correlationId);
 
-                    TProcess process = await _repository.GetById<TProcess>(_bucketId, processId);
+                    TProcess process = await _repository.GetById<TProcess>(_bucketId, processId, 0, ct);
 
                     process.ApplyEvent(message);
 
@@ -126,7 +126,7 @@ namespace Cedar.ProcessManagers
 
                     Guid commitId = _buildCommitId(message.Commit.CommitId, process.Id, process.Version);
 
-                    await _repository.Save(bucketId: _bucketId, process: process, commitId: commitId, updateHeaders: null);
+                    await _repository.Save(_bucketId, process, commitId, null, ct);
                 });
 
             return module;
