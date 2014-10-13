@@ -13,7 +13,7 @@
         private readonly ISubject<object> _inbox;
         private readonly IList<object> _events;
         private readonly string _id;
-
+        private bool _subscribed;
         private int _version;
 
         protected ObservableProcessManager(
@@ -24,8 +24,6 @@
             _inbox = new ReplaySubject<object>();
             _outbox = new List<object>();
             _events = new List<object>();
-
-            Subscribe();
         }
 
         public string Id
@@ -60,6 +58,11 @@
 
         public void ApplyEvent<TEvent>(DomainEventMessage<TEvent> @event)
         {
+            if(false == _subscribed)
+            {
+                _subscribed = true;
+                Subscribe();
+            }
             _inbox.OnNext(@event);
             _version++;
         }
