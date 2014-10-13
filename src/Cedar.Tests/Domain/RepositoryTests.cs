@@ -82,5 +82,32 @@
 
             aggregate.Version.Should().Be(3);
         }
+
+
+        [Fact]
+        public async Task loading_an_empty_aggregate()
+        {
+            var repository = new NEventStoreRepository(Wireup.Init().UsingInMemoryPersistence().Build());
+
+            var id = Guid.NewGuid();
+
+            var aggregate = await repository.GetById<SomeAggregate>("someaggregate-" + id, Int32.MaxValue, new CancellationToken());
+
+            aggregate.DoSomething();
+
+            aggregate.DoSomething();
+
+            await repository.Save(aggregate, Guid.NewGuid(), new CancellationToken());
+
+            aggregate = await repository.GetById<SomeAggregate>("someaggregate-" + id, Int32.MaxValue, new CancellationToken());
+
+            aggregate.DoSomething();
+
+            await repository.Save(aggregate, Guid.NewGuid(), new CancellationToken());
+
+            aggregate = await repository.GetById<SomeAggregate>("someaggregate-" + id, Int32.MaxValue, new CancellationToken());
+
+            aggregate.Version.Should().Be(3);
+        }
     }
 }

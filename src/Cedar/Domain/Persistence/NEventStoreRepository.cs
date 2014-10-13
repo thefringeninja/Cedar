@@ -91,7 +91,7 @@ namespace Cedar.Domain.Persistence
 
         private static int ApplyEventsToAggregate(IEnumerable<ICommit> commits, IAggregate aggregate)
         {
-            int lastStreamRevision = 0;
+            int lastStreamRevision = 1;
 
             foreach (var commit in commits)
             {
