@@ -9,21 +9,20 @@
     using System.Threading.Tasks;
     using Cedar.Handlers;
     using Cedar.ProcessManagers;
+    using Cedar.ProcessManagers.Persistence;
     using NEventStore;
     using NEventStore.Persistence;
 
     public static partial class Scenario
     {
-        public static ProcessManager.IGiven ForProcess<TProcess>(Guid correlationId, ProcessManager.ProcessManagerFactory factory = null, [CallerMemberName] string scenarioName = null)
+        public static ProcessManager.IGiven ForProcess<TProcess>(IProcessManagerFactory factory = null, [CallerMemberName] string scenarioName = null)
             where TProcess : IProcessManager
         {
-            return new ProcessManager.ScenarioBuilder<TProcess>(correlationId, factory, scenarioName);
+            return new ProcessManager.ScenarioBuilder<TProcess>(factory, scenarioName);
         }
 
         public static class ProcessManager
         {
-            public delegate IProcessManager ProcessManagerFactory(string id);
-
             public interface IGiven : IWhen
             {
                 IWhen Given(params object[] events);
@@ -46,10 +45,9 @@
             internal class ScenarioBuilder<TProcess> : IGiven
                 where TProcess: IProcessManager
             {
-                private readonly Guid _correlationId;
                 private readonly string _processId;
                 private readonly string _name;
-                private readonly ProcessManagerFactory _factory;
+                private readonly IProcessManagerFactory _factory;
                 
                 private readonly Action<IProcessManager> _runGiven;
                 private readonly Action<IProcessManager> _runWhen;
@@ -83,12 +81,11 @@
                         @event);
                 }
 
-                public ScenarioBuilder(Guid correlationId, ProcessManagerFactory factory, string name)
+                public ScenarioBuilder(IProcessManagerFactory factory, string name)
                 {
-                    _correlationId = correlationId;
-                    _processId = typeof (TProcess).Name + "-" + correlationId;
+                    _processId = typeof (TProcess).Name + "-" + Guid.NewGuid();
                     _name = name;
-                    _factory = factory ?? (id => (TProcess) Activator.CreateInstance(typeof (TProcess), id));
+                    _factory = factory ?? new DefaultProcessManagerFactory();
                     _given = new object[0];
                     _expectedCommands = new object[0];
                     _expectedEvents = new object[0];
@@ -135,7 +132,7 @@
 
                     try
                     {
-                        var process = _factory(_processId);
+                        var process = _factory.Build(typeof(TProcess), _processId);
 
                         _runGiven(process);
 
