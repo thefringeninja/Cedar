@@ -88,7 +88,7 @@
 
         private static int ApplyEventsToAggregate(IEnumerable<ICommit> commits, IProcessManager process)
         {
-            int lastStreamRevision = 0;
+            int lastStreamRevision = 1;
 
             foreach(ICommit commit in commits)
             {
