@@ -100,6 +100,7 @@ namespace Cedar.Handlers
             }
         }
 
+        [UsedImplicitly]
         private static Task DispatchDomainEvent<TDomainEvent>(
             IEnumerable<IHandlerResolver> handlerModules,
             ICommit commit,

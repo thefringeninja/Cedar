@@ -21,7 +21,7 @@
             return Create(Encoding.UTF8.GetBytes(input));
         }
 
-        private Guid Create(byte[] input)
+        public Guid Create(byte[] input)
         {
             byte[] hash;
             using (var algorithm = SHA1.Create())

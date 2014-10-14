@@ -34,6 +34,7 @@
     <DocumentationFile>bin\Release\Cedar.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Owin, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
@@ -69,6 +70,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Commands\CommandHandlerModule.cs" />
+    <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
+    <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
+    <Compile Include="ProcessManagers\Persistence\NEventStoreProcessManagerRepository.cs" />
     <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
@@ -93,7 +97,6 @@
     <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
-    <Compile Include="ProcessManagers\ICommandDispatcher.cs" />
     <Compile Include="ProcessManagers\IProcessManager.cs" />
     <Compile Include="ProcessManagers\IProcessManagerRepository.cs" />
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />

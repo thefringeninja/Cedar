@@ -5,7 +5,6 @@ namespace Cedar.ProcessManagers
     public class ProcessCompleted
     {
         public string ProcessId { get; set; }
-        public Guid CorrelationId { get; set; }
 
         public override string ToString()
         {

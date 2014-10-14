@@ -109,8 +109,8 @@
 
         public class StarbucksProcess : ObservableProcessManager
         {
-            public StarbucksProcess(String id, Guid correlationId)
-                : base(id, correlationId)
+            public StarbucksProcess(String id)
+                : base(id)
             {}
 
             protected override void Subscribe()
@@ -148,7 +148,7 @@
         [Fact]
         public async Task<ScenarioResult> prepare_a_drink_when_an_order_is_placed()
         {
-            return await Scenario.ForProcess<StarbucksProcess>(_correlationId)
+            return await Scenario.ForProcess<StarbucksProcess>()
                 .Given()
                 .When(new DrinkOrderPlaced
                 {
@@ -161,7 +161,7 @@
         [Fact]
         public async Task<ScenarioResult> release_the_order_when_payment_is_received_and_drink_is_prepared()
         {
-            return await Scenario.ForProcess<StarbucksProcess>(_correlationId)
+            return await Scenario.ForProcess<StarbucksProcess>()
                 .Given(new DrinkOrderPlaced
                 {
                     CustomerId = _customerId,
@@ -175,7 +175,7 @@
         [Fact]
         public async Task<ScenarioResult> not_release_the_order_when_payment_is_received_and_drink_is_not_prepared()
         {
-            return await Scenario.ForProcess<StarbucksProcess>(_correlationId)
+            return await Scenario.ForProcess<StarbucksProcess>()
                 .Given(new DrinkOrderPlaced
                 {
                     CustomerId = _customerId,
@@ -189,7 +189,7 @@
         [Fact]
         public async Task<ScenarioResult> not_release_the_order_when_payment_is_not_received_and_drink_is_prepared()
         {
-            return await Scenario.ForProcess<StarbucksProcess>(_correlationId)
+            return await Scenario.ForProcess<StarbucksProcess>()
                 .Given(new DrinkOrderPlaced
                 {
                     CustomerId = _customerId,
@@ -203,7 +203,7 @@
         [Fact]
         public async Task<ScenarioResult> refund_the_payment_when_the_drink_is_ruined()
         {
-            return await Scenario.ForProcess<StarbucksProcess>(_correlationId)
+            return await Scenario.ForProcess<StarbucksProcess>()
                 .Given(new DrinkOrderPlaced
                 {
                     CustomerId = _customerId,
@@ -217,7 +217,7 @@
         [Fact]
         public async Task<ScenarioResult> complete_the_process_when_the_customer_receives_drink()
         {
-            return await Scenario.ForProcess<StarbucksProcess>(_correlationId)
+            return await Scenario.ForProcess<StarbucksProcess>()
                 .Given(new DrinkOrderPlaced
                 {
                     CustomerId = _customerId,
@@ -232,7 +232,7 @@
         [Fact]
         public async Task<ScenarioResult> complete_the_process_when_the_customer_receives_a_refund()
         {
-            return await Scenario.ForProcess<StarbucksProcess>(_correlationId)
+            return await Scenario.ForProcess<StarbucksProcess>()
                 .Given(new DrinkOrderPlaced
                 {
                     CustomerId = _customerId,

@@ -1,12 +1,11 @@
 ﻿namespace Cedar.ProcessManagers
 {
-    using System;
     using System.Collections.Generic;
+    using Cedar.Handlers;
 
     public interface IProcessManager
     {
         string Id { get; }
-        Guid CorrelationId { get; }
         int Version { get; }
 
         IEnumerable<object> GetUncommittedEvents();
@@ -15,6 +14,6 @@
         IEnumerable<object> GetUndispatchedCommands();
         void ClearUndispatchedCommands();
 
-        void ApplyEvent(object @event);
+        void ApplyEvent<TEvent>(DomainEventMessage<TEvent> @event);
     }
 }
