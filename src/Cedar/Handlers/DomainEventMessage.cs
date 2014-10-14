@@ -57,5 +57,10 @@ namespace Cedar.Handlers
                 return Guid.TryParse(correlationIdRaw.ToString(), out correlationId) ? correlationId : default(Guid?);
             }
         }
+
+        public override string ToString()
+        {
+            return DomainEvent.ToString();
+        }
     }
 }

@@ -37,5 +37,10 @@
         {
             get { return _correlationId; }
         }
+
+        public override string ToString()
+        {
+            return Command.ToString();
+        }
     }
 }
