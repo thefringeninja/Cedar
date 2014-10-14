@@ -11,14 +11,13 @@
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Persistence;
     using NEventStore;
-    using NEventStore.Persistence;
 
     public static partial class Scenario
     {
-        public static ProcessManager.IGiven ForProcess<TProcess>(IProcessManagerFactory factory = null, [CallerMemberName] string scenarioName = null)
+        public static ProcessManager.IGiven ForProcess<TProcess>(IProcessManagerFactory factory = null, Func<object, ICommit> buildCommit = null,[CallerMemberName] string scenarioName = null)
             where TProcess : IProcessManager
         {
-            return new ProcessManager.ScenarioBuilder<TProcess>(factory, scenarioName);
+            return new ProcessManager.ScenarioBuilder<TProcess>(factory, buildCommit, scenarioName);
         }
 
         public static class ProcessManager
@@ -40,6 +39,29 @@
                 IThen ThenNothingWasSent();
 
                 IThen Then(params object[] events);
+            }
+
+            internal class SimpleCommit : ICommit
+            {
+                public string BucketId { get; private set; }
+                public string StreamId { get; private set; }
+                public int StreamRevision { get; private set; }
+                public Guid CommitId { get; private set; }
+                public int CommitSequence { get; private set; }
+                public DateTime CommitStamp { get; private set; }
+                public IDictionary<string, object> Headers { get; private set; }
+                public ICollection<EventMessage> Events { get; private set; }
+                public string CheckpointToken { get; private set; }
+
+                public SimpleCommit(string streamId, object @event)
+                {
+                    StreamId = streamId;
+                    Events = new List<EventMessage>
+                {
+                    new EventMessage {Body = @event}
+                };
+                    Headers = new Dictionary<string, object>();
+                }
             }
 
             internal class ScenarioBuilder<TProcess> : IGiven
@@ -70,20 +92,20 @@
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
-                private static dynamic CreateDomainEvent(object @event)
+                private static dynamic CreateDomainEvent(object @event, Func<object, ICommit> buildCommit)
                 {
                     return Activator.CreateInstance(
                         typeof(DomainEventMessage<>).MakeGenericType(@event.GetType()),
-                        new Commit("bucket", "stream", 1, Guid.NewGuid(), 0, DateTime.UtcNow,
-                            null, new Dictionary<string, object>(), new[] {new EventMessage {Body = @event}}),
+                        buildCommit(@event),
                         1,
                         new Dictionary<string, object>(),
                         @event);
                 }
 
-                public ScenarioBuilder(IProcessManagerFactory factory, string name)
+                public ScenarioBuilder(IProcessManagerFactory factory, Func<object, ICommit> buildCommit, string name)
                 {
                     _processId = typeof (TProcess).Name + "-" + Guid.NewGuid();
+                    buildCommit = buildCommit ?? (e => new SimpleCommit("stream", e));
                     _name = name;
                     _factory = factory ?? new DefaultProcessManagerFactory();
                     _given = new object[0];
@@ -92,7 +114,7 @@
 
                     _runGiven = process =>
                     {
-                        foreach(var message in _given.Select(CreateDomainEvent))
+                        foreach(var message in _given.Select(e => CreateDomainEvent(e, buildCommit)))
                         {
                             process.ApplyEvent(message);
                         }
@@ -103,7 +125,7 @@
                         process.ClearUncommittedEvents();
                         process.ClearUndispatchedCommands();
 
-                        process.ApplyEvent(CreateDomainEvent(_when));
+                        process.ApplyEvent(CreateDomainEvent(_when, buildCommit));
                     };
 
                     _checkCommands = _ => { };
