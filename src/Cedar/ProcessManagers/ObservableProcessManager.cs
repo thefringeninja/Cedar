@@ -97,6 +97,11 @@
                 .Select(message => message.DomainEvent);
         }
 
+        protected IObservable<dynamic> OnAnyMessage()
+        {
+            return _inbox.OfType<object>();
+        }
+
         protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)
         {
             @on.Select(_ => new ProcessCompleted
