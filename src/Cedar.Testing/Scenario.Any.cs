@@ -28,6 +28,8 @@
 
             public interface IWhen<T, TResult> : IThen<TResult>
             {
+                IThen<TResult> When(Expression<Func<T, TResult>> when);
+
                 IThen<TResult> When(Expression<Func<T, Task<TResult>>> when);
             }
 
@@ -43,10 +45,10 @@
                 private readonly string _name;
                 
                 private readonly Func<T> _runGiven;
-                private readonly Func<T, Task<TResult>> _runWhen;
+                private Func<T, Task<TResult>> _runWhen;
                 private Action<TResult> _runThen = _ => { };
                 private Expression<Func<T>> _given;
-                private Expression<Func<T, Task<TResult>>> _when;
+                private LambdaExpression _when;
                 private TResult _expect;
                 private object _results;
                 private bool _passed;
@@ -57,7 +59,6 @@
                     _name = name;
 
                     _runGiven = () => _given.Compile()();
-                    _runWhen = instance => _when.Compile()(instance);
                     _timer = new Stopwatch();
                 }
 
@@ -73,9 +74,20 @@
                     return this;
                 }
 
+                public IThen<TResult> When(Expression<Func<T, TResult>> when)
+                {
+                    _when = when;
+
+                    _runWhen = instance => Task.FromResult(when.Compile()(instance));
+                    
+                    return this;
+                }
+
                 public IThen<TResult> When(Expression<Func<T, Task<TResult>>> when)
                 {
                     _when = when;
+
+                    _runWhen = instance => when.Compile()(instance);
 
                     return this;
                 }

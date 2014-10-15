@@ -11,7 +11,7 @@
         {
             var result = await Scenario.For<DateTime>()
                 .Given(new DateTime(2000, 1, 1))
-                .When(date => Task.FromResult(date.AddDays(1)))
+                .When(date => date.AddDays(1))
                 .ThenShouldEqual(new DateTime(2000, 1, 2));
 
             Assert.True(result.Passed);
@@ -22,7 +22,7 @@
         {
             var result = await Scenario.For<DateTime, long>()
                 .Given(new DateTime(2000, 1, 1))
-                .When(date => Task.FromResult(date.AddDays(1).Ticks))
+                .When(date => date.AddDays(1).Ticks)
                 .ThenShouldEqual(new DateTime(2000, 1, 2).Ticks);
 
             Assert.True(result.Passed);
@@ -34,7 +34,7 @@
         {
             var result = await Scenario.For<DateTime>()
                 .Given(new DateTime(2000, 1, 1))
-                .When(date => Task.FromResult(date.AddDays(1)))
+                .When(date => date.AddDays(1))
                 .ThenShouldEqual(new DateTime(2000, 1, 3));
 
             Assert.False(result.Passed);
@@ -45,7 +45,7 @@
         {
             var result = await Scenario.For<DateTime>()
                 .Given(new DateTime(2000, 1, 1))
-                .When(date => Task.FromResult(date.AddYears(Int32.MinValue)))
+                .When(date => date.AddYears(Int32.MinValue))
                 .ThenShouldEqual(new DateTime(2000, 1, 3));
 
             Assert.False(result.Passed);
@@ -57,7 +57,7 @@
         {
             var result = await Scenario.For<DateTime>()
                 .Given(() => new DateTime(Int32.MinValue, 1, 1))
-                .When(date => Task.FromResult(date.AddYears(Int32.MinValue)))
+                .When(date => date.AddYears(Int32.MinValue))
                 .ThenShouldThrow<ArgumentOutOfRangeException>();
 
             Assert.False(result.Passed);
@@ -69,7 +69,7 @@
         {
             var result = await Scenario.For<DateTime>()
                 .Given(new DateTime(2000, 1, 1))
-                .When(date => Task.FromResult(date.AddYears(Int32.MinValue)))
+                .When(date => date.AddYears(Int32.MinValue))
                 .ThenShouldThrow<ArgumentOutOfRangeException>();
 
             Assert.True(result.Passed);
