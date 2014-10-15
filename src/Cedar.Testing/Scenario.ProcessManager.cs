@@ -14,10 +14,14 @@
 
     public static partial class Scenario
     {
-        public static ProcessManager.IGiven ForProcess<TProcess>(IProcessManagerFactory factory = null, Func<object, ICommit> buildCommit = null,[CallerMemberName] string scenarioName = null)
+        public static ProcessManager.IGiven ForProcess<TProcess>(
+            IProcessManagerFactory factory = null,
+            string processId = null,
+            Func<object, ICommit> buildCommit = null,
+            [CallerMemberName] string scenarioName = null)
             where TProcess : IProcessManager
         {
-            return new ProcessManager.ScenarioBuilder<TProcess>(factory, buildCommit, scenarioName);
+            return new ProcessManager.ScenarioBuilder<TProcess>(factory, processId, buildCommit, scenarioName);
         }
 
         public static class ProcessManager
@@ -102,9 +106,9 @@
                         @event);
                 }
 
-                public ScenarioBuilder(IProcessManagerFactory factory, Func<object, ICommit> buildCommit, string name)
+                public ScenarioBuilder(IProcessManagerFactory factory, string processId, Func<object, ICommit> buildCommit, string name)
                 {
-                    _processId = typeof (TProcess).Name + "-" + Guid.NewGuid();
+                    _processId = processId ?? typeof(TProcess).Name + "-" + Guid.NewGuid();
                     buildCommit = buildCommit ?? (e => new SimpleCommit("stream", e));
                     _name = name;
                     _factory = factory ?? new DefaultProcessManagerFactory();
