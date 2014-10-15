@@ -37,7 +37,7 @@ namespace Cedar.Testing.Printing
             {
                 foreach(var printed in (target as IEnumerable).Cast<object>().SelectMany(item => item.NicePrint(prefix)))
                 {
-                    yield return prefix + printed;
+                    yield return printed;
                 }
                 yield break;
             }
