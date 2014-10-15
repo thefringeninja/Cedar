@@ -28,7 +28,7 @@ namespace Cedar.Testing.Printing
 
             if(ex != null)
             {
-                yield return ex.ToString();
+                yield return prefix + ex;
 
                 yield break;
             }
@@ -37,13 +37,13 @@ namespace Cedar.Testing.Printing
             {
                 foreach(var printed in (target as IEnumerable).Cast<object>().SelectMany(item => item.NicePrint(prefix)))
                 {
-                    yield return printed;
+                    yield return prefix + printed;
                 }
                 yield break;
             }
             if(target is LambdaExpression)
             {
-                yield return PAssertFormatter.CreateSimpleFormatFor((LambdaExpression) target);
+                yield return prefix + PAssertFormatter.CreateSimpleFormatFor((LambdaExpression) target);
                 yield break;
             }
 
