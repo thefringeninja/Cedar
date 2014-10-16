@@ -16,13 +16,30 @@ namespace Cedar.Testing.Execution
         private readonly bool _isRunningUnderTeamCity;
         private readonly string _output;
         private readonly string[] _formatters;
-
-        public ScenarioRunner(string assembly, bool isRunningUnderTeamCity, string output, params string[] formatters)
+        private readonly TaskCompletionSource<Assembly> _loadAssembly;
+        public ScenarioRunner(
+            string assembly, 
+            bool isRunningUnderTeamCity, 
+            string output, 
+            params string[] formatters) : this(isRunningUnderTeamCity, output, formatters)
         {
             _assembly = assembly;
+
+            Task.Run(async () => _loadAssembly.SetResult(await LoadTestAssembly(assembly)));
+        }
+
+        public ScenarioRunner(Assembly assembly, bool isRunningUnderTeamCity, string output, params  string[] formatters)
+            : this(isRunningUnderTeamCity, output, formatters)
+        {
+            _loadAssembly.SetResult(assembly);
+        }
+
+        private ScenarioRunner(bool isRunningUnderTeamCity, string output, string[] formatters)
+        {
             _isRunningUnderTeamCity = isRunningUnderTeamCity;
             _output = output;
             _formatters = formatters;
+            _loadAssembly = new TaskCompletionSource<Assembly>();
         }
 
         public void Run()
@@ -32,15 +49,12 @@ namespace Cedar.Testing.Execution
 
         private async Task RunInternal()
         {
-            var assembly = await LoadTestAssembly();
-            var results = await RunTests(assembly);
+            var results = await RunTests();
             await PrintResults(results.GroupBy(x => x.Key, x => x.Value));
         }
 
-        private async Task<Assembly> LoadTestAssembly()
+        private static async Task<Assembly> LoadTestAssembly(string assembly)
         {
-            var assembly = _assembly;
-
             if(false == Path.HasExtension(assembly))
             {
                 assembly = assembly + ".dll";
@@ -118,11 +132,13 @@ namespace Cedar.Testing.Execution
                 );
         }
 
-        private Task<KeyValuePair<string, ScenarioResult>[]> RunTests(Assembly assembly)
+        public async Task<KeyValuePair<string, ScenarioResult>[]> RunTests()
         {
+            var assembly = await _loadAssembly.Task;
+
             var scenarios = FindScenarios.InAssemblies(assembly);
 
-            var results = Task.WhenAll(scenarios.Select(RunScenario));
+            var results = await Task.WhenAll(scenarios.Select(RunScenario));
 
             return results;
         }
