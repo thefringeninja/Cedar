@@ -11,7 +11,7 @@
         {
             return Enumerable.Range(0, 5)
                 .Select(async _ => await Scenario.For<DateTime>()
-                    .Given(new DateTime(2000, 1, 1))
+                    .Given(() => new DateTime(2000, 1, 1))
                     .When(date => date.AddDays(1))
                     .ThenShouldEqual(new DateTime(2000, 1, 1)));
         }

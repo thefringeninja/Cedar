@@ -22,7 +22,6 @@
         {
             public interface IGiven<T, TResult> : IWhen<T, TResult>
             {
-                IWhen<T, TResult> Given(T instance);
                 IWhen<T, TResult> Given(Expression<Func<T>> given);
             }
 
@@ -60,11 +59,6 @@
 
                     _runGiven = () => _given.Compile()();
                     _timer = new Stopwatch();
-                }
-
-                public IWhen<T, TResult> Given(T instance)
-                {
-                    return Given(() => instance);
                 }
 
                 public IWhen<T, TResult> Given(Expression<Func<T>> given)
