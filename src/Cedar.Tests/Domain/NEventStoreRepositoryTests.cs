@@ -11,6 +11,13 @@
 
     public class NEventStoreRepositoryTests
     {
+        class SomethingHappened
+        {
+            public override string ToString()
+            {
+                return "The following happened: \r\n\tSomething Interesting.";
+            }
+        }
         class SomeAggregate : AggregateBase
         {
             public SomeAggregate(Guid id)
@@ -23,11 +30,11 @@
 
             public void DoSomething()
             {
-                RaiseEvent(new object());
+                RaiseEvent(new SomethingHappened());
             }
 
             [UsedImplicitly]
-            void Apply(object e)
+            void Apply(SomethingHappened e)
             {
                 
             }

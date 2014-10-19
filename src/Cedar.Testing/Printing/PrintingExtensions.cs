@@ -13,41 +13,64 @@ namespace Cedar.Testing.Printing
         {
             if(target == null)
             {
-                yield return prefix + "???";
-                yield break;
+                return NicePrintUnknown(prefix);
             }
 
             var s = target as string;
+
             if(s != null)
             {
-                yield return prefix + s;
-                yield break;
+                return NicePrintString(s, prefix);
             }
 
-            var ex = target as Exception;
+            var exception = target as Exception;
 
-            if(ex != null)
+            if(exception != null)
             {
-                yield return prefix + ex;
-
-                yield break;
+                return NicePrintException(exception, prefix);
             }
 
-            if(target is IEnumerable && false == target is IQueryable)
+            var enumerable = target as IEnumerable;
+
+            if(enumerable != null && false == target is IQueryable)
             {
-                foreach(var printed in (target as IEnumerable).Cast<object>().SelectMany(item => item.NicePrint(prefix)))
-                {
-                    yield return printed;
-                }
-                yield break;
-            }
-            if(target is LambdaExpression)
-            {
-                yield return prefix + PAssertFormatter.CreateSimpleFormatFor((LambdaExpression) target);
-                yield break;
+                return NicePrintEnumerable(enumerable, prefix);
             }
 
-            yield return prefix + target;
+            var expression = target as LambdaExpression;
+
+            if(expression != null)
+            {
+                return NicePrintExpression(expression, prefix);
+            }
+
+            return NicePrintString(target.ToString(), prefix);
+        }
+
+        private static IEnumerable<string> NicePrintExpression(LambdaExpression target, string prefix)
+        {
+            yield return prefix + PAssertFormatter.CreateSimpleFormatFor(target);
+        }
+
+        private static IEnumerable<string> NicePrintEnumerable(IEnumerable target, string prefix)
+        {
+            return target.Cast<object>().SelectMany(item => item.NicePrint(prefix));
+        }
+
+        private static IEnumerable<string> NicePrintException(Exception ex, string prefix)
+        {
+            yield return prefix + ex;
+        }
+
+        private static IEnumerable<string> NicePrintString(string target, string prefix)
+        {
+            return target.Split(new[] {'\r', '\n'}, StringSplitOptions.RemoveEmptyEntries)
+                .Select((line, index) => prefix + line);
+        }
+
+        private static IEnumerable<string> NicePrintUnknown(string prefix)
+        {
+            yield return prefix + "???";
         }
     }
 }
