@@ -28,6 +28,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Cedar.GetEventStore.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EventStore.ClientAPI">
@@ -51,11 +52,10 @@
     <Compile Include="TypeUtilities.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Cedar.GetEventStore.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Handlers\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
       <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>

@@ -1,25 +1,26 @@
 ﻿<?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>Cedar</id>
+        <id>Cedar.GetEventStore</id>
         <version>0.0.0.0</version>
         <authors>Damian Hickey</authors>
         <owners>Damian Hickey</owners>
         <projectUrl>https://github.com/damianh/Cedar</projectUrl>
         <licenseUrl>https://github.com/damianh/Cedar/blob/master/LICENSE</licenseUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <title>Cedar</title>
+        <title>Cedar.GetEventStore</title>
         <description>An opinionated library to assist in building CQRS and Event Sourced applications on NEventStore</description>
         <tags>cqrs event-sourcing domain-driven-design</tags>
         <frameworkAssemblies />
         <releaseNotes/>
 		<dependencies>
-			<dependency id="Cedar.Client" version="[0.0.1,0.2)"/>
+			<dependency id="Cedar" version="[0.0.1,0.2)"/>
+			<dependency id="EventStore.Client" version="[3,4)"/>
 		</dependencies>
     </metadata>
     <files>
-        <file src="..\..\build\merged\Cedar.dll" target="lib\net45" />
-        <file src="..\..\build\merged\Cedar.pdb" target="lib\net45" />
-        <file src="bin\Release\Cedar.xml" target="lib\net45" />
+        <file src="..\..\build\merged\Cedar.GetEventStore.dll" target="lib\net45" />
+        <file src="..\..\build\merged\Cedar.GetEventStore.pdb" target="lib\net45" />
+        <file src="bin\Release\Cedar.GetEventStore.xml" target="lib\net45" />
     </files>
 </package>

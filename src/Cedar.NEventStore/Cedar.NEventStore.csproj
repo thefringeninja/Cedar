@@ -28,6 +28,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Cedar.NEventStore.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="NEventStore">
@@ -86,6 +87,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Cedar.NEventStore.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
