@@ -7,21 +7,18 @@
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
-    using Cedar.Handlers;
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Persistence;
-    using NEventStore;
 
     public static partial class Scenario
     {
         public static ProcessManager.IGiven ForProcess<TProcess>(
             IProcessManagerFactory factory = null,
             string processId = null,
-            Func<object, ICommit> buildCommit = null,
             [CallerMemberName] string scenarioName = null)
             where TProcess : IProcessManager
         {
-            return new ProcessManager.ScenarioBuilder<TProcess>(factory, processId, buildCommit, scenarioName);
+            return new ProcessManager.ScenarioBuilder<TProcess>(factory, processId, scenarioName);
         }
 
         public static class ProcessManager
@@ -43,29 +40,6 @@
                 IThen ThenNothingWasSent();
 
                 IThen Then(params object[] events);
-            }
-
-            internal class SimpleCommit : ICommit
-            {
-                public string BucketId { get; private set; }
-                public string StreamId { get; private set; }
-                public int StreamRevision { get; private set; }
-                public Guid CommitId { get; private set; }
-                public int CommitSequence { get; private set; }
-                public DateTime CommitStamp { get; private set; }
-                public IDictionary<string, object> Headers { get; private set; }
-                public ICollection<EventMessage> Events { get; private set; }
-                public string CheckpointToken { get; private set; }
-
-                public SimpleCommit(string streamId, object @event)
-                {
-                    StreamId = streamId;
-                    Events = new List<EventMessage>
-                {
-                    new EventMessage {Body = @event}
-                };
-                    Headers = new Dictionary<string, object>();
-                }
             }
 
             internal class ScenarioBuilder<TProcess> : IGiven
@@ -96,20 +70,9 @@
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
-                private static dynamic CreateDomainEvent(object @event, Func<object, ICommit> buildCommit)
-                {
-                    return Activator.CreateInstance(
-                        typeof(DomainEventMessage<>).MakeGenericType(@event.GetType()),
-                        buildCommit(@event),
-                        1,
-                        new Dictionary<string, object>(),
-                        @event);
-                }
-
-                public ScenarioBuilder(IProcessManagerFactory factory, string processId, Func<object, ICommit> buildCommit, string name)
+                public ScenarioBuilder(IProcessManagerFactory factory, string processId, string name)
                 {
                     _processId = processId ?? typeof(TProcess).Name + "-" + Guid.NewGuid();
-                    buildCommit = buildCommit ?? (e => new SimpleCommit("stream", e));
                     _name = name;
                     _factory = factory ?? new DefaultProcessManagerFactory();
                     _given = new object[0];
@@ -118,7 +81,7 @@
 
                     _runGiven = process =>
                     {
-                        foreach(var message in _given.Select(e => CreateDomainEvent(e, buildCommit)))
+                        foreach(var message in _given)
                         {
                             process.ApplyEvent(message);
                         }
@@ -129,7 +92,7 @@
                         process.ClearUncommittedEvents();
                         process.ClearUndispatchedCommands();
 
-                        process.ApplyEvent(CreateDomainEvent(_when, buildCommit));
+                        process.ApplyEvent(_when);
                     };
 
                     _checkCommands = _ => { };

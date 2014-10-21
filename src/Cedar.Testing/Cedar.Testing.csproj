@@ -38,10 +38,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="NEventStore, Version=5.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NEventStore.5.1.0\lib\net40\NEventStore.dll</HintPath>
-    </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
@@ -136,10 +132,6 @@
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
       <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>
       <Name>Cedar.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Cedar.NEventStore\Cedar.NEventStore.csproj">
-      <Project>{14571633-73BE-40E4-993B-0FF82648CBEC}</Project>
-      <Name>Cedar.NEventStore</Name>
     </ProjectReference>
     <ProjectReference Include="..\Cedar\Cedar.csproj">
       <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
