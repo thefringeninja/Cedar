@@ -6,7 +6,6 @@
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.Commands;
     using Cedar.Domain.Persistence;
     using Cedar.Handlers;
     using NEventStore;
@@ -37,7 +36,7 @@
             return Task.FromResult((TProcess) processManager);
         }
 
-        public async Task Save<TProcess>(string bucketId, TProcess process, Guid commitId,
+        public async Task Save<TProcess>(string bucketId, TProcess process,
             Action<IDictionary<string, object>> updateHeaders, CancellationToken token)
             where TProcess : IProcessManager
         {
@@ -51,7 +50,7 @@
                     streamHead = 1;
                 }
 
-                var commitAttempt = new CommitAttempt(bucketId, process.Id, streamHead, commitId, process.Version, DateTime.UtcNow, headers,
+                var commitAttempt = new CommitAttempt(bucketId, process.Id, streamHead, Guid.NewGuid(), process.Version, DateTime.UtcNow, headers,
                     process.GetUncommittedEvents().Select(@event => new EventMessage
                     {
                         Body = @event

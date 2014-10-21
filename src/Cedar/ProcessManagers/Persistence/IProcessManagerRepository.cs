@@ -1,4 +1,4 @@
-namespace Cedar.ProcessManagers
+namespace Cedar.ProcessManagers.Persistence
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@ namespace Cedar.ProcessManagers
         Task<TProcess> GetById<TProcess>(string bucketId, string id, int versionToLoad, CancellationToken token)
             where TProcess : IProcessManager;
 
-        Task Save<TProcess>(string bucketId, TProcess process, Guid commitId,
+        Task Save<TProcess>(string bucketId, TProcess process,
             Action<IDictionary<string, object>> updateHeaders, CancellationToken token) where TProcess : IProcessManager;
     }
 }

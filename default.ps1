@@ -37,16 +37,28 @@ task RunTests -depends Compile {
 
 task ILMerge -depends Compile {
 	New-Item $mergedDir -Type Directory -ErrorAction SilentlyContinue
+
+	$dllDir = "$srcDir\Cedar.Client\bin\Release"
+	$inputDlls = "$dllDir\Cedar.Client.dll "
+	@("Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.Client.dll $inputDlls"
+
 	$dllDir = "$srcDir\Cedar\bin\Release"
 	$inputDlls = "$dllDir\Cedar.dll"
 	@("Microsoft.Owin", "Newtonsoft.Json", "Owin", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
 		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.dll $inputDlls"
 
-	$dllDir = "$srcDir\Cedar.Client\bin\Release"
-	$inputDlls = "$dllDir\Cedar.Client.dll "
+	$dllDir = "$srcDir\Cedar.NEventStore\bin\Release"
+	$inputDlls = "$dllDir\Cedar.NEventStore.dll"
+	@("Microsoft.Owin", "Newtonsoft.Json", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
+		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.NEventStore.dll $inputDlls"
+
+	$dllDir = "$srcDir\Cedar.GetEventStore\bin\Release"
+	$inputDlls = "$dllDir\Cedar.GetEventStore.dll"
 	@("Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
-	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.Client.dll $inputDlls"
+	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.GetEventStore.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Testing.dll "

@@ -9,7 +9,7 @@
     using NEventStore;
     using Xunit;
 
-    public class RepositoryTests
+    public class NEventStoreRepositoryTests
     {
         class SomeAggregate : AggregateBase
         {

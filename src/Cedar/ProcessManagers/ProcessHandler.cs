@@ -5,27 +5,29 @@ namespace Cedar.ProcessManagers
     using System.Linq;
     using System.Reflection;
     using System.Security.Claims;
-    using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Commands;
     using Cedar.Handlers;
-    using Cedar.Internal;
+    using Cedar.ProcessManagers.Persistence;
 
-    public static class ProcessHandlerModule
+    public static class ProcessHandler
     {
-        public static ProcessHandlerModule<TProcess> For<TProcess>(
+        public static ProcessHandler<TProcess> For<TProcess>(
             IHandlerResolver commandDispatcher,
             IProcessManagerRepository repository,
             ClaimsPrincipal principal,
+            ProcessHandler<TProcess>.GetProcess getProcess,
+            ProcessHandler<TProcess>.SaveProcess saveProcess,
             Func<string, string> buildProcessId = null,
             string bucketId = null) where TProcess : IProcessManager
         {
-            return new ProcessHandlerModule<TProcess>(commandDispatcher, repository, principal, buildProcessId, bucketId);
+            return new ProcessHandler<TProcess>(commandDispatcher, principal, getProcess, saveProcess, buildProcessId, bucketId);
         }
     }
 
-    public class ProcessHandlerModule<TProcess> : IHandlerResolver
+    public class ProcessHandler<TProcess> : IHandlerResolver
         where TProcess : IProcessManager
     {
         // ReSharper disable StaticFieldInGenericType
@@ -33,53 +35,45 @@ namespace Cedar.ProcessManagers
             .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
         // ReSharper restore StaticFieldInGenericType
 
-        private const string CommitIdNamespace = "73A18DFA-17C7-45A8-B57D-0148FDA3096A";
-        
         private readonly IHandlerResolver _commandDispatcher;
-        private readonly IProcessManagerRepository _repository;
         private readonly ClaimsPrincipal _principal;
         private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
-        private readonly GenerateCommitId _buildCommitId;
         private readonly IDictionary<Type, Func<object, string>> _correlationIdLookup;
-        private readonly IList<Pipe<DomainEventMessage<object>>> _pipes;
+        private readonly IList<Pipe<object>> _pipes;
+        private readonly GetProcess _getProcess;
+        private readonly SaveProcess _saveProcess;
 
         private IHandlerResolver _inner;
 
-        internal ProcessHandlerModule(
-            IHandlerResolver commandDispatcher,
-            IProcessManagerRepository repository, 
+        internal ProcessHandler(
+            IHandlerResolver commandDispatcher, 
             ClaimsPrincipal principal,
+            GetProcess getProcess, 
+            SaveProcess saveProcess,
             Func<string, string> buildProcessId = null, 
             string bucketId = null)
         {
             _commandDispatcher = commandDispatcher;
-            _repository = repository;
             _principal = principal;
             _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
-            _pipes = new List<Pipe<DomainEventMessage<object>>>();
-
-            var generator = new DeterministicGuidGenerator(Guid.Parse(CommitIdNamespace));
-
-            _buildCommitId = (previousCommitId, processId, processVersion) => 
-                generator.Create(previousCommitId.ToByteArray()
-                    .Concat(Encoding.UTF8.GetBytes("-" + processId + "-")
-                    .Concat(BitConverter.GetBytes(processVersion)))
-                    .ToArray());
+            _getProcess = getProcess;
+            _saveProcess = saveProcess;
+            _pipes = new List<Pipe<object>>();
 
             _correlationIdLookup = new Dictionary<Type, Func<object, string>>();
         }
 
-        public ProcessHandlerModule<TProcess> CorrelateBy<TMessage>(
-            Func<DomainEventMessage<TMessage>, string> getCorrelationId)
+        public ProcessHandler<TProcess> CorrelateBy<TMessage>(
+            Func<TMessage, string> getCorrelationId)
         {
-            _correlationIdLookup[typeof(TMessage)] = message => getCorrelationId((DomainEventMessage<TMessage>) message);
+            _correlationIdLookup[typeof(TMessage)] = message => getCorrelationId((TMessage) message);
 
             return this;
         }
 
-        public ProcessHandlerModule<TProcess> Pipe(Pipe<DomainEventMessage<object>> pipe)
+        public ProcessHandler<TProcess> Pipe(Pipe<object> pipe)
         {
             _pipes.Add(pipe);
 
@@ -108,14 +102,14 @@ namespace Cedar.ProcessManagers
         [UsedImplicitly]
         private HandlerModule BuildHandler<TMessage>(HandlerModule module)
         {
-            module.For<DomainEventMessage<TMessage>>()
+            module.For<TMessage>()
                 .Handle(async (message, ct) =>
                 {
                     string correlationId = _correlationIdLookup[typeof(TMessage)](message);
 
                     string processId = _buildProcessId(correlationId);
 
-                    TProcess process = await _repository.GetById<TProcess>(_bucketId, processId, Int32.MaxValue, ct);
+                    TProcess process = await _getProcess(_bucketId, processId, ct);
 
                     process.ApplyEvent(message);
 
@@ -124,9 +118,7 @@ namespace Cedar.ProcessManagers
 
                     await Task.WhenAll(undispatched);
 
-                    Guid commitId = _buildCommitId(message.Commit.CommitId, process.Id, process.Version);
-
-                    await _repository.Save(_bucketId, process, commitId, null, ct);
+                    await _saveProcess(_bucketId, process, ct);
                 });
 
             return module;
@@ -146,6 +138,8 @@ namespace Cedar.ProcessManagers
                 });
         }
 
-        private delegate Guid GenerateCommitId(Guid incomingCommitId, string processId, int processVersion);
+        public delegate Task<TProcess> GetProcess(string bucketId, string processId, CancellationToken token);
+
+        public delegate Task SaveProcess(string bucketId, TProcess process, CancellationToken token);
     }
 }

@@ -39,9 +39,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="NEventStore">
-      <HintPath>..\packages\NEventStore.5.1.0\lib\net40\NEventStore.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -70,9 +67,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Commands\CommandHandlerModule.cs" />
+    <Compile Include="Handlers\HandlerModuleExtensions.cs" />
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
-    <Compile Include="ProcessManagers\Persistence\NEventStoreProcessManagerRepository.cs" />
     <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
@@ -87,7 +84,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Messages.resx</DependentUpon>
     </Compile>
-    <Compile Include="Handlers\TempImportFromNES\LruCache.cs" />
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
     <Compile Include="ExceptionModels\ExceptionHandlingExtensions.cs" />
@@ -98,14 +94,14 @@
     <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
     <Compile Include="ProcessManagers\IProcessManager.cs" />
-    <Compile Include="ProcessManagers\IProcessManagerRepository.cs" />
+    <Compile Include="ProcessManagers\Persistence\IProcessManagerRepository.cs" />
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
     <Compile Include="ProcessManagers\ProcessCompleted.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
     <Compile Include="TypeResolution\DefaultRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\ExceptionToModelConverter.cs" />
-    <Compile Include="Commands\Guard.cs" />
+    <Compile Include="Guard.cs" />
     <Compile Include="TypeResolution\IRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\IExceptionToModelConverter.cs" />
     <Compile Include="Commands\HandlerModuleExtensions.cs" />
@@ -125,29 +121,15 @@
     <Compile Include="Domain\IConflictDetector.cs" />
     <Compile Include="Domain\IEventRouter.cs" />
     <Compile Include="Domain\Persistence\ConflictingCommandException.cs" />
-    <Compile Include="Domain\Persistence\NEventStoreRepository.cs" />
     <Compile Include="Domain\Persistence\IAggregateFactory.cs" />
-    <Compile Include="Domain\Persistence\IRepository.cs" />
     <Compile Include="Domain\Persistence\PersistenceException.cs" />
-    <Compile Include="Domain\Persistence\RepositoryExtensions.cs" />
-    <Compile Include="Handlers\HandlerModuleExtensions.cs" />
-    <Compile Include="Handlers\DomainEventMessage.cs" />
-    <Compile Include="Handlers\TempImportFromNES\EventStoreClient.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Handlers\ICheckpointRepository.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Handlers\IEventStoreClient.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Handlers\InMemoryCheckpointRepository.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Handlers\DurableCommitDispatcher.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="ProcessManagers\ProcessHandlerModule.cs" />
+    <Compile Include="ProcessManagers\ProcessHandler.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Queries\HandlerModuleExtensions.cs" />

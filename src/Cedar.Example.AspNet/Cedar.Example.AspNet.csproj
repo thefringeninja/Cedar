@@ -111,6 +111,10 @@
       <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
       <Name>Cedar.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Cedar.NEventStore\Cedar.NEventStore.csproj">
+      <Project>{14571633-73BE-40E4-993B-0FF82648CBEC}</Project>
+      <Name>Cedar.NEventStore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cedar\Cedar.csproj">
       <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
       <Name>Cedar</Name>

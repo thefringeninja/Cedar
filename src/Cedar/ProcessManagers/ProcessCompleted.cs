@@ -1,7 +1,5 @@
 namespace Cedar.ProcessManagers
 {
-    using System;
-
     public class ProcessCompleted
     {
         public string ProcessId { get; set; }
