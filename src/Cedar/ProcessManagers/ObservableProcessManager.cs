@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
-    using Cedar.Handlers;
 
     public abstract class ObservableProcessManager : IProcessManager
     {
@@ -56,7 +55,7 @@
             _outbox.Clear();
         }
 
-        public void ApplyEvent<TEvent>(DomainEventMessage<TEvent> @event)
+        public void ApplyEvent(object @event)
         {
             if(false == _subscribed)
             {
@@ -65,15 +64,6 @@
             }
             _inbox.OnNext(@event);
             _version++;
-        }
-        protected void When<TEvent>(IObservable<DomainEventMessage<TEvent>> @on, Func<DomainEventMessage<TEvent>, IEnumerable<object>> @do)
-        {
-            Send(@on.SelectMany(@do));
-        }
-
-        protected void When<TEvent>(IObservable<DomainEventMessage<TEvent>> @on, Func<DomainEventMessage<TEvent>, object> @do)
-        {
-            When(@on, e => Enumerable.Repeat(@do(e), 1));
         }
 
         protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, IEnumerable<object>> @do)
@@ -86,17 +76,10 @@
             When(@on, e => Enumerable.Repeat(@do(e), 1));
         }
 
-        protected IObservable<DomainEventMessage<TEvent>> OnMessage<TEvent>()
+        protected IObservable<TMessage> On<TMessage>()
         {
-            return _inbox.OfType<DomainEventMessage<TEvent>>();
+            return _inbox.OfType<TMessage>();
         }
-
-        protected IObservable<TEvent> On<TEvent>()
-        {
-            return _inbox.OfType<DomainEventMessage<TEvent>>()
-                .Select(message => message.DomainEvent);
-        }
-
         protected IObservable<dynamic> OnAnyMessage()
         {
             return _inbox.OfType<object>();

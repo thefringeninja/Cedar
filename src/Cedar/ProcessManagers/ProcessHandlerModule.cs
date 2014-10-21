@@ -11,6 +11,7 @@ namespace Cedar.ProcessManagers
     using Cedar.Commands;
     using Cedar.Handlers;
     using Cedar.Internal;
+    using Cedar.ProcessManagers.Persistence;
 
     public static class ProcessHandlerModule
     {
@@ -42,7 +43,7 @@ namespace Cedar.ProcessManagers
         private readonly string _bucketId;
         private readonly GenerateCommitId _buildCommitId;
         private readonly IDictionary<Type, Func<object, string>> _correlationIdLookup;
-        private readonly IList<Pipe<DomainEventMessage<object>>> _pipes;
+        private readonly IList<Pipe<object>> _pipes;
 
         private IHandlerResolver _inner;
 
@@ -58,28 +59,26 @@ namespace Cedar.ProcessManagers
             _principal = principal;
             _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
-            _pipes = new List<Pipe<DomainEventMessage<object>>>();
+            _pipes = new List<Pipe<object>>();
 
             var generator = new DeterministicGuidGenerator(Guid.Parse(CommitIdNamespace));
 
-            _buildCommitId = (previousCommitId, processId, processVersion) => 
-                generator.Create(previousCommitId.ToByteArray()
-                    .Concat(Encoding.UTF8.GetBytes("-" + processId + "-")
-                    .Concat(BitConverter.GetBytes(processVersion)))
-                    .ToArray());
+            _buildCommitId = (message, processId, processVersion) =>
+                generator.Create(Encoding.UTF8.GetBytes("-" + processId + "-")
+                    .Concat(BitConverter.GetBytes(processVersion)).ToArray());
 
             _correlationIdLookup = new Dictionary<Type, Func<object, string>>();
         }
 
         public ProcessHandlerModule<TProcess> CorrelateBy<TMessage>(
-            Func<DomainEventMessage<TMessage>, string> getCorrelationId)
+            Func<TMessage, string> getCorrelationId)
         {
-            _correlationIdLookup[typeof(TMessage)] = message => getCorrelationId((DomainEventMessage<TMessage>) message);
+            _correlationIdLookup[typeof(TMessage)] = message => getCorrelationId((TMessage) message);
 
             return this;
         }
 
-        public ProcessHandlerModule<TProcess> Pipe(Pipe<DomainEventMessage<object>> pipe)
+        public ProcessHandlerModule<TProcess> Pipe(Pipe<object> pipe)
         {
             _pipes.Add(pipe);
 
@@ -108,7 +107,7 @@ namespace Cedar.ProcessManagers
         [UsedImplicitly]
         private HandlerModule BuildHandler<TMessage>(HandlerModule module)
         {
-            module.For<DomainEventMessage<TMessage>>()
+            module.For<TMessage>()
                 .Handle(async (message, ct) =>
                 {
                     string correlationId = _correlationIdLookup[typeof(TMessage)](message);
@@ -124,9 +123,9 @@ namespace Cedar.ProcessManagers
 
                     await Task.WhenAll(undispatched);
 
-                    Guid commitId = _buildCommitId(message.Commit.CommitId, process.Id, process.Version);
+                    Guid commitId = _buildCommitId(message, process.Id, process.Version);
 
-                    await _repository.Save(_bucketId, process, commitId, null, ct);
+                    await _repository.Save(_bucketId, process, null, ct);
                 });
 
             return module;
@@ -146,6 +145,6 @@ namespace Cedar.ProcessManagers
                 });
         }
 
-        private delegate Guid GenerateCommitId(Guid incomingCommitId, string processId, int processVersion);
+        private delegate Guid GenerateCommitId(object message, string processId, int processVersion);
     }
 }

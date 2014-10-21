@@ -14,6 +14,6 @@
         IEnumerable<object> GetUndispatchedCommands();
         void ClearUndispatchedCommands();
 
-        void ApplyEvent<TEvent>(DomainEventMessage<TEvent> @event);
+        void ApplyEvent(object @event);
     }
 }

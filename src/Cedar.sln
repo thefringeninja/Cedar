@@ -32,6 +32,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Example", "Example", "{F7DC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cedar.Testing.Xunit", "Cedar.Testing.Xunit\Cedar.Testing.Xunit.csproj", "{D432C4EB-6EAA-4CD6-A5A6-A7236ED9CC43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cedar.NEventStore", "Cedar.NEventStore\Cedar.NEventStore.csproj", "{14571633-73BE-40E4-993B-0FF82648CBEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,12 @@ Global
 		{D432C4EB-6EAA-4CD6-A5A6-A7236ED9CC43}.NuPackRelease|Any CPU.Build.0 = Release|Any CPU
 		{D432C4EB-6EAA-4CD6-A5A6-A7236ED9CC43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D432C4EB-6EAA-4CD6-A5A6-A7236ED9CC43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14571633-73BE-40E4-993B-0FF82648CBEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14571633-73BE-40E4-993B-0FF82648CBEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14571633-73BE-40E4-993B-0FF82648CBEC}.NuPackRelease|Any CPU.ActiveCfg = Release|Any CPU
+		{14571633-73BE-40E4-993B-0FF82648CBEC}.NuPackRelease|Any CPU.Build.0 = Release|Any CPU
+		{14571633-73BE-40E4-993B-0FF82648CBEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14571633-73BE-40E4-993B-0FF82648CBEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

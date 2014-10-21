@@ -145,6 +145,10 @@
       <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>
       <Name>Cedar.Client</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Cedar.NEventStore\Cedar.NEventStore.csproj">
+      <Project>{14571633-73be-40e4-993b-0ff82648cbec}</Project>
+      <Name>Cedar.NEventStore</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cedar.Testing.TestRunner\Cedar.Testing.TestRunner.csproj">
       <Project>{1f46ea8e-aba0-4e6b-9418-e6494e80c72f}</Project>
       <Name>Cedar.Testing.TestRunner</Name>

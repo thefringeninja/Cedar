@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FB2353F1-8A9A-4BDF-83C9-D32F15557030}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{14571633-73BE-40E4-993B-0FF82648CBEC}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cedar.Example</RootNamespace>
-    <AssemblyName>Cedar.Example</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <RootNamespace>Cedar</RootNamespace>
+    <AssemblyName>Cedar.NEventStore</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,8 +30,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NEventStore">
+      <HintPath>..\packages\NEventStore.5.1.0\lib\net40\NEventStore.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Reactive.Core, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-Core.2.2.5\lib\net45\System.Reactive.Core.dll</HintPath>
@@ -47,51 +48,52 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-Linq.2.2.5\lib\net45\System.Reactive.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="System.Reactive.PlatformServices">
+    <Reference Include="System.Reactive.PlatformServices, Version=2.2.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Rx-PlatformServices.2.2.5\lib\net45\System.Reactive.PlatformServices.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CommandVersioning\CommandVersioningHandlerModule.cs" />
-    <Compile Include="CommandVersioning\CreateTShirt.cs" />
-    <Compile Include="CommandVersioning\CreateTShirtV2.cs" />
-    <Compile Include="CommandVersioning\CreateTShirtV3.cs" />
-    <Compile Include="CommandVersioning\CreateTShirtV4.cs" />
-    <Compile Include="CommandVersioning\TShirtCreatedV4.cs" />
-    <Compile Include="Handlers\DomainCommandHandlerModule.cs" />
-    <Compile Include="Handlers\IHandlerBuilderExtensons.cs" />
-    <Compile Include="IEventPublisher.cs" />
-    <Compile Include="ObservableMessagePublisher.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Domain\Persistence\IRepository.cs" />
+    <Compile Include="Domain\Persistence\NEventStoreRepository.cs" />
+    <Compile Include="Domain\Persistence\RepositoryExtensions.cs" />
+    <Compile Include="Guard.cs" />
+    <Compile Include="Handlers\DomainEventMessage.cs" />
+    <Compile Include="Handlers\DurableCommitDispatcher.cs" />
+    <Compile Include="Handlers\HandlerModuleExtensions.cs" />
+    <Compile Include="Handlers\IEventStoreClient.cs" />
+    <Compile Include="Handlers\Messages.Designer.cs">
+      <DependentUpon>Messages.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Handlers\TempImportFromNES\EventStoreClient.cs" />
+    <Compile Include="Handlers\TempImportFromNES\LruCache.cs" />
+    <Compile Include="ProcessManagers\Persistence\NEventStoreProcessManagerRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
-      <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>
+      <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
       <Name>Cedar.Client</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Cedar.NEventStore\Cedar.NEventStore.csproj">
-      <Project>{14571633-73BE-40E4-993B-0FF82648CBEC}</Project>
-      <Name>Cedar.NEventStore</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Cedar\Cedar.csproj">
-      <Project>{DCFCD369-4580-42D4-8F26-A071B9D17680}</Project>
+      <Project>{dcfcd369-4580-42d4-8f26-a071b9d17680}</Project>
       <Name>Cedar</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Handlers\Messages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

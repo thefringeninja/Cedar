@@ -1,6 +1,7 @@
-﻿namespace Cedar.Commands
+﻿namespace Cedar
 {
     using System;
+    using NEventStore;
 
     internal static class Guard
     {

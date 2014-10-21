@@ -3,6 +3,7 @@
     using System;
     using System.Reactive.Linq;
     using System.Threading.Tasks;
+    using Cedar.Handlers;
     using Cedar.ProcessManagers;
     using Cedar.Testing;
     using Xunit;
