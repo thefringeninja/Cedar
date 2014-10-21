@@ -12,22 +12,22 @@ namespace Cedar.ProcessManagers
     using Cedar.Handlers;
     using Cedar.ProcessManagers.Persistence;
 
-    public static class ProcessHandlerModule
+    public static class ProcessHandler
     {
-        public static ProcessHandlerModule<TProcess> For<TProcess>(
+        public static ProcessHandler<TProcess> For<TProcess>(
             IHandlerResolver commandDispatcher,
             IProcessManagerRepository repository,
             ClaimsPrincipal principal,
-            ProcessHandlerModule<TProcess>.GetProcess getProcess,
-            ProcessHandlerModule<TProcess>.SaveProcess saveProcess,
+            ProcessHandler<TProcess>.GetProcess getProcess,
+            ProcessHandler<TProcess>.SaveProcess saveProcess,
             Func<string, string> buildProcessId = null,
             string bucketId = null) where TProcess : IProcessManager
         {
-            return new ProcessHandlerModule<TProcess>(commandDispatcher, principal, getProcess, saveProcess, buildProcessId, bucketId);
+            return new ProcessHandler<TProcess>(commandDispatcher, principal, getProcess, saveProcess, buildProcessId, bucketId);
         }
     }
 
-    public class ProcessHandlerModule<TProcess> : IHandlerResolver
+    public class ProcessHandler<TProcess> : IHandlerResolver
         where TProcess : IProcessManager
     {
         // ReSharper disable StaticFieldInGenericType
@@ -46,7 +46,7 @@ namespace Cedar.ProcessManagers
 
         private IHandlerResolver _inner;
 
-        internal ProcessHandlerModule(
+        internal ProcessHandler(
             IHandlerResolver commandDispatcher, 
             ClaimsPrincipal principal,
             GetProcess getProcess, 
@@ -65,7 +65,7 @@ namespace Cedar.ProcessManagers
             _correlationIdLookup = new Dictionary<Type, Func<object, string>>();
         }
 
-        public ProcessHandlerModule<TProcess> CorrelateBy<TMessage>(
+        public ProcessHandler<TProcess> CorrelateBy<TMessage>(
             Func<TMessage, string> getCorrelationId)
         {
             _correlationIdLookup[typeof(TMessage)] = message => getCorrelationId((TMessage) message);
@@ -73,7 +73,7 @@ namespace Cedar.ProcessManagers
             return this;
         }
 
-        public ProcessHandlerModule<TProcess> Pipe(Pipe<object> pipe)
+        public ProcessHandler<TProcess> Pipe(Pipe<object> pipe)
         {
             _pipes.Add(pipe);
 
