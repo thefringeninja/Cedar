@@ -5,6 +5,7 @@ namespace Cedar.ProcessManagers
     using System.Linq;
     using System.Reflection;
     using System.Security.Claims;
+    using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Commands;
@@ -17,10 +18,12 @@ namespace Cedar.ProcessManagers
             IHandlerResolver commandDispatcher,
             IProcessManagerRepository repository,
             ClaimsPrincipal principal,
+            ProcessHandlerModule<TProcess>.GetProcess getProcess,
+            ProcessHandlerModule<TProcess>.SaveProcess saveProcess,
             Func<string, string> buildProcessId = null,
             string bucketId = null) where TProcess : IProcessManager
         {
-            return new ProcessHandlerModule<TProcess>(commandDispatcher, repository, principal, buildProcessId, bucketId);
+            return new ProcessHandlerModule<TProcess>(commandDispatcher, principal, getProcess, saveProcess, buildProcessId, bucketId);
         }
     }
 
@@ -33,27 +36,30 @@ namespace Cedar.ProcessManagers
         // ReSharper restore StaticFieldInGenericType
 
         private readonly IHandlerResolver _commandDispatcher;
-        private readonly IProcessManagerRepository _repository;
         private readonly ClaimsPrincipal _principal;
         private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
         private readonly IDictionary<Type, Func<object, string>> _correlationIdLookup;
         private readonly IList<Pipe<object>> _pipes;
+        private readonly GetProcess _getProcess;
+        private readonly SaveProcess _saveProcess;
 
         private IHandlerResolver _inner;
 
         internal ProcessHandlerModule(
-            IHandlerResolver commandDispatcher,
-            IProcessManagerRepository repository, 
+            IHandlerResolver commandDispatcher, 
             ClaimsPrincipal principal,
+            GetProcess getProcess, 
+            SaveProcess saveProcess,
             Func<string, string> buildProcessId = null, 
             string bucketId = null)
         {
             _commandDispatcher = commandDispatcher;
-            _repository = repository;
             _principal = principal;
             _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
+            _getProcess = getProcess;
+            _saveProcess = saveProcess;
             _pipes = new List<Pipe<object>>();
 
             _correlationIdLookup = new Dictionary<Type, Func<object, string>>();
@@ -103,7 +109,7 @@ namespace Cedar.ProcessManagers
 
                     string processId = _buildProcessId(correlationId);
 
-                    TProcess process = await _repository.GetById<TProcess>(_bucketId, processId, Int32.MaxValue, ct);
+                    TProcess process = await _getProcess(_bucketId, processId, ct);
 
                     process.ApplyEvent(message);
 
@@ -112,7 +118,7 @@ namespace Cedar.ProcessManagers
 
                     await Task.WhenAll(undispatched);
 
-                    await _repository.Save(_bucketId, process, null, ct);
+                    await _saveProcess(_bucketId, process, ct);
                 });
 
             return module;
@@ -131,5 +137,9 @@ namespace Cedar.ProcessManagers
                     command
                 });
         }
+
+        public delegate Task<TProcess> GetProcess(string bucketId, string processId, CancellationToken token);
+
+        public delegate Task SaveProcess(string bucketId, TProcess process, CancellationToken token);
     }
 }
