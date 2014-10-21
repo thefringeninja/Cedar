@@ -4,14 +4,14 @@ namespace Cedar.Handlers
     using System.Collections.Generic;
     using NEventStore;
 
-    public class DomainEventMessage<T>
+    public class NEventStoreMessage<T>
     {
         private readonly ICommit _commit;
         private readonly int _version;
         private readonly IReadOnlyDictionary<string, object> _eventHeaders;
         private readonly T _domainEvent;
 
-        public DomainEventMessage(
+        public NEventStoreMessage(
             ICommit commit,
             int version,
             IReadOnlyDictionary<string, object> eventHeaders,

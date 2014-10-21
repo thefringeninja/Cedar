@@ -18,7 +18,7 @@
         {
             using (IStoreEvents eventStore = Wireup.Init().UsingInMemoryPersistence().Build())
             {
-                var dispatchedEvents = new List<DomainEventMessage<TestEvent>>();
+                var dispatchedEvents = new List<NEventStoreMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(dispatchedEvents);
 
                 using (var host = new DurableCommitDispatcher(
@@ -56,7 +56,7 @@
         {
             using (IStoreEvents eventStore = Wireup.Init().UsingInMemoryPersistence().Build())
             {
-                var projectedEvents = new List<DomainEventMessage<TestEvent>>();
+                var projectedEvents = new List<NEventStoreMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(projectedEvents);
 
                 using (var host = new DurableCommitDispatcher(
@@ -95,20 +95,20 @@
 
         private class TestHandlerModule : HandlerModule
         {
-            private readonly IList<DomainEventMessage<TestEvent>> _eventsList;
+            private readonly IList<NEventStoreMessage<TestEvent>> _eventsList;
 
-            public TestHandlerModule(IList<DomainEventMessage<TestEvent>> eventsList)
+            public TestHandlerModule(IList<NEventStoreMessage<TestEvent>> eventsList)
             {
                 _eventsList = eventsList;
 
-                For<DomainEventMessage<TestEvent>>()
+                For<NEventStoreMessage<TestEvent>>()
                     .Handle((message, _) =>
                     {
                         _eventsList.Add(message);
                         return Task.FromResult(0);
                     });
 
-                For<DomainEventMessage<TestEventThatThrows>>()
+                For<NEventStoreMessage<TestEventThatThrows>>()
                     .Handle((message, _) =>
                     {
                        throw new Exception();

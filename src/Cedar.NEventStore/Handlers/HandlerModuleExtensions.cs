@@ -61,7 +61,7 @@ namespace Cedar.Handlers
             CancellationToken cancellationToken)
             where TDomainEvent : class
         {
-            var message = new DomainEventMessage<TDomainEvent>(commit, version, eventHeaders, domainEvent);
+            var message = new NEventStoreMessage<TDomainEvent>(commit, version, eventHeaders, domainEvent);
             return handlerModules.Dispatch(message, cancellationToken);
         }
     }

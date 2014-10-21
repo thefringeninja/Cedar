@@ -2,14 +2,14 @@
 {
     using System.Collections.Generic;
 
-    public class DomainEventMessage<T>
+    public class GetEventStoreMessage<T>
     {
         private readonly T _domainEvent;
         private readonly string _streamId;
         private readonly int _checkpoint;
         private readonly IDictionary<string, object> _headers;
 
-        public DomainEventMessage(T domainEvent, IDictionary<string, object> headers, string streamId, int checkpoint)
+        public GetEventStoreMessage(T domainEvent, IDictionary<string, object> headers, string streamId, int checkpoint)
         {
             _domainEvent = domainEvent;
             _streamId = streamId;

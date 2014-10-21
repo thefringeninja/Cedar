@@ -111,7 +111,7 @@
             Guard.EnsureNotNull(eventMessage.Body, "eventMessage.Body");
             Guard.EnsureNotNull(commit, "commit");
 
-            var messageType = typeof(DomainEventMessage<>).MakeGenericType(eventMessage.Body.GetType());
+            var messageType = typeof(NEventStoreMessage<>).MakeGenericType(eventMessage.Body.GetType());
 
             return Activator.CreateInstance(messageType, commit, version, eventMessage.Headers, eventMessage.Body);
         }
