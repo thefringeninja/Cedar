@@ -5,12 +5,10 @@ namespace Cedar.ProcessManagers
     using System.Linq;
     using System.Reflection;
     using System.Security.Claims;
-    using System.Text;
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Commands;
     using Cedar.Handlers;
-    using Cedar.Internal;
     using Cedar.ProcessManagers.Persistence;
 
     public static class ProcessHandlerModule
@@ -34,14 +32,11 @@ namespace Cedar.ProcessManagers
             .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
         // ReSharper restore StaticFieldInGenericType
 
-        private const string CommitIdNamespace = "73A18DFA-17C7-45A8-B57D-0148FDA3096A";
-        
         private readonly IHandlerResolver _commandDispatcher;
         private readonly IProcessManagerRepository _repository;
         private readonly ClaimsPrincipal _principal;
         private readonly Func<string, string> _buildProcessId;
         private readonly string _bucketId;
-        private readonly GenerateCommitId _buildCommitId;
         private readonly IDictionary<Type, Func<object, string>> _correlationIdLookup;
         private readonly IList<Pipe<object>> _pipes;
 
@@ -60,12 +55,6 @@ namespace Cedar.ProcessManagers
             _buildProcessId = buildProcessId ?? (correlationId => typeof(TProcess).Name + "-" + correlationId);
             _bucketId = bucketId;
             _pipes = new List<Pipe<object>>();
-
-            var generator = new DeterministicGuidGenerator(Guid.Parse(CommitIdNamespace));
-
-            _buildCommitId = (message, processId, processVersion) =>
-                generator.Create(Encoding.UTF8.GetBytes("-" + processId + "-")
-                    .Concat(BitConverter.GetBytes(processVersion)).ToArray());
 
             _correlationIdLookup = new Dictionary<Type, Func<object, string>>();
         }
@@ -123,8 +112,6 @@ namespace Cedar.ProcessManagers
 
                     await Task.WhenAll(undispatched);
 
-                    Guid commitId = _buildCommitId(message, process.Id, process.Version);
-
                     await _repository.Save(_bucketId, process, null, ct);
                 });
 
@@ -144,7 +131,5 @@ namespace Cedar.ProcessManagers
                     command
                 });
         }
-
-        private delegate Guid GenerateCommitId(object message, string processId, int processVersion);
     }
 }
