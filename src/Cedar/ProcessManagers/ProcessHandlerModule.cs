@@ -115,7 +115,7 @@ namespace Cedar.ProcessManagers
 
                     string processId = _buildProcessId(correlationId);
 
-                    TProcess process = await _repository.GetById<TProcess>(_bucketId, processId, 0, ct);
+                    TProcess process = await _repository.GetById<TProcess>(_bucketId, processId, Int32.MaxValue, ct);
 
                     process.ApplyEvent(message);
 
