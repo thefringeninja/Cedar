@@ -5,7 +5,13 @@ using Microsoft.Owin;
 
 namespace Cedar.Example.AspNet
 {
+    using System;
+    using System.Collections.Generic;
     using System.Threading;
+
+    using Cedar.Handlers;
+    using Cedar.Queries;
+
     using Owin;
 
     public class Startup
@@ -19,7 +25,8 @@ namespace Cedar.Example.AspNet
                 token.Register(() => App.Instance.Dispose());
             }
 
-            app.Use(App.Instance.Middleware);
+            app.Use(App.Instance.CommandingMiddleWare);
+            app.Use(App.Instance.QueryingMiddleWare);
         }
     }
 }

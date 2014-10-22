@@ -2,12 +2,14 @@
 {
     using System;
     using System.Linq;
+    using System.Runtime.Remoting.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Commands;
     using Cedar.Handlers;
     using Cedar.Handlers.TempImportFromNES;
     using Cedar.Internal;
+    using Cedar.Queries;
     using Cedar.TypeResolution;
     using Microsoft.Owin;
     using NEventStore;
@@ -21,20 +23,25 @@
             new Lazy<App>(() => new App(), LazyThreadSafetyMode.ExecutionAndPublication);
 
         private readonly InterlockedBoolean _isDisposed = new InterlockedBoolean();
-        private readonly MidFunc _middleware;
+        private readonly MidFunc _commandingMiddleware;
         private readonly IStoreEvents _storeEvents;
         private readonly DurableCommitDispatcher _durableCommitDispatcher;
+        private readonly MidFunc _queryingMiddleware;
 
         private App()
         {
+            var queryHandlerModule = new QueryHandlerModule();
+            queryHandlerModule.For<Query, Query.Response>().HandleQuery((message, ct) => Task.FromResult(new Query.Response()));
+            
             var settings = new DefaultHandlerSettings(
-                new HandlerModule(),
-                new DefaultRequestTypeResolver("cedar", Enumerable.Empty<Type>()));
+                queryHandlerModule,
+                new DefaultRequestTypeResolver("cedar", new[] { typeof(Query), typeof(Query.Response) }));
 
             var commitDispatcherFailed = new TaskCompletionSource<Exception>();
-            //MidFunc blah = CommandHandlingMiddleware.HandleCommands(settings);
-            //_middleware = CreateGate(commitDispatcherFailed.Task)
-            _middleware = CommandHandlingMiddleware.HandleCommands(settings);
+            
+            _commandingMiddleware = CommandHandlingMiddleware.HandleCommands(settings);
+            _queryingMiddleware = QueryHandlingMiddleware.HandleQueries(settings);
+            
             _storeEvents = Wireup.Init().UsingInMemoryPersistence().Build();
             var eventStoreClient = new EventStoreClient(_storeEvents.Advanced);
 
@@ -84,9 +91,13 @@
             _storeEvents.Dispose();
         }
 
-        public MidFunc Middleware
+        public MidFunc CommandingMiddleWare
         {
-            get { return _middleware; }
+            get { return _commandingMiddleware; }
+        }
+        public MidFunc QueryingMiddleWare
+        {
+            get { return _queryingMiddleware; }
         } 
     }
 }
