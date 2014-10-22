@@ -5,12 +5,7 @@ using Microsoft.Owin;
 
 namespace Cedar.Example.AspNet
 {
-    using System;
-    using System.Collections.Generic;
     using System.Threading;
-
-    using Cedar.Handlers;
-    using Cedar.Queries;
 
     using Owin;
 

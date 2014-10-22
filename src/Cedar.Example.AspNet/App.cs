@@ -1,8 +1,6 @@
 ﻿namespace Cedar.Example.AspNet
 {
     using System;
-    using System.Linq;
-    using System.Runtime.Remoting.Messaging;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Commands;
@@ -11,7 +9,6 @@
     using Cedar.Internal;
     using Cedar.Queries;
     using Cedar.TypeResolution;
-    using Microsoft.Owin;
     using NEventStore;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
@@ -56,24 +53,6 @@
                 commitDispatcherFailed.SetResult);
 
             _durableCommitDispatcher.Start().Wait();
-        }
-
-        private MidFunc CreateGate(Task<Exception> commitDispatcherFailed)
-        {
-            return 
-                next =>
-                async env =>
-                {
-                    if (commitDispatcherFailed.IsCompleted) 
-                    { 
-                        var owinContext = new OwinContext(env);
-                        owinContext.Response.StatusCode = 500;
-                        owinContext.Response.ReasonPhrase = "Internal Server Error";
-                        owinContext.Response.Write(commitDispatcherFailed.Result.ToString());
-                        return;
-                    }
-                    await next(env);
-                };
         }
 
         public static App Instance
