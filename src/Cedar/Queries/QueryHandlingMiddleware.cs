@@ -103,10 +103,11 @@
 
             var body = options.Serializer.Serialize(result);
             await context.Response.WriteAsync(body);
+
+            context.Response.Headers["ETag"] = string.Format("\"{0}\"", body.GetHashCode());
             context.Response.StatusCode = 200;
             context.Response.ReasonPhrase = "OK";
         }
-
 
         private static Stream DefaultGetInputStream(IRequest request)
         {
