@@ -10,13 +10,11 @@ namespace Cedar.ProcessManagers
     using Cedar.Annotations;
     using Cedar.Commands;
     using Cedar.Handlers;
-    using Cedar.ProcessManagers.Persistence;
 
     public static class ProcessHandler
     {
         public static ProcessHandler<TProcess> For<TProcess>(
             IHandlerResolver commandDispatcher,
-            IProcessManagerRepository repository,
             ClaimsPrincipal principal,
             ProcessHandler<TProcess>.GetProcess getProcess,
             ProcessHandler<TProcess>.SaveProcess saveProcess,
