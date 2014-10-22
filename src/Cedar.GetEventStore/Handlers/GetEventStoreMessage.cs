@@ -1,15 +1,16 @@
 ﻿namespace Cedar.Handlers
 {
     using System.Collections.Generic;
+    using EventStore.ClientAPI;
 
     public class GetEventStoreMessage<T>
     {
         private readonly T _domainEvent;
         private readonly string _streamId;
-        private readonly int _checkpoint;
+        private readonly Position? _checkpoint;
         private readonly IDictionary<string, object> _headers;
 
-        public GetEventStoreMessage(T domainEvent, IDictionary<string, object> headers, string streamId, int checkpoint)
+        public GetEventStoreMessage(T domainEvent, IDictionary<string, object> headers, string streamId, Position? checkpoint)
         {
             _domainEvent = domainEvent;
             _streamId = streamId;
@@ -27,7 +28,7 @@
             get { return _streamId; }
         }
 
-        public int Checkpoint
+        public Position? Checkpoint
         {
             get { return _checkpoint; }
         }
