@@ -6,6 +6,7 @@ using Microsoft.Owin;
 namespace Cedar.Example.AspNet
 {
     using System.Threading;
+
     using Owin;
 
     public class Startup
@@ -19,7 +20,8 @@ namespace Cedar.Example.AspNet
                 token.Register(() => App.Instance.Dispose());
             }
 
-            app.Use(App.Instance.Middleware);
+            app.Use(App.Instance.CommandingMiddleWare);
+            app.Use(App.Instance.QueryingMiddleWare);
         }
     }
 }
