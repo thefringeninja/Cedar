@@ -102,11 +102,40 @@
                 .Invoke(null, new[] {task});
 
             var body = options.Serializer.Serialize(result);
-            await context.Response.WriteAsync(body);
 
             context.Response.Headers["ETag"] = string.Format("\"{0}\"", body.GetHashCode());
-            context.Response.StatusCode = 200;
-            context.Response.ReasonPhrase = "OK";
+
+            if(Fresh(context.Request, context.Response))
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                context.Response.ReasonPhrase = "NotModified";
+            }
+            else
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                context.Response.ReasonPhrase = "OK";
+                await context.Response.WriteAsync(body);
+            }
+        }
+
+        private static bool Fresh(IOwinRequest request, IOwinResponse response)
+        {
+            var requestEtags = IfNoneMatch(request);
+            var responseEtag = response.Headers["ETag"];
+
+            return requestEtags.Contains(responseEtag);
+        }
+
+        private static IEnumerable< string> IfNoneMatch(IOwinRequest owinRequest)
+        {
+            var ifNoneMatch = owinRequest.Headers["If-None-Match"];
+
+            if(ifNoneMatch != null)
+            {
+                return ifNoneMatch.Split(',');
+            }
+
+            return Enumerable.Empty<string>();
         }
 
         private static Stream DefaultGetInputStream(IRequest request)
@@ -119,5 +148,6 @@
         {
             return await task;
         }
+
     }
 }
