@@ -111,6 +111,41 @@
             }
         }
 
+        [Theory]
+        [InlineData("testquery")]
+        public async Task When_request_if_non_match_matches_then_should_return_not_modified(string query)
+        {
+            using (var client = _fixture.CreateHttpClient())
+            {
+                var request = new HttpRequestMessage(
+                    HttpMethod.Get,
+                    _fixture.MessageExecutionSettings.Path + "/" + query);
+
+                request.Headers.Accept.ParseAdd("application/vnd.vendor.testqueryresponse+json");
+                request.Headers.IfNoneMatch.ParseAdd("\"1947253782\"");
+                var response = await client.SendAsync(request);
+
+                response.StatusCode.Should().Be(HttpStatusCode.NotModified);
+            }
+        }
+
+        [Theory]
+        [InlineData("testquery")]
+        public async Task When_request_if_non_match_not_matching_then_should_return_ok(string query)
+        {
+            using (var client = _fixture.CreateHttpClient())
+            {
+                var request = new HttpRequestMessage(
+                    HttpMethod.Get,
+                    _fixture.MessageExecutionSettings.Path + "/" + query);
+
+                request.Headers.Accept.ParseAdd("application/vnd.vendor.testqueryresponse+json");
+                request.Headers.IfNoneMatch.ParseAdd("\"old-etag\"");
+                var response = await client.SendAsync(request);
+
+                response.StatusCode.Should().Be(HttpStatusCode.OK);
+            }
+        }
 
         public void SetFixture(QueryHandlingFixture data)
         {

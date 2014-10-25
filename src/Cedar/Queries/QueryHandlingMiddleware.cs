@@ -25,17 +25,17 @@
             .GetMethod("DispatchQuery", BindingFlags.Static | BindingFlags.Public);
 
         private static readonly MethodInfo WidenTaskResultMethodInfo =
-            typeof (QueryHandlingMiddleware).GetMethod("WidenTaskResult", BindingFlags.Static | BindingFlags.NonPublic);
+            typeof(QueryHandlingMiddleware).GetMethod("WidenTaskResult", BindingFlags.Static | BindingFlags.NonPublic);
 
         public static MidFunc HandleQueries(HandlerSettings options,
             Func<IDictionary<string, object>, Type> getInputType = null,
-            Func<IDictionary<string, object>, Type> getOutputType = null, 
-            Func<IRequest, Stream> getInputStream = null, 
+            Func<IDictionary<string, object>, Type> getOutputType = null,
+            Func<IRequest, Stream> getInputStream = null,
             string queryPath = "/query")
         {
             Guard.EnsureNotNull(options, "options");
 
-            var acceptableMethods = new[] {"GET", "POST"};
+            var acceptableMethods = new[] { "GET", "POST" };
 
             return next => env =>
             {
@@ -70,7 +70,7 @@
             getInputStream = getInputStream ?? DefaultGetInputStream;
 
             var request = new CedarRequest(context);
-            
+
             var inputType = options.RequestTypeResolver.ResolveInputType(request);
 
             if (inputType == null)
@@ -81,7 +81,7 @@
             var outputType = options.RequestTypeResolver.ResolveOutputType(request);
 
             object input;
-            
+
             using (var streamReader = new StreamReader(getInputStream(request)))
             {
                 input = options.Serializer.Deserialize(streamReader, inputType)
@@ -89,24 +89,58 @@
             }
 
             var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
-            
+
             var dispatchQuery = DispatchQueryMethodInfo.MakeGenericMethod(inputType, outputType);
 
             var task = dispatchQuery.Invoke(null, new[]
             {
                 options.HandlerModules, queryId, user, input, context.Request.CallCancelled
             });
-            
-            var result = await (Task<object>) WidenTaskResultMethodInfo
+
+            var result = await (Task<object>)WidenTaskResultMethodInfo
                 .MakeGenericMethod(outputType)
-                .Invoke(null, new[] {task});
+                .Invoke(null, new[] { task });
 
             var body = options.Serializer.Serialize(result);
-            await context.Response.WriteAsync(body);
 
             context.Response.Headers["ETag"] = string.Format("\"{0}\"", body.GetHashCode());
-            context.Response.StatusCode = 200;
-            context.Response.ReasonPhrase = "OK";
+
+            if (Fresh(context.Request, context.Response))
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                context.Response.ReasonPhrase = "NotModified";
+            }
+            else
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                context.Response.ReasonPhrase = "OK";
+                await context.Response.WriteAsync(body);
+            }
+        }
+
+        private static bool Fresh(IOwinRequest request, IOwinResponse response)
+        {
+            if ((response.StatusCode < 200 || response.StatusCode >= 300) && response.StatusCode != 304)
+            {
+                return false;
+            }
+
+            var requestEtags = IfNoneMatch(request);
+            var responseEtag = response.Headers["ETag"];
+
+            return requestEtags.Contains(responseEtag);
+        }
+
+        private static IEnumerable<string> IfNoneMatch(IOwinRequest owinRequest)
+        {
+            var ifNoneMatch = owinRequest.Headers["If-None-Match"];
+
+            if (ifNoneMatch != null)
+            {
+                return ifNoneMatch.Split(',');
+            }
+
+            return Enumerable.Empty<string>();
         }
 
         private static Stream DefaultGetInputStream(IRequest request)
@@ -119,5 +153,6 @@
         {
             return await task;
         }
+
     }
 }
