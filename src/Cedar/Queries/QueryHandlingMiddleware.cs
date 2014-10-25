@@ -120,6 +120,11 @@
 
         private static bool Fresh(IOwinRequest request, IOwinResponse response)
         {
+            if ((response.StatusCode < 200 || response.StatusCode >= 300) && response.StatusCode != 304)
+            {
+                return false;
+            }
+
             var requestEtags = IfNoneMatch(request);
             var responseEtag = response.Headers["ETag"];
 
