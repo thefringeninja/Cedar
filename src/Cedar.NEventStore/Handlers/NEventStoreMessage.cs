@@ -1,66 +1,31 @@
 namespace Cedar.Handlers
 {
-    using System;
     using System.Collections.Generic;
     using NEventStore;
 
-    public class NEventStoreMessage<T>
+    public static class NEventStoreMessage
     {
-        private readonly ICommit _commit;
-        private readonly int _version;
-        private readonly IReadOnlyDictionary<string, object> _eventHeaders;
-        private readonly T _domainEvent;
-
-        public NEventStoreMessage(
-            ICommit commit,
-            int version,
-            IReadOnlyDictionary<string, object> eventHeaders,
-            T domainEvent)
+        public static DomainEventMessage<T> Create<T>(EventMessage eventMessage, ICommit commit, int version) where T : class
         {
-            _commit = commit;
-            _version = version;
-            _eventHeaders = eventHeaders;
-            _domainEvent = domainEvent;
-        }
+            var @event = (T)eventMessage.Body;
 
-        public ICommit Commit
-        {
-            get { return _commit; }
-        }
-
-        public int Version
-        {
-            get { return _version; }
-        }
-
-        public IReadOnlyDictionary<string, object> EventHeaders
-        {
-            get { return _eventHeaders; }
-        }
-
-        public T DomainEvent
-        {
-            get { return _domainEvent; }
-        }
-
-        public Guid? CorrelationId
-        {
-            get
+            var headers = new Dictionary<string, object>(commit.Headers).Merge(@eventMessage.Headers, new Dictionary<string, object>
             {
-                object correlationIdRaw;
-                Guid correlationId;
+                {DomainEventMessageHeaders.StreamId, commit.StreamId},
+                {DomainEventMessageHeaders.Type, typeof(T)},
+                {NEventStoreMessageHeaders.Commit, commit}
+            });
 
-                if (false == _commit.Headers.TryGetValue("CorrelationId", out correlationIdRaw) || correlationIdRaw == null) return default(Guid?);
-
-                if (correlationIdRaw is Guid) return (Guid) correlationIdRaw;
-
-                return Guid.TryParse(correlationIdRaw.ToString(), out correlationId) ? correlationId : default(Guid?);
-            }
+            return new DomainEventMessage<T>(@event, headers, commit.StreamId, version, commit.CheckpointToken);
         }
 
-        public override string ToString()
+        public static ICommit Commit<T>(this DomainEventMessage<T> message) where T : class
         {
-            return DomainEvent.ToString();
+            object commit;
+
+            message.Headers.TryGetValue(NEventStoreMessageHeaders.Commit, out commit);
+
+            return commit as ICommit;
         }
     }
 }

@@ -47,7 +47,6 @@
     <Compile Include="Domain\Persistence\EventStoreClientRepository.cs" />
     <Compile Include="EventStoreExtensions.cs" />
     <Compile Include="Guard.cs" />
-    <Compile Include="Handlers\GetEventStoreMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\SerializationHelper.cs" />
     <Compile Include="TypeUtilities.cs" />

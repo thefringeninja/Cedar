@@ -4,6 +4,7 @@
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Domain.Persistence;
@@ -111,9 +112,9 @@
             Guard.EnsureNotNull(eventMessage.Body, "eventMessage.Body");
             Guard.EnsureNotNull(commit, "commit");
 
-            var messageType = typeof(NEventStoreMessage<>).MakeGenericType(eventMessage.Body.GetType());
-
-            return Activator.CreateInstance(messageType, commit, version, eventMessage.Headers, eventMessage.Body);
+            return typeof(NEventStoreMessage)
+                .GetMethod("Create", BindingFlags.Static | BindingFlags.Public)
+                .Invoke(null, new object[] {eventMessage, commit, version});
         }
 
         private static Dictionary<string, object> PrepareHeaders(

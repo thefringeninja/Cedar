@@ -18,7 +18,7 @@
         {
             using (IStoreEvents eventStore = Wireup.Init().UsingInMemoryPersistence().Build())
             {
-                var dispatchedEvents = new List<NEventStoreMessage<TestEvent>>();
+                var dispatchedEvents = new List<DomainEventMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(dispatchedEvents);
 
                 using (var host = new DurableCommitDispatcher(
@@ -43,8 +43,8 @@
                     await commitProjected;
 
                     dispatchedEvents.Count.Should().Be(1);
-                    dispatchedEvents[0].Commit.Should().NotBeNull();
-                    dispatchedEvents[0].EventHeaders.Should().NotBeNull();
+                    dispatchedEvents[0].Commit().Should().NotBeNull();
+                    dispatchedEvents[0].Headers.Should().NotBeNull();
                     dispatchedEvents[0].Version.Should().Be(1);
                     dispatchedEvents[0].DomainEvent.Should().BeOfType<TestEvent>();
                 }
@@ -56,7 +56,7 @@
         {
             using (IStoreEvents eventStore = Wireup.Init().UsingInMemoryPersistence().Build())
             {
-                var projectedEvents = new List<NEventStoreMessage<TestEvent>>();
+                var projectedEvents = new List<DomainEventMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(projectedEvents);
 
                 using (var host = new DurableCommitDispatcher(
@@ -95,20 +95,20 @@
 
         private class TestHandlerModule : HandlerModule
         {
-            private readonly IList<NEventStoreMessage<TestEvent>> _eventsList;
+            private readonly List<DomainEventMessage<TestEvent>> _eventsList;
 
-            public TestHandlerModule(IList<NEventStoreMessage<TestEvent>> eventsList)
+            public TestHandlerModule(List<DomainEventMessage<TestEvent>> eventsList)
             {
                 _eventsList = eventsList;
 
-                For<NEventStoreMessage<TestEvent>>()
+                For<DomainEventMessage<TestEvent>>()
                     .Handle((message, _) =>
                     {
                         _eventsList.Add(message);
                         return Task.FromResult(0);
                     });
 
-                For<NEventStoreMessage<TestEventThatThrows>>()
+                For<DomainEventMessage<TestEventThatThrows>>()
                     .Handle((message, _) =>
                     {
                        throw new Exception();

@@ -23,9 +23,9 @@ namespace Cedar.Handlers
             foreach (var eventMessage in commit.Events)
             {
                 var genericMethod = methodInfo.MakeGenericMethod(eventMessage.Body.GetType());
-                await (Task)genericMethod.Invoke(null, new[]
+                await (Task)genericMethod.Invoke(null, new object[]
                 {
-                    handlerModules, commit, version, eventMessage.Headers, eventMessage.Body, cancellationToken
+                    handlerModules, commit, version++, eventMessage, cancellationToken
                 });
             }
         }
@@ -44,9 +44,9 @@ namespace Cedar.Handlers
             foreach (var eventMessage in commit.Events)
             {
                 var genericMethod = methodInfo.MakeGenericMethod(eventMessage.Body.GetType());
-                await (Task)genericMethod.Invoke(null, new[]
+                await (Task)genericMethod.Invoke(null, new object[]
                 {
-                    new[] { handlerModule }, commit, version, eventMessage.Headers, eventMessage.Body, cancellationToken
+                    new [] { handlerModule }, commit, version++, eventMessage, cancellationToken
                 });
             }
         }
@@ -56,12 +56,12 @@ namespace Cedar.Handlers
             IEnumerable<IHandlerResolver> handlerModules,
             ICommit commit,
             int version,
-            IReadOnlyDictionary<string, object> eventHeaders,
-            TDomainEvent domainEvent,
+            EventMessage eventMessage,
             CancellationToken cancellationToken)
             where TDomainEvent : class
         {
-            var message = new NEventStoreMessage<TDomainEvent>(commit, version, eventHeaders, domainEvent);
+            var message = NEventStoreMessage.Create<TDomainEvent>(eventMessage, commit, version);
+
             return handlerModules.Dispatch(message, cancellationToken);
         }
     }

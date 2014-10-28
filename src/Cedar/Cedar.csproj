@@ -67,6 +67,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Commands\CommandHandlerModule.cs" />
+    <Compile Include="Handlers\DictionaryExtensions.cs" />
+    <Compile Include="Handlers\DomainEventMessage.cs" />
+    <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
