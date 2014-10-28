@@ -1,16 +1,13 @@
 ﻿namespace Cedar.Domain
 {
     using System;
-    using System.IO;
     using System.Net;
     using System.Threading.Tasks;
     using Cedar.Domain.Persistence;
-    using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
     using EventStore.ClientAPI.Embedded;
     using EventStore.Core;
     using EventStore.Core.Data;
-    using Newtonsoft.Json;
     using Xunit;
 
     public class GetEventStoreClientRepositoryTests : IDisposable
@@ -48,7 +45,7 @@
 
             _connection = EmbeddedEventStoreConnection.Create(_node);
 
-            _repository = new EventStoreClientRepository<Aggregate>(_connection, new DefaultJsonSerializer());
+            _repository = new EventStoreClientRepository<Aggregate>(_connection, new DefaultGetEventStoreJsonSerializer());
 
             _node.Start();
 
@@ -196,29 +193,5 @@
 
         private class Somethinged
         { }
-
-        internal class DefaultJsonSerializer : ISerializer
-        {
-            private readonly JsonSerializer _jsonSerializer;
-
-            internal DefaultJsonSerializer()
-            {
-                _jsonSerializer = JsonSerializer.Create(new JsonSerializerSettings
-                {
-                    TypeNameHandling = TypeNameHandling.Objects,
-                });
-            }
-
-            public object Deserialize(TextReader reader, Type type)
-            {
-                return _jsonSerializer.Deserialize(reader, type);
-            }
-
-            public void Serialize(TextWriter writer, object target)
-            {
-                _jsonSerializer.Serialize(writer, target);
-            }
-        }
-
     }
 }
