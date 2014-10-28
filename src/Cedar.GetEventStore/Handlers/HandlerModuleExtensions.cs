@@ -13,8 +13,9 @@
     {
         public static Task DispatchResolvedEvent(
             [NotNull] this IEnumerable<IHandlerResolver> handlerModules,
-            ResolvedEvent resolvedEvent,
             [NotNull] ISerializer serializer,
+            ResolvedEvent resolvedEvent,
+            bool isSubscribedToAll,
             CancellationToken cancellationToken)
         {
             Guard.EnsureNotNull(handlerModules, "handlerModules");
@@ -31,14 +32,15 @@
 
             return (Task) genericMethod.Invoke(null, new[]
             {
-                handlerModules, serializer, @event, headers, resolvedEvent, cancellationToken
+                handlerModules, serializer, @event, headers, resolvedEvent, isSubscribedToAll, cancellationToken
             });
         }
 
         public static Task DispatchResolvedEvent(
             [NotNull] this IHandlerResolver handlerModule,
-            ResolvedEvent resolvedEvent,
             [NotNull] ISerializer serializer,
+            ResolvedEvent resolvedEvent,
+            bool isSubscribedToAll,
             CancellationToken cancellationToken)
         {
             Guard.EnsureNotNull(handlerModule, "handlerModule");
@@ -55,7 +57,7 @@
 
             return (Task) genericMethod.Invoke(null, new[]
             {
-                new[] {handlerModule}, serializer, @event, headers, resolvedEvent, cancellationToken
+                new[] {handlerModule}, serializer, @event, headers, resolvedEvent, isSubscribedToAll, cancellationToken
             });
         }
 
@@ -63,14 +65,15 @@
         private static Task DispatchDomainEvent<TDomainEvent>(
             IEnumerable<IHandlerResolver> handlerModules,
             [NotNull] ISerializer serializer,
-            TDomainEvent domainEvent, 
-            IDictionary<string, object> headers, 
+            TDomainEvent domainEvent,
+            IDictionary<string, object> headers,
             ResolvedEvent resolvedEvent,
+            bool isSubscribedToAll,
             CancellationToken cancellationToken)
             where TDomainEvent : class
         {
 
-            var message = GetEventStoreMessage.Create(domainEvent, headers, resolvedEvent);
+            var message = GetEventStoreMessage.Create(domainEvent, headers, resolvedEvent, isSubscribedToAll);
 
             return handlerModules.Dispatch(message, cancellationToken);
         }

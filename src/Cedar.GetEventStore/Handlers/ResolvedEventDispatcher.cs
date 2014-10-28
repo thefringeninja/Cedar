@@ -18,15 +18,16 @@
         private readonly IEventStoreConnection _eventStore;
         private readonly ISerializer _serializer;
         private readonly ICheckpointRepository _checkpoints;
-        private readonly Func<ResolvedEvent, ISerializer, CancellationToken, Task> _dispatchResolvedEvent;
+        private readonly Func<ISerializer, ResolvedEvent, bool, CancellationToken, Task> _dispatchResolvedEvent;
         private readonly Action _onCaughtUp;
+        private readonly string _streamId;
         private readonly TransientExceptionRetryPolicy _retryPolicy;
-        private EventStoreAllCatchUpSubscription _subscription;
         private readonly Subject<ResolvedEvent> _projectedEvents;
         private readonly InterlockedBoolean _isStarted;
         private readonly InterlockedBoolean _isDisposed;
         private readonly CancellationTokenSource _disposed = new CancellationTokenSource();
         private readonly SimpleQueue _queue;
+        private EventStoreCatchUpSubscription _subscription;
 
         static ResolvedEventDispatcher()
         {
@@ -37,9 +38,10 @@
             IEventStoreConnection eventStore,
             ISerializer serializer,
             ICheckpointRepository checkpoints,
-            Func<ResolvedEvent, ISerializer, CancellationToken, Task> dispatchResolvedEvent,
+            Func<ISerializer, ResolvedEvent, bool, CancellationToken, Task> dispatchResolvedEvent,
             Action onCaughtUp,
-            TransientExceptionRetryPolicy retryPolicy = null)
+            TransientExceptionRetryPolicy retryPolicy = null,
+            string streamId = null)
         {
             _isStarted = new InterlockedBoolean();
             _isDisposed = new InterlockedBoolean();
@@ -49,6 +51,7 @@
             _checkpoints = checkpoints;
             _dispatchResolvedEvent = dispatchResolvedEvent;
             _onCaughtUp = onCaughtUp;
+            _streamId = streamId;
             _projectedEvents = new Subject<ResolvedEvent>();
             _retryPolicy = retryPolicy ?? TransientExceptionRetryPolicy.None();
 
@@ -56,7 +59,7 @@
             {
                 try
                 {
-                    await _retryPolicy.Retry(() => _dispatchResolvedEvent(resolvedEvent, _serializer, _disposed.Token), token);
+                    await _retryPolicy.Retry(() => _dispatchResolvedEvent(_serializer, resolvedEvent, _subscription.IsSubscribedToAll, _disposed.Token), token);
                 }
                 catch(Exception ex)
                 {
@@ -75,8 +78,9 @@
             ICheckpointRepository checkpoints,
             [NotNull] IEnumerable<IHandlerResolver> handlerModules,
             Action onCaughtUp,
-            TransientExceptionRetryPolicy retryPolicy = null)
-            : this(eventStore, serializer, checkpoints, handlerModules.DispatchResolvedEvent, onCaughtUp, retryPolicy)
+            TransientExceptionRetryPolicy retryPolicy = null,
+            string streamId = null)
+            : this(eventStore, serializer, checkpoints, handlerModules.DispatchResolvedEvent, onCaughtUp, retryPolicy, streamId)
         {}
 
         public ResolvedEventDispatcher(
@@ -85,8 +89,9 @@
             ICheckpointRepository checkpoints,
             [NotNull] IHandlerResolver handlerModule,
             Action onCaughtUp,
-            TransientExceptionRetryPolicy retryPolicy = null)
-            : this(eventStore, serializer, checkpoints, new[] {handlerModule}, onCaughtUp, retryPolicy)
+            TransientExceptionRetryPolicy retryPolicy = null,
+            string streamId = null)
+            : this(eventStore, serializer, checkpoints, new[] {handlerModule}, onCaughtUp, retryPolicy, streamId)
         {}
 
         public IObservable<ResolvedEvent> ProjectedEvents
@@ -118,9 +123,22 @@
 
         private async Task RecoverSubscription()
         {
-            var checkpoint = await _checkpoints.Get();
+            var checkpointToken = await _checkpoints.Get();
 
-            _subscription = _eventStore.SubscribeToAllFrom(checkpoint.ParsePosition(),
+            _subscription = _streamId == null 
+                ? SubscribeToAllFrom(checkpointToken.ParsePosition()) 
+                : SubscribeToStreamFrom(checkpointToken == null ? default(int?) : Int32.Parse(checkpointToken));
+        }
+
+        private EventStoreCatchUpSubscription SubscribeToStreamFrom(int? lastCheckpoint)
+        {
+            return _eventStore.SubscribeToStreamFrom(_streamId, lastCheckpoint, true, EventAppeared,
+                _ => _onCaughtUp(), SubscriptionDropped);
+        }
+
+        private EventStoreCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint)
+        {
+            return _eventStore.SubscribeToAllFrom(lastCheckpoint,
                 false,
                 EventAppeared,
                 _ => _onCaughtUp(),

@@ -6,10 +6,13 @@
     public static class GetEventStoreMessage
     {
         public static DomainEventMessage<T> Create<T>(T domainEvent, IDictionary<string, object> headers,
-            ResolvedEvent resolvedEvent) where T : class
+            ResolvedEvent resolvedEvent, bool isSubscribedToAll) where T : class
         {
             return new DomainEventMessage<T>(domainEvent, headers, resolvedEvent.Event.EventStreamId,
-                resolvedEvent.Event.EventNumber, resolvedEvent.OriginalPosition.ToCheckpointToken());
+                resolvedEvent.Event.EventNumber, 
+                isSubscribedToAll 
+                    ? resolvedEvent.OriginalPosition.ToCheckpointToken()
+                    : resolvedEvent.OriginalEventNumber.ToString());
         }
     }
 }
