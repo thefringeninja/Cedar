@@ -6,23 +6,28 @@
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
 
-    public abstract class ObservableProcessManager : IProcessManager
+    public abstract class ObservableProcessManager : IProcessManager, IDisposable
     {
-        private readonly IList<object> _outbox;
         private readonly ISubject<object> _inbox;
-        private readonly IList<object> _events;
         private readonly string _id;
+        private readonly string _correlationId;
         private bool _subscribed;
         private int _version;
-
+        private readonly ISubject<object> _commands;
+        private readonly ISubject<object> _events;
+        private readonly IList<IDisposable> _subscriptions; 
         protected ObservableProcessManager(
-            string id)
+            string id, string correlationId)
         {
             _id = id;
-            
+            _correlationId = correlationId;
+
             _inbox = new ReplaySubject<object>();
-            _outbox = new List<object>();
-            _events = new List<object>();
+            _commands = new Subject<object>();
+            _events = new Subject<object>();
+            _subscriptions = new List<IDisposable>();
+
+            When(OnAnyMessage(), _ => _version++);
         }
 
         public string Id
@@ -35,35 +40,19 @@
             get { return _version; }
         }
 
-        public IEnumerable<object> GetUncommittedEvents()
+        public IObserver<object> Inbox
         {
-            return _events.AsEnumerable();
+            get { return _inbox; }
         }
 
-        public void ClearUncommittedEvents()
+        public IObservable<object> Commands
         {
-            _events.Clear();
+            get { return _commands; }
         }
 
-        public IEnumerable<object> GetUndispatchedCommands()
+        public IObservable<object> Events
         {
-            return _outbox.AsEnumerable();
-        }
-
-        public void ClearUndispatchedCommands()
-        {
-            _outbox.Clear();
-        }
-
-        public void ApplyEvent(object @event)
-        {
-            if(false == _subscribed)
-            {
-                _subscribed = true;
-                Subscribe();
-            }
-            _inbox.OnNext(@event);
-            _version++;
+            get { return _events; }
         }
 
         protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, IEnumerable<object>> @do)
@@ -87,17 +76,21 @@
 
         protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)
         {
-            @on.Select(_ => new ProcessCompleted
+            _subscriptions.Add(@on.Select(_ => new ProcessCompleted
             {
-                ProcessId = _id
-            }).Subscribe(_inbox);
+                ProcessId = _id,
+                CorrelationId = _correlationId
+            }).Subscribe(_events));
         }
 
-        protected abstract void Subscribe();
-
-        private void Send(IObservable<object> messages)
+        private void Send(IObservable<object> commands)
         {
-            messages.Subscribe(_outbox.Add);
+            _subscriptions.Add(commands.Subscribe(_commands));
+        }
+
+        public void Dispose()
+        {
+            _subscriptions.ForEach(subscription => subscription.Dispose());
         }
     }
 }

@@ -110,11 +110,8 @@
 
         public class StarbucksProcess : ObservableProcessManager
         {
-            public StarbucksProcess(String id)
-                : base(id)
-            {}
-
-            protected override void Subscribe()
+            public StarbucksProcess(String id, string correlationId)
+                : base(id, correlationId)
             {
                 var orderPlaced = On<DrinkOrderPlaced>();
                 var drinkPrepared = On<DrinkPrepared>();
@@ -123,23 +120,23 @@
                 var paymentRefunded = On<PaymentRefunded>();
 
                 var orderReady = (from order in orderPlaced
-                    from drink in drinkPrepared
-                    from payment in paymentReceived
-                    select new
-                    {
-                        OrderedDrink = order.Drink,
-                        payment.Amount,
-                        order.CustomerId,
-                        PreparedDrink = drink.Drink,
-                        order.OrderId
-                    }).Distinct();
+                                  from drink in drinkPrepared
+                                  from payment in paymentReceived
+                                  select new
+                                  {
+                                      OrderedDrink = order.Drink,
+                                      payment.Amount,
+                                      order.CustomerId,
+                                      PreparedDrink = drink.Drink,
+                                      order.OrderId
+                                  }).Distinct();
 
                 var orderRuined = orderReady.Where(e => e.OrderedDrink != e.PreparedDrink);
                 var orderCompleted = orderReady.Where(e => e.OrderedDrink == e.PreparedDrink);
 
-                When(orderPlaced, e => new PrepareDrink {Drink = e.Drink, OrderId = e.OrderId});
-                When(orderCompleted, e => new GiveCustomerDrink {OrderId = e.OrderId, CustomerId = e.CustomerId});
-                When(orderRuined, e => new RefundPayment {CustomerId = e.CustomerId, Amount = e.Amount});
+                When(orderPlaced, e => new PrepareDrink { Drink = e.Drink, OrderId = e.OrderId });
+                When(orderCompleted, e => new GiveCustomerDrink { OrderId = e.OrderId, CustomerId = e.CustomerId });
+                When(orderRuined, e => new RefundPayment { CustomerId = e.CustomerId, Amount = e.Amount });
 
                 CompleteWhen(drinkReceived);
                 CompleteWhen(paymentRefunded);
