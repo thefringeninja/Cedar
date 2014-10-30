@@ -122,7 +122,7 @@
                     _fixture.MessageExecutionSettings.Path + "/" + query);
 
                 request.Headers.Accept.ParseAdd("application/vnd.vendor.testqueryresponse+json");
-                request.Headers.IfNoneMatch.ParseAdd("\"1947253782\"");
+                request.Headers.IfNoneMatch.ParseAdd(string.Format("\"{0}\"", "{}".GetHashCode()));
                 var response = await client.SendAsync(request);
 
                 response.StatusCode.Should().Be(HttpStatusCode.NotModified);
