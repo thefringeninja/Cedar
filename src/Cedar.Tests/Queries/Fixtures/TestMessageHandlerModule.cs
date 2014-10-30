@@ -14,6 +14,9 @@
                 });
             For<TestQuery, TestQueryResponse>()
                 .Handle(async (message, __) => message.Source.SetResult(new TestQueryResponse()));
+
+            For<TestQueryWhichReturnsNull, TestQueryWhichReturnsNullResponse>()
+                .Handle(async (message, __) => message.Source.SetResult(null));
         }
     }
 }
