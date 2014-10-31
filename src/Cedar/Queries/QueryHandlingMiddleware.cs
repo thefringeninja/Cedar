@@ -101,20 +101,28 @@
                 .MakeGenericMethod(outputType)
                 .Invoke(null, new[] { task });
 
-            var body = options.Serializer.Serialize(result);
-
-            context.Response.Headers["ETag"] = string.Format("\"{0}\"", body.GetHashCode());
-
-            if (Fresh(context.Request, context.Response))
+            if(result == null)
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NotModified;
-                context.Response.ReasonPhrase = "NotModified";
+                context.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                context.Response.ReasonPhrase = "Not Found";
             }
             else
             {
-                context.Response.StatusCode = (int)HttpStatusCode.OK;
-                context.Response.ReasonPhrase = "OK";
-                await context.Response.WriteAsync(body);
+                var body = options.Serializer.Serialize(result);
+
+                context.Response.Headers["ETag"] = string.Format("\"{0}\"", body.GetHashCode());
+
+                if (Fresh(context.Request, context.Response))
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                    context.Response.ReasonPhrase = "NotModified";
+                }
+                else
+                {
+                    context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    context.Response.ReasonPhrase = "OK";
+                    await context.Response.WriteAsync(body);
+                }
             }
         }
 

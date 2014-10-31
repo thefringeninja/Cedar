@@ -117,6 +117,7 @@
     <Compile Include="MessageEqualityComparerTests.cs" />
     <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />
     <Compile Include="Commands\CommandHandlingTests.cs" />
+    <Compile Include="Queries\Fixtures\TestQueryWhichReturnsNull.cs" />
     <Compile Include="Testing\AggregateTests.cs" />
     <Compile Include="Testing\EnumerableTests.cs" />
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
