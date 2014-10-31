@@ -12,8 +12,7 @@ namespace Cedar.ExceptionModels
             TypeSwitch.On(exception)
                 .Case<HttpStatusException>(ex =>
                 {
-                    exception = ex.InnerException;
-                    model = Convert(exception);
+                    model = Convert(ex.InnerException);
                 })
                 .Case<ArgumentException>(ex => model = new ArgumentExceptionModel
                 {

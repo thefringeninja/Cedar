@@ -147,6 +147,23 @@
             }
         }
 
+        [Fact]
+        public async Task When_corresponding_response_type_is_not_found_should_return_not_acceptable()
+        {
+            using (var client = _fixture.CreateHttpClient())
+            {
+                var request = new HttpRequestMessage(
+                    HttpMethod.Get,
+                    _fixture.MessageExecutionSettings.Path + "/testquerywithnoreturntype");
+
+                request.Headers.Accept.ParseAdd("application/vnd.vendor.testquerywithnoreturntyperesponse+json");
+                
+                var response = await client.SendAsync(request);
+
+                response.StatusCode.Should().Be(HttpStatusCode.NotAcceptable);
+            }
+        }
+
         [Theory]
         [InlineData("testquerywhichreturnsnull")]
         public async Task When_request_can_not_be_found_it_should_return_not_found(string query)
@@ -158,7 +175,7 @@
                     _fixture.MessageExecutionSettings.Path + "/" + query);
 
                 request.Headers.Accept.ParseAdd("application/vnd.vendor.testquerywhichreturnsnullresponse+json");
-                
+
                 var response = await client.SendAsync(request);
 
                 response.StatusCode.Should().Be(HttpStatusCode.NotFound);

@@ -9,11 +9,11 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Commands;
     using Cedar.ExceptionModels;
     using Cedar.Serialization.Client;
     using Cedar.TypeResolution;
     using Microsoft.Owin;
+    using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
@@ -51,21 +51,22 @@
                     return next(env);
                 }
 
-                return BuildHandlerCall(getInputStream)
+                return BuildHandlerCall(next, getInputStream)
                     .ExecuteWithExceptionHandling(context, options);
             };
         }
 
-        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(Func<IRequest, Stream> getInputStream = null)
+        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(AppFunc next, Func<IRequest, Stream> getInputStream = null)
         {
             return (context, options) => HandleQuery(
+                next, 
                 context,
                 Guid.NewGuid(),
                 options,
                 getInputStream);
         }
 
-        private static async Task HandleQuery(IOwinContext context, Guid queryId, HandlerSettings options, Func<IRequest, Stream> getInputStream = null)
+        private static async Task HandleQuery(AppFunc next, IOwinContext context, Guid queryId, HandlerSettings options, Func<IRequest, Stream> getInputStream = null)
         {
             getInputStream = getInputStream ?? DefaultGetInputStream;
 
@@ -75,10 +76,16 @@
 
             if (inputType == null)
             {
-                throw new HttpStatusException("Unable to find the query type", HttpStatusCode.BadRequest, new NotSupportedException());
+                await next(context.Environment);
+                return;
             }
 
             var outputType = options.RequestTypeResolver.ResolveOutputType(request);
+
+            if(outputType == null)
+            {
+                throw new HttpStatusException(string.Format("Unable to find type {0}Response.", inputType.FullName), HttpStatusCode.NotAcceptable, new NotSupportedException());
+            }
 
             object input;
 
@@ -103,26 +110,24 @@
 
             if(result == null)
             {
-                context.Response.StatusCode = (int) HttpStatusCode.NotFound;
-                context.Response.ReasonPhrase = "Not Found";
+                await next(context.Environment);
+                return;
+            }
+            
+            var body = options.Serializer.Serialize(result);
+
+            context.Response.Headers["ETag"] = string.Format("\"{0}\"", body.GetHashCode());
+
+            if (Fresh(context.Request, context.Response))
+            {
+                context.Response.StatusCode = (int)HttpStatusCode.NotModified;
+                context.Response.ReasonPhrase = "NotModified";
             }
             else
             {
-                var body = options.Serializer.Serialize(result);
-
-                context.Response.Headers["ETag"] = string.Format("\"{0}\"", body.GetHashCode());
-
-                if (Fresh(context.Request, context.Response))
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.NotModified;
-                    context.Response.ReasonPhrase = "NotModified";
-                }
-                else
-                {
-                    context.Response.StatusCode = (int)HttpStatusCode.OK;
-                    context.Response.ReasonPhrase = "OK";
-                    await context.Response.WriteAsync(body);
-                }
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
+                context.Response.ReasonPhrase = "OK";
+                await context.Response.WriteAsync(body);
             }
         }
 
