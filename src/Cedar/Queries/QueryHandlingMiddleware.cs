@@ -80,6 +80,11 @@
 
             var outputType = options.RequestTypeResolver.ResolveOutputType(request);
 
+            if(outputType == null)
+            {
+                throw new HttpStatusException(string.Format("Unable to find type {0}Response.", inputType.FullName), HttpStatusCode.NotAcceptable, new NotSupportedException());
+            }
+
             object input;
 
             using (var streamReader = new StreamReader(getInputStream(request)))

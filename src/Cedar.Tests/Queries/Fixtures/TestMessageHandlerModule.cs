@@ -17,6 +17,10 @@
 
             For<TestQueryWhichReturnsNull, TestQueryWhichReturnsNullResponse>()
                 .Handle(async (message, __) => message.Source.SetResult(null));
+        
+            For<TestQueryWithNoReturnType, object>()
+                .Handle(async (message, __) => message.Source.SetResult(null));
+
         }
     }
 }
