@@ -1,6 +1,7 @@
 ﻿namespace Cedar.ProcessManagers
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Handlers;
     using Cedar.ProcessManagers.Messages;
@@ -20,7 +21,7 @@
             _serializer = serializer;
         }
 
-        public Task SaveCheckpointToken(IProcessManager processManager, string checkpointToken)
+        public Task SaveCheckpointToken(IProcessManager processManager, string checkpointToken, CancellationToken ct)
         {
             return AppendToStream(processManager.Id, new CheckpointReached
             {
@@ -30,17 +31,22 @@
             });
         }
 
-        public Task MarkProcessCompleted(ProcessCompleted message)
+        public Task MarkProcessCompleted(ProcessCompleted message, CancellationToken ct)
         {
             return AppendToStream(message.ProcessId, message);
         }
 
-        public async Task<CompareablePosition> GetCheckpoint(string processId)
+        public async Task<CompareablePosition> GetCheckpoint(string processId, CancellationToken ct)
         {
             int streamPosition = StreamPosition.End;
             var streamName = GetStreamName(processId);
             do
             {
+                if(ct.IsCancellationRequested)
+                {
+                    return new CompareablePosition();
+                }
+
                 var slice = await _connection.ReadStreamEventsBackwardAsync(streamName, streamPosition, 1, false);
 
                 if(slice.Status != SliceReadStatus.Success || slice.Events.Length == 0)

@@ -32,6 +32,7 @@
         private readonly Guid _orderId;
         private readonly string _streamName;
         private readonly string _correlationId;
+        private ResolvedEventDispatcher _dispatcher;
 
         public ProcessManagerHandlerTests()
         {
@@ -78,34 +79,34 @@
                 .CorrelateBy<OrderShipped>(e => e.DomainEvent.OrderId.ToString())
                 .CorrelateBy<BillingSucceeded>(e => e.DomainEvent.OrderId.ToString())
                 .CorrelateBy<BillingFailed>(e => e.DomainEvent.OrderId.ToString());
+
+
+            _dispatcher = new ResolvedEventDispatcher(_connection,
+                new DefaultGetEventStoreJsonSerializer(),
+                new InMemoryCheckpointRepository(),
+                _processHandler.BuildHandlerResolver(),
+                () => { });
+
             _orderId = Guid.NewGuid();
             _streamName = "orders-" + _orderId.ToString("n");
             _correlationId = _orderId.ToString();
         }
 
-        protected async Task<ResolvedEventDispatcher> CreateDispatcher(IHandlerResolver handler)
+        protected async Task StartDispatcher()
         {
             await _nodeStarted;
 
-            var dispatcher = new ResolvedEventDispatcher(_connection,
-                new DefaultGetEventStoreJsonSerializer(),
-                new InMemoryCheckpointRepository(),
-                handler,
-                () => { });
-
-            await dispatcher.Start();
-
-            return dispatcher;
+            await _dispatcher.Start();
         }
 
         [Fact]
         public async Task should_send_commands_and_notify_checkpoint_reached()
         {
-            var dispatcher = await CreateDispatcher(_processHandler.BuildHandlerResolver());
+            await StartDispatcher();
 
-            var result = await PlaceOrder();
+            await PlaceOrder();
 
-            var checkpointReached = await dispatcher.ProjectedEvents.Take(2).ToTask();
+            var checkpointReached = await _dispatcher.ProjectedEvents.Take(2).ToTask().WithTimeout(TimeSpan.FromSeconds(5));
 
             _commands.Count.Should().Be(1);
             _commands.Single().Should().BeOfType<BillCustomer>();
@@ -120,11 +121,11 @@
 
             await WriteCheckpoint(result.LogPosition);
 
-            var dispatcher = await CreateDispatcher(_processHandler.BuildHandlerResolver());
+            await StartDispatcher();
 
             await SucceedBilling();
 
-            await dispatcher.ProjectedEvents.Take(4).ToTask();
+            await _dispatcher.ProjectedEvents.Take(4).ToTask().WithTimeout(TimeSpan.FromSeconds(5));
 
             _commands.Count.Should().Be(2);
             _commands.Last().Should().BeOfType<ShipOrder>();
@@ -132,6 +133,7 @@
 
         public void Dispose()
         {
+            _dispatcher.Dispose();
             _node.Stop();
         }
 

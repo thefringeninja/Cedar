@@ -164,13 +164,12 @@ namespace Cedar.ProcessManagers
 
                     var correlationId = getCorrelationId(message);
 
-                    var checkpointedProcess = await GetProcess(correlationId);
+                    var checkpointedProcess = await GetProcess(correlationId, ct);
 
                     var process = checkpointedProcess.Process;
                     var checkpoint = checkpointedProcess.Checkpoint;
 
                     process.Inbox.OnNext(message);
-                    
 
                     if (checkpoint.CompareTo(domainEventMessage.CheckpointToken) >= 0)
                     {
@@ -186,11 +185,11 @@ namespace Cedar.ProcessManagers
 
                     await Task.WhenAll(commands.Select(command => DispatchCommand(process, command, ct)));
 
-                    await _checkpointRepository.SaveCheckpointToken(process, domainEventMessage.CheckpointToken);
+                    await _checkpointRepository.SaveCheckpointToken(process, domainEventMessage.CheckpointToken, ct);
                 };
             }
 
-            private async Task<CheckpointedProcess> GetProcess(string correlationId)
+            private async Task<CheckpointedProcess> GetProcess(string correlationId, CancellationToken ct)
             {
                 CheckpointedProcess checkpointedProcess;
                 if(false == _activeProcesses.TryGetValue(correlationId, out checkpointedProcess))
@@ -198,14 +197,14 @@ namespace Cedar.ProcessManagers
                     var process = (TProcess) _processManagerFactory
                         .Build(typeof(TProcess), _buildProcessId(correlationId), correlationId);
 
-                    var checkpoint = await _checkpointRepository.GetCheckpoint(process.Id);
+                    var checkpoint = await _checkpointRepository.GetCheckpoint(process.Id, ct);
 
                     process.Events.OfType<ProcessCompleted>()
                         .Subscribe(async e =>
                         {
                             CheckpointedProcess _;
                             _activeProcesses.TryRemove(e.ProcessId, out _);
-                            await _checkpointRepository.MarkProcessCompleted(e);
+                            await _checkpointRepository.MarkProcessCompleted(e, ct);
                             process.Dispose();
                         });
 

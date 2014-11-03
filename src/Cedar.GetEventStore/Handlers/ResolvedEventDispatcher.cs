@@ -67,6 +67,11 @@
                     throw;
                 }
 
+                if(_isDisposed.Value)
+                {
+                    return;
+                }
+
                 _projectedEvents.OnNext(resolvedEvent);
 
             }, _disposed.Token);
