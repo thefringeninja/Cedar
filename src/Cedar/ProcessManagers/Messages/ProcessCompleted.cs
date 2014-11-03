@@ -1,4 +1,4 @@
-namespace Cedar.ProcessManagers
+namespace Cedar.ProcessManagers.Messages
 {
     public class ProcessCompleted
     {

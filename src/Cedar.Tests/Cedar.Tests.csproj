@@ -117,6 +117,7 @@
     <Compile Include="DefaultGetEventStoreJsonSerializer.cs" />
     <Compile Include="Domain\GetEventStoreClientRepositoryTests.cs" />
     <Compile Include="Domain\NEventStoreRepositoryTests.cs" />
+    <Compile Include="Handlers\ProcessManagerHandlerTests.cs" />
     <Compile Include="Handlers\ResolvedEventDispatcherTests.cs" />
     <Compile Include="MessageEqualityComparerTests.cs" />
     <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />

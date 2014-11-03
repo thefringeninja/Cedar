@@ -67,6 +67,8 @@
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
     <Compile Include="Handlers\GetEventStoreMessage.cs" />
     <Compile Include="Handlers\ResolvedEventDispatcher.cs" />
+    <Compile Include="ProcessManagers\CompareablePosition.cs" />
+    <Compile Include="ProcessManagers\EventStoreClientProcessManagerCheckpointRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serialization\SerializationHelper.cs" />
     <Compile Include="TypeUtilities.cs" />

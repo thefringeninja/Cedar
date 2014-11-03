@@ -5,15 +5,15 @@
     using System.Linq;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
+    using Cedar.ProcessManagers.Messages;
 
-    public abstract class ObservableProcessManager : IProcessManager, IDisposable
+    public abstract class ObservableProcessManager : IProcessManager
     {
         private readonly ISubject<object> _inbox;
         private readonly string _id;
         private readonly string _correlationId;
-        private bool _subscribed;
         private int _version;
-        private readonly ISubject<object> _commands;
+        private readonly List<object> _commands;
         private readonly ISubject<object> _events;
         private readonly IList<IDisposable> _subscriptions; 
         protected ObservableProcessManager(
@@ -23,11 +23,11 @@
             _correlationId = correlationId;
 
             _inbox = new ReplaySubject<object>();
-            _commands = new Subject<object>();
+            _commands = new List<object>();
             _events = new Subject<object>();
             _subscriptions = new List<IDisposable>();
 
-            When(OnAnyMessage(), _ => _version++);
+            Subscribe(OnAnyMessage(), _ => _version++);
         }
 
         public string Id
@@ -35,6 +35,10 @@
             get { return _id; }
         }
 
+        public string CorrelationId
+        {
+            get { return _correlationId; }
+        }
         public int Version
         {
             get { return _version; }
@@ -45,7 +49,7 @@
             get { return _inbox; }
         }
 
-        public IObservable<object> Commands
+        public IEnumerable<object> Commands
         {
             get { return _commands; }
         }
@@ -57,7 +61,7 @@
 
         protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, IEnumerable<object>> @do)
         {
-            Send(@on.SelectMany(@do));
+            Send(@on.Select(@do));
         }
 
         protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, object> @do)
@@ -69,6 +73,7 @@
         {
             return _inbox.OfType<TMessage>();
         }
+
         protected IObservable<dynamic> OnAnyMessage()
         {
             return _inbox.OfType<object>();
@@ -76,16 +81,26 @@
 
         protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)
         {
-            _subscriptions.Add(@on.Select(_ => new ProcessCompleted
+            Subscribe(@on.Select(_ => new ProcessCompleted
             {
                 ProcessId = _id,
                 CorrelationId = _correlationId
-            }).Subscribe(_events));
+            }), _events);
         }
 
-        private void Send(IObservable<object> commands)
+        private void Send(IObservable<IEnumerable<object>> batches)
         {
-            _subscriptions.Add(commands.Subscribe(_commands));
+            Subscribe(batches, batch => _commands.AddRange(batch));
+        }
+
+        protected void Subscribe<T>(IObservable<T> observable, IObserver<T> observer)
+        {
+            _subscriptions.Add(observable.Subscribe(observer));
+        }
+
+        protected void Subscribe<T>(IObservable<T> observable, Action<T> onNext)
+        {
+            _subscriptions.Add(observable.Subscribe(onNext));
         }
 
         public void Dispose()

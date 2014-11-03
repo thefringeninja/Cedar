@@ -8,6 +8,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.ProcessManagers;
+    using Cedar.ProcessManagers.Messages;
     using Cedar.ProcessManagers.Persistence;
 
     public static partial class Scenario
@@ -46,6 +47,7 @@
                 where TProcess: IProcessManager
             {
                 private readonly string _processId;
+                private readonly string _correlationId;
                 private readonly string _name;
                 private readonly IProcessManagerFactory _factory;
                 
@@ -70,9 +72,10 @@
                 private bool _passed;
                 private readonly Stopwatch _timer;
 
-                public ScenarioBuilder(IProcessManagerFactory factory, string processId, string name)
+                public ScenarioBuilder(IProcessManagerFactory factory, string correlationId, string name)
                 {
-                    _processId = processId ?? typeof(TProcess).Name + "-" + Guid.NewGuid();
+                    _processId = typeof(TProcess) + "-" + correlationId;
+                    _correlationId = correlationId;
                     _name = name;
                     _factory = factory ?? new DefaultProcessManagerFactory();
                     _given = new object[0];
@@ -83,16 +86,15 @@
                     {
                         foreach(var message in _given)
                         {
-                            process.ApplyEvent(message);
+                            process.Inbox.OnNext(message);
                         }
                     };
 
                     _runWhen = process =>
                     {
-                        process.ClearUncommittedEvents();
-                        process.ClearUndispatchedCommands();
+                        process.Inbox.OnNext(new CheckpointReached());
 
-                        process.ApplyEvent(_when);
+                        process.Inbox.OnNext(_when);
                     };
 
                     _checkCommands = _ => { };
@@ -100,8 +102,8 @@
 
                     _runThen = process =>
                     {
-                        _results = process.GetUndispatchedCommands()
-                            .Union(process.GetUncommittedEvents());
+                        var events = new List<object>();
+                        var commands = new List<object>();
 
                         _checkCommands(process);
                         _checkEvents(process);
@@ -121,7 +123,7 @@
 
                     try
                     {
-                        var process = _factory.Build(typeof(TProcess), _processId);
+                        var process = _factory.Build(typeof(TProcess), _processId, _correlationId);
 
                         _runGiven(process);
 
@@ -179,7 +181,7 @@
                     
                     _checkCommands = process =>
                     {
-                        if (false == process.GetUndispatchedCommands()
+                        /*if (false == process.GetUndispatchedCommands()
                             .SequenceEqual(commands, MessageEqualityComparer.Instance))
                         {
                             throw new ScenarioException(
@@ -190,7 +192,7 @@
                                         .ToString(),
                                     _expectedCommands.Aggregate(new StringBuilder(), (builder, s) => builder.Append(s))
                                         .ToString()));
-                        }
+                        }*/
                     };
 
                     return this;
@@ -202,10 +204,10 @@
 
                     _checkCommands = process =>
                     {
-                        if (process.GetUndispatchedCommands().Any())
+                        /*if (process.GetUndispatchedCommands().Any())
                         {
                             throw new ScenarioException("No commands were expected, yet some commands occurred.");
-                        }
+                        }*/
                     };
                     return this;
                 }
@@ -216,11 +218,11 @@
 
                     _checkEvents = process =>
                     {
-                        if (false == process.GetUndispatchedCommands()
+                        /*if (false == process.GetUndispatchedCommands()
                            .SequenceEqual(events, MessageEqualityComparer.Instance))
                         {
                             throw new ScenarioException("The ocurred events did not equal the expected events.");
-                        }
+                        }*/
                     };
 
                     return this;

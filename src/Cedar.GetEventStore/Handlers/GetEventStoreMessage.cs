@@ -5,14 +5,15 @@
 
     public static class GetEventStoreMessage
     {
-        public static DomainEventMessage<T> Create<T>(T domainEvent, IDictionary<string, object> headers,
-            ResolvedEvent resolvedEvent, bool isSubscribedToAll) where T : class
+        public static DomainEventMessage<T> Create<T>(
+            T domainEvent,
+            IDictionary<string, object> headers,
+            ResolvedEvent resolvedEvent,
+            bool isSubscribedToAll) where T : class
         {
-            return new DomainEventMessage<T>(domainEvent, headers, resolvedEvent.Event.EventStreamId,
-                resolvedEvent.Event.EventNumber, 
-                isSubscribedToAll 
-                    ? resolvedEvent.OriginalPosition.ToCheckpointToken()
-                    : resolvedEvent.OriginalEventNumber.ToString());
+            return new DomainEventMessage<T>(resolvedEvent.Event.EventStreamId, domainEvent, resolvedEvent.Event.EventNumber, headers, isSubscribedToAll
+                ? resolvedEvent.OriginalPosition.ToCheckpointToken()
+                : resolvedEvent.OriginalEventNumber.ToString());
         }
     }
 }

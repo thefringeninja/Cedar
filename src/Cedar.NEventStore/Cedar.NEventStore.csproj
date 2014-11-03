@@ -74,7 +74,6 @@
     <Compile Include="Handlers\NEventStoreMessageHeaders.cs" />
     <Compile Include="Handlers\TempImportFromNES\EventStoreClient.cs" />
     <Compile Include="Handlers\TempImportFromNES\LruCache.cs" />
-    <Compile Include="ProcessManagers\Persistence\NEventStoreProcessManagerRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

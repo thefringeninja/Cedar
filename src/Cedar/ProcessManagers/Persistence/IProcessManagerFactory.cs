@@ -4,6 +4,6 @@ namespace Cedar.ProcessManagers.Persistence
 
     public interface IProcessManagerFactory
     {
-        IProcessManager Build(Type type, string id);
+        IProcessManager Build(Type type, string id, string correlationId);
     }
 }
