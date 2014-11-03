@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
+    using Cedar.Handlers;
     using Cedar.ProcessManagers.Messages;
 
     public abstract class ObservableProcessManager : IProcessManager
@@ -27,7 +28,7 @@
             _events = new Subject<object>();
             _subscriptions = new List<IDisposable>();
 
-            Subscribe(OnAnyMessage(), _ => _version++);
+            Subscribe(OnAny(), _ => _version++);
         }
 
         public string Id
@@ -74,9 +75,9 @@
             return _inbox.OfType<TMessage>();
         }
 
-        protected IObservable<dynamic> OnAnyMessage()
+        protected IObservable<dynamic> OnAny()
         {
-            return _inbox.OfType<object>();
+            return _inbox.OfType<DomainEventMessage>();
         }
 
         protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)
