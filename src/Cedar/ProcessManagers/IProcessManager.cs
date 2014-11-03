@@ -1,19 +1,16 @@
 ﻿namespace Cedar.ProcessManagers
 {
+    using System;
     using System.Collections.Generic;
-    using Cedar.Handlers;
 
-    public interface IProcessManager
+    public interface IProcessManager : IDisposable
     {
         string Id { get; }
+        string CorrelationId { get; }
         int Version { get; }
 
-        IEnumerable<object> GetUncommittedEvents();
-        void ClearUncommittedEvents();
-
-        IEnumerable<object> GetUndispatchedCommands();
-        void ClearUndispatchedCommands();
-
-        void ApplyEvent(object @event);
+        IObserver<object> Inbox { get; }
+        IEnumerable<object> Commands { get; }
+        IObservable<object> Events { get; }
     }
 }

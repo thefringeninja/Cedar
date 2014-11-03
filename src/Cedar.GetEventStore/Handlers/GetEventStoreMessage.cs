@@ -3,39 +3,17 @@
     using System.Collections.Generic;
     using EventStore.ClientAPI;
 
-    public class GetEventStoreMessage<T>
+    public static class GetEventStoreMessage
     {
-        private readonly T _domainEvent;
-        private readonly string _streamId;
-        private readonly Position? _checkpoint;
-        private readonly IDictionary<string, object> _headers;
-
-        public GetEventStoreMessage(T domainEvent, IDictionary<string, object> headers, string streamId, Position? checkpoint)
+        public static DomainEventMessage<T> Create<T>(
+            T domainEvent,
+            IDictionary<string, object> headers,
+            ResolvedEvent resolvedEvent,
+            bool isSubscribedToAll) where T : class
         {
-            _domainEvent = domainEvent;
-            _streamId = streamId;
-            _checkpoint = checkpoint;
-            _headers = headers;
-        }
-
-        public T DomainEvent
-        {
-            get { return _domainEvent; }
-        }
-
-        public string StreamId
-        {
-            get { return _streamId; }
-        }
-
-        public Position? Checkpoint
-        {
-            get { return _checkpoint; }
-        }
-
-        public IDictionary<string, object> Headers
-        {
-            get { return _headers; }
+            return new DomainEventMessage<T>(resolvedEvent.Event.EventStreamId, domainEvent, resolvedEvent.Event.EventNumber, headers, isSubscribedToAll
+                ? resolvedEvent.OriginalPosition.ToCheckpointToken()
+                : resolvedEvent.OriginalEventNumber.ToString());
         }
     }
 }

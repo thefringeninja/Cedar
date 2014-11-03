@@ -5,24 +5,29 @@
     using System.Linq;
     using System.Reactive.Linq;
     using System.Reactive.Subjects;
+    using Cedar.ProcessManagers.Messages;
 
     public abstract class ObservableProcessManager : IProcessManager
     {
-        private readonly IList<object> _outbox;
         private readonly ISubject<object> _inbox;
-        private readonly IList<object> _events;
         private readonly string _id;
-        private bool _subscribed;
+        private readonly string _correlationId;
         private int _version;
-
+        private readonly List<object> _commands;
+        private readonly ISubject<object> _events;
+        private readonly IList<IDisposable> _subscriptions; 
         protected ObservableProcessManager(
-            string id)
+            string id, string correlationId)
         {
             _id = id;
-            
+            _correlationId = correlationId;
+
             _inbox = new ReplaySubject<object>();
-            _outbox = new List<object>();
-            _events = new List<object>();
+            _commands = new List<object>();
+            _events = new Subject<object>();
+            _subscriptions = new List<IDisposable>();
+
+            Subscribe(OnAnyMessage(), _ => _version++);
         }
 
         public string Id
@@ -30,45 +35,33 @@
             get { return _id; }
         }
 
+        public string CorrelationId
+        {
+            get { return _correlationId; }
+        }
         public int Version
         {
             get { return _version; }
         }
 
-        public IEnumerable<object> GetUncommittedEvents()
+        public IObserver<object> Inbox
         {
-            return _events.AsEnumerable();
+            get { return _inbox; }
         }
 
-        public void ClearUncommittedEvents()
+        public IEnumerable<object> Commands
         {
-            _events.Clear();
+            get { return _commands; }
         }
 
-        public IEnumerable<object> GetUndispatchedCommands()
+        public IObservable<object> Events
         {
-            return _outbox.AsEnumerable();
-        }
-
-        public void ClearUndispatchedCommands()
-        {
-            _outbox.Clear();
-        }
-
-        public void ApplyEvent(object @event)
-        {
-            if(false == _subscribed)
-            {
-                _subscribed = true;
-                Subscribe();
-            }
-            _inbox.OnNext(@event);
-            _version++;
+            get { return _events; }
         }
 
         protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, IEnumerable<object>> @do)
         {
-            Send(@on.SelectMany(@do));
+            Send(@on.Select(@do));
         }
 
         protected void When<TEvent>(IObservable<TEvent> @on, Func<TEvent, object> @do)
@@ -80,6 +73,7 @@
         {
             return _inbox.OfType<TMessage>();
         }
+
         protected IObservable<dynamic> OnAnyMessage()
         {
             return _inbox.OfType<object>();
@@ -87,17 +81,31 @@
 
         protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)
         {
-            @on.Select(_ => new ProcessCompleted
+            Subscribe(@on.Select(_ => new ProcessCompleted
             {
-                ProcessId = _id
-            }).Subscribe(_inbox);
+                ProcessId = _id,
+                CorrelationId = _correlationId
+            }), _events);
         }
 
-        protected abstract void Subscribe();
-
-        private void Send(IObservable<object> messages)
+        private void Send(IObservable<IEnumerable<object>> batches)
         {
-            messages.Subscribe(_outbox.Add);
+            Subscribe(batches, batch => _commands.AddRange(batch));
+        }
+
+        protected void Subscribe<T>(IObservable<T> observable, IObserver<T> observer)
+        {
+            _subscriptions.Add(observable.Subscribe(observer));
+        }
+
+        protected void Subscribe<T>(IObservable<T> observable, Action<T> onNext)
+        {
+            _subscriptions.Add(observable.Subscribe(onNext));
+        }
+
+        public void Dispose()
+        {
+            _subscriptions.ForEach(subscription => subscription.Dispose());
         }
     }
 }

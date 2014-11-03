@@ -67,9 +67,15 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Commands\CommandHandlerModule.cs" />
+    <Compile Include="Handlers\DictionaryExtensions.cs" />
+    <Compile Include="Handlers\DomainEventMessage.cs" />
+    <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
+    <Compile Include="ProcessManagers\IProcessManagerCheckpointRepository.cs" />
+    <Compile Include="ProcessManagers\Messages\CheckpointReached.cs" />
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
+    <Compile Include="TaskExtensions.cs" />
     <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="DefaultHandlerSettings.cs" />
@@ -96,7 +102,7 @@
     <Compile Include="ProcessManagers\IProcessManager.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerRepository.cs" />
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
-    <Compile Include="ProcessManagers\ProcessCompleted.cs" />
+    <Compile Include="ProcessManagers\Messages\ProcessCompleted.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
     <Compile Include="TypeResolution\DefaultRequestTypeResolver.cs" />

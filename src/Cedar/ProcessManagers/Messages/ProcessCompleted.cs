@@ -1,8 +1,9 @@
-namespace Cedar.ProcessManagers
+namespace Cedar.ProcessManagers.Messages
 {
     public class ProcessCompleted
     {
         public string ProcessId { get; set; }
+        public string CorrelationId { get; set; }
 
         public override string ToString()
         {
