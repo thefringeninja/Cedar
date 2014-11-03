@@ -118,6 +118,10 @@
       <Project>{14571633-73be-40e4-993b-0ff82648cbec}</Project>
       <Name>Cedar.NEventStore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Cedar.Testing.Xunit\Cedar.Testing.Xunit.csproj">
+      <Project>{D432C4EB-6EAA-4CD6-A5A6-A7236ED9CC43}</Project>
+      <Name>Cedar.Testing.Xunit</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Cedar.Testing\Cedar.Testing.csproj">
       <Project>{de625b35-8644-4f57-8aa0-2792f19ec435}</Project>
       <Name>Cedar.Testing</Name>

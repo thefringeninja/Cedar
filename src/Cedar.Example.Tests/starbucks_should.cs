@@ -3,10 +3,10 @@
     using System;
     using System.Reactive.Linq;
     using System.Threading.Tasks;
-    using Cedar.Handlers;
     using Cedar.ProcessManagers;
     using Cedar.Testing;
     using Xunit;
+    using ScenarioAttribute = Cedar.Testing.Xunit.ScenarioAttribute;
 
     public class starbucks_should
     {
@@ -143,7 +143,7 @@
             }
         }
 
-        [Fact]
+        [Scenario]
         public async Task<ScenarioResult> prepare_a_drink_when_an_order_is_placed()
         {
             return await Scenario.ForProcess<StarbucksProcess>()
@@ -156,7 +156,7 @@
                 }).Then(new PrepareDrink {Drink = DrinkType.Latte, OrderId = _orderId});
         }
 
-        [Fact]
+        [Scenario]
         public async Task<ScenarioResult> release_the_order_when_payment_is_received_and_drink_is_prepared()
         {
             return await Scenario.ForProcess<StarbucksProcess>()
@@ -170,7 +170,7 @@
                 .Then(new GiveCustomerDrink {OrderId = _orderId, CustomerId = _customerId});
         }
 
-        [Fact]
+        [Scenario]
         public async Task<ScenarioResult> not_release_the_order_when_payment_is_received_and_drink_is_not_prepared()
         {
             return await Scenario.ForProcess<StarbucksProcess>()
@@ -184,7 +184,7 @@
                 .ThenNothingWasSent();
         }
 
-        [Fact]
+        [Scenario]
         public async Task<ScenarioResult> not_release_the_order_when_payment_is_not_received_and_drink_is_prepared()
         {
             return await Scenario.ForProcess<StarbucksProcess>()
@@ -198,7 +198,7 @@
                 .ThenNothingWasSent();
         }
 
-        [Fact]
+        [Scenario]
         public async Task<ScenarioResult> refund_the_payment_when_the_drink_is_ruined()
         {
             return await Scenario.ForProcess<StarbucksProcess>()
@@ -212,7 +212,7 @@
                 .Then(new RefundPayment{Amount = 10m, CustomerId = _customerId});
         }
 
-        [Fact]
+        [Scenario]
         public async Task<ScenarioResult> complete_the_process_when_the_customer_receives_drink()
         {
             return await Scenario.ForProcess<StarbucksProcess>()
@@ -227,7 +227,7 @@
                 .ThenCompletes();
         }
 
-        [Fact]
+        [Scenario]
         public async Task<ScenarioResult> complete_the_process_when_the_customer_receives_a_refund()
         {
             return await Scenario.ForProcess<StarbucksProcess>()
