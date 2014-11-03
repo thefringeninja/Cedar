@@ -2,15 +2,15 @@
 {
     using System.Collections.Generic;
 
-    public class DomainEventMessage
+    public abstract class DomainEventMessage
     {
-        public readonly object DomainEvent;
+        public readonly dynamic DomainEvent;
         public readonly IDictionary<string, object> Headers;
         public readonly int Version;
         public readonly string CheckpointToken;
         public readonly string StreamId;
 
-        public DomainEventMessage(
+        protected DomainEventMessage(
             string streamId,
             object domainEvent,
             int version,

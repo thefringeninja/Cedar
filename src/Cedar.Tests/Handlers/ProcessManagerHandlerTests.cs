@@ -27,12 +27,11 @@
         private readonly Task _nodeStarted;
         private readonly IEventStoreConnection _connection;
         private readonly IList<object> _commands;
-        private readonly ProcessHandler<OrderFulfillment, CompareablePosition> _processHandler;
         private readonly ISerializer _serializer;
         private readonly Guid _orderId;
         private readonly string _streamName;
         private readonly string _correlationId;
-        private ResolvedEventDispatcher _dispatcher;
+        private readonly ResolvedEventDispatcher _dispatcher;
 
         public ProcessManagerHandlerTests()
         {
@@ -71,7 +70,7 @@
             commandHandler.For<BillCustomer>()
                 .Handle(async (message, ct) => _commands.Add(message.Command));
 
-            _processHandler = ProcessHandler.For<OrderFulfillment, CompareablePosition>(
+            ProcessHandler<OrderFulfillment, CompareablePosition> processHandler = ProcessHandler.For<OrderFulfillment, CompareablePosition>(
                 commandHandler,
                 new ClaimsPrincipal(),
                 new EventStoreClientProcessManagerCheckpointRepository(_connection, _serializer))
@@ -84,7 +83,7 @@
             _dispatcher = new ResolvedEventDispatcher(_connection,
                 new DefaultGetEventStoreJsonSerializer(),
                 new InMemoryCheckpointRepository(),
-                _processHandler.BuildHandlerResolver(),
+                processHandler.BuildHandlerResolver(),
                 () => { });
 
             _orderId = Guid.NewGuid();
@@ -184,21 +183,21 @@
         {
             protected OrderFulfillment(string id, string correlationId) : base(id, correlationId)
             {
-                var orderPlaced = On<DomainEventMessage<OrderPlaced>>();
-                var billingSucceeded = On<DomainEventMessage<BillingSucceeded>>();
-                var billingFailed = On<DomainEventMessage<BillingFailed>>();
-                var orderShipped = On<DomainEventMessage<OrderShipped>>();
+                var orderPlaced = OnEvent<OrderPlaced>();
+                var billingSucceeded = OnEvent<BillingSucceeded>();
+                var billingFailed = OnEvent<BillingFailed>();
+                var orderShipped = OnEvent<OrderShipped>();
 
                 var attemptBilling = Observable.When(orderPlaced.And(billingFailed).Then((placed, failed) => new
                 {
-                    placed.DomainEvent.OrderId,
-                    placed.DomainEvent.CustomerId,
-                    placed.DomainEvent.Total
+                    placed.OrderId,
+                    placed.CustomerId,
+                    placed.Total
                 })).Merge(orderPlaced.Select(placed => new
                 {
-                    placed.DomainEvent.OrderId,
-                    placed.DomainEvent.CustomerId,
-                    placed.DomainEvent.Total
+                    placed.OrderId,
+                    placed.CustomerId,
+                    placed.Total
                 }));
 
                 When(attemptBilling,
@@ -213,8 +212,8 @@
                 When(billingSucceeded,
                     e => new ShipOrder
                     {
-                        CustomerId = e.DomainEvent.CustomerId,
-                        OrderId = e.DomainEvent.OrderId,
+                        CustomerId = e.CustomerId,
+                        OrderId = e.OrderId,
                         ShipmentId = Guid.NewGuid()
                     });
 

@@ -4,9 +4,11 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Reactive.Linq;
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
+    using Cedar.Handlers;
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Messages;
     using Cedar.ProcessManagers.Persistence;
@@ -74,7 +76,7 @@
 
                 public ScenarioBuilder(IProcessManagerFactory factory, string correlationId, string name)
                 {
-                    _processId = typeof(TProcess) + "-" + correlationId;
+                    _processId = typeof(TProcess).Name + "-" + correlationId;
                     _correlationId = correlationId;
                     _name = name;
                     _factory = factory ?? new DefaultProcessManagerFactory();
@@ -84,7 +86,7 @@
 
                     _runGiven = process =>
                     {
-                        foreach(var message in _given)
+                        foreach(var message in _given.Select(WrapInEnvelopeIfNecessary))
                         {
                             process.Inbox.OnNext(message);
                         }
@@ -92,9 +94,9 @@
 
                     _runWhen = process =>
                     {
-                        process.Inbox.OnNext(new CheckpointReached());
+                        process.Inbox.OnNext(WrapInEnvelopeIfNecessary(new CheckpointReached()));
 
-                        process.Inbox.OnNext(_when);
+                        process.Inbox.OnNext(WrapInEnvelopeIfNecessary(_when));
                     };
 
                     _checkCommands = _ => { };
@@ -102,9 +104,6 @@
 
                     _runThen = process =>
                     {
-                        var events = new List<object>();
-                        var commands = new List<object>();
-
                         _checkCommands(process);
                         _checkEvents(process);
                     };
@@ -181,18 +180,18 @@
                     
                     _checkCommands = process =>
                     {
-                        /*if (false == process.GetUndispatchedCommands()
+                        if (false == process.Commands
                             .SequenceEqual(commands, MessageEqualityComparer.Instance))
                         {
                             throw new ScenarioException(
                                 string.Format(
-                                    "The ocurred commands ({0}) did not equal the expected commands ({1}).",
-                                    process.GetUndispatchedCommands()
+                                    "The occurred commands ({0}) did not equal the expected commands ({1}).",
+                                    process.Commands
                                         .Aggregate(new StringBuilder(), (builder, s) => builder.Append(s))
                                         .ToString(),
                                     _expectedCommands.Aggregate(new StringBuilder(), (builder, s) => builder.Append(s))
                                         .ToString()));
-                        }*/
+                        }
                     };
 
                     return this;
@@ -204,28 +203,37 @@
 
                     _checkCommands = process =>
                     {
-                        /*if (process.GetUndispatchedCommands().Any())
+                        if (process.Commands.Any())
                         {
                             throw new ScenarioException("No commands were expected, yet some commands occurred.");
-                        }*/
+                        }
                     };
                     return this;
                 }
 
                 public IThen ThenCompletes()
                 {
-                    var events = _expectedEvents = new []{new ProcessCompleted{ProcessId = _processId}};
+                    var events = _expectedEvents = new object []{new ProcessCompleted{ProcessId = _processId, CorrelationId = _correlationId}};
 
                     _checkEvents = process =>
                     {
-                        /*if (false == process.GetUndispatchedCommands()
-                           .SequenceEqual(events, MessageEqualityComparer.Instance))
+                        var enumerable = process.Events.ToEnumerable().ToList();
+                        if (false == enumerable.SequenceEqual(events, MessageEqualityComparer.Instance))
                         {
                             throw new ScenarioException("The ocurred events did not equal the expected events.");
-                        }*/
+                        }
                     };
 
                     return this;
+                }
+
+                private static DomainEventMessage WrapInEnvelopeIfNecessary(object @event)
+                {
+                    return @event as DomainEventMessage
+                           ?? (DomainEventMessage) Activator.CreateInstance(
+                               typeof(DomainEventMessage<>).MakeGenericType(
+                                   @event.GetType()),
+                               new[] {"streamId", @event, 0, new Dictionary<string, object>(), null});
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<TProcess> builder)

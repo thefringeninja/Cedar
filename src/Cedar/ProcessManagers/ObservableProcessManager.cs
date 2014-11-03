@@ -25,10 +25,13 @@
 
             _inbox = new ReplaySubject<object>();
             _commands = new List<object>();
-            _events = new Subject<object>();
+            _events = new ReplaySubject<object>();
             _subscriptions = new List<IDisposable>();
 
             Subscribe(OnAny(), _ => _version++);
+            Subscribe(OnEvent<CheckpointReached>(), _ => _commands.Clear());
+
+            _subscriptions.Add(_events.OfType<ProcessCompleted>().Subscribe(_ => _events.OnCompleted()));
         }
 
         public string Id
@@ -70,14 +73,24 @@
             When(@on, e => Enumerable.Repeat(@do(e), 1));
         }
 
-        protected IObservable<TMessage> On<TMessage>()
+        protected IObservable<DomainEventMessage<TMessage>> On<TMessage>() where TMessage : class
         {
-            return _inbox.OfType<TMessage>();
+            return _inbox.OfType<DomainEventMessage<TMessage>>();
         }
 
-        protected IObservable<dynamic> OnAny()
+        protected IObservable<TMessage> OnEvent<TMessage>() where TMessage : class
+        {
+            return On<TMessage>().Select(message => message.DomainEvent);
+        }
+
+        protected IObservable<DomainEventMessage> OnAny()
         {
             return _inbox.OfType<DomainEventMessage>();
+        }
+
+        protected IObservable<dynamic> OnAnyEvent()
+        {
+            return _inbox.OfType<DomainEventMessage>().Select(message => message.DomainEvent);
         }
 
         protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)

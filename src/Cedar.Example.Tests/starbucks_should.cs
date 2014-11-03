@@ -12,7 +12,6 @@
     {
         private readonly Guid _customerId = Guid.NewGuid();
         private readonly Guid _orderId = Guid.NewGuid();
-        private readonly Guid _correlationId = Guid.NewGuid();
         public class DrinkOrderPlaced
         {
             public Guid CustomerId { get; set; }
@@ -110,14 +109,14 @@
 
         public class StarbucksProcess : ObservableProcessManager
         {
-            public StarbucksProcess(String id, string correlationId)
+            protected StarbucksProcess(string id, string correlationId)
                 : base(id, correlationId)
             {
-                var orderPlaced = On<DrinkOrderPlaced>();
-                var drinkPrepared = On<DrinkPrepared>();
-                var paymentReceived = On<PaymentReceived>();
-                var drinkReceived = On<DrinkReceived>();
-                var paymentRefunded = On<PaymentRefunded>();
+                var orderPlaced = OnEvent<DrinkOrderPlaced>();
+                var drinkPrepared = OnEvent<DrinkPrepared>();
+                var paymentReceived = OnEvent<PaymentReceived>();
+                var drinkReceived = OnEvent<DrinkReceived>();
+                var paymentRefunded = OnEvent<PaymentRefunded>();
 
                 var orderReady = (from order in orderPlaced
                                   from drink in drinkPrepared
