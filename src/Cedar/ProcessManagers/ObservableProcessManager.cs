@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reactive.Linq;
+    using System.Reactive.PlatformServices;
     using System.Reactive.Subjects;
     using Cedar.Handlers;
     using Cedar.ProcessManagers.Messages;
@@ -16,7 +17,13 @@
         private int _version;
         private readonly List<object> _commands;
         private readonly ISubject<object> _events;
-        private readonly IList<IDisposable> _subscriptions; 
+        private readonly IList<IDisposable> _subscriptions;
+
+        static ObservableProcessManager()
+        {
+            PlatformEnlightenmentProvider.Current = new CurrentPlatformEnlightenmentProvider();
+        }
+
         protected ObservableProcessManager(
             string id, string correlationId)
         {
