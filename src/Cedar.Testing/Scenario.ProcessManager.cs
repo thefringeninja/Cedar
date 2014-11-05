@@ -5,6 +5,7 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Reactive.Linq;
+    using System.Reactive.PlatformServices;
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading.Tasks;
@@ -26,6 +27,10 @@
 
         public static class ProcessManager
         {
+            static ProcessManager()
+            {
+                PlatformEnlightenmentProvider.Current = new CurrentPlatformEnlightenmentProvider();
+            }
             public interface IGiven : IWhen
             {
                 IWhen Given(params object[] events);
