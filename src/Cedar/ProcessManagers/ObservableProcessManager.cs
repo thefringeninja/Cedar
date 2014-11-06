@@ -11,7 +11,7 @@
 
     public abstract class ObservableProcessManager : IProcessManager
     {
-        private readonly ISubject<object> _inbox;
+        private readonly ISubject<DomainEventMessage> _inbox;
         private readonly string _id;
         private readonly string _correlationId;
         private int _version;
@@ -30,7 +30,7 @@
             _id = id;
             _correlationId = correlationId;
 
-            _inbox = new ReplaySubject<object>();
+            _inbox = new ReplaySubject<DomainEventMessage>();
             _commands = new List<object>();
             _events = new ReplaySubject<object>();
             _subscriptions = new List<IDisposable>();
@@ -55,7 +55,7 @@
             get { return _version; }
         }
 
-        public IObserver<object> Inbox
+        public IObserver<DomainEventMessage> Inbox
         {
             get { return _inbox; }
         }

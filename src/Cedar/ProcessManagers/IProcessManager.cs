@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using Cedar.Handlers;
 
     public interface IProcessManager : IDisposable
     {
@@ -9,7 +10,7 @@
         string CorrelationId { get; }
         int Version { get; }
 
-        IObserver<object> Inbox { get; }
+        IObserver<DomainEventMessage> Inbox { get; }
         IEnumerable<object> Commands { get; }
         IObservable<object> Events { get; }
     }

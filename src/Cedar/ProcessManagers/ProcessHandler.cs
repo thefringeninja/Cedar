@@ -169,7 +169,7 @@ namespace Cedar.ProcessManagers
                     var process = checkpointedProcess.Process;
                     var checkpoint = checkpointedProcess.Checkpoint;
 
-                    process.Inbox.OnNext(message);
+                    process.Inbox.OnNext(domainEventMessage);
 
                     if (checkpoint.CompareTo(domainEventMessage.CheckpointToken) >= 0)
                     {
