@@ -66,7 +66,7 @@
             Func<IRequest, IEnumerable<string>> getInputMediaTypes = null, 
             Func<IRequest, IEnumerable<string>> getOutputMediaTypes = null)
         {
-            Guard.EnsureNullOrWhiteSpace(vendorName, "vendorName");
+            Guard.EnsureNotNullOrWhiteSpace(vendorName, "vendorName");
             Guard.EnsureNotNull(knownTypes, "knownTypes");
 
             _vendorName = vendorName;

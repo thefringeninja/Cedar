@@ -25,7 +25,7 @@
 
         public async Task<T> GetById(string streamId, int maxVersion = Int32.MaxValue, string bucketId = null)
         {
-            var streamName = EventStoreExtensions.FormatStreamName(streamId, bucketId);
+            var streamName = streamId.FormatStreamNameWithBucket(bucketId);
 
             var slice = await _connection.ReadStreamEventsForwardAsync(streamName, StreamPosition.Start, PageSize, false);
             
@@ -77,7 +77,7 @@
 
             int currentEventVersion = expectedVersion;
 
-            var streamName = EventStoreExtensions.FormatStreamName(aggregate.Id, bucketId);
+            var streamName = aggregate.Id.FormatStreamNameWithBucket(bucketId);
 
             var eventData = changes.Select(@event => _serializer.SerializeEventData(@event, streamName, currentEventVersion++, updateHeaders));
 

@@ -11,9 +11,13 @@
             ResolvedEvent resolvedEvent,
             bool isSubscribedToAll) where T : class
         {
-            return new DomainEventMessage<T>(resolvedEvent.Event.EventStreamId, domainEvent, resolvedEvent.Event.EventNumber, headers, isSubscribedToAll
-                ? resolvedEvent.OriginalPosition.ToCheckpointToken()
-                : resolvedEvent.OriginalEventNumber.ToString());
+            return new DomainEventMessage<T>(
+                resolvedEvent.Event.EventStreamId.FormatStreamNameWithoutBucket(), 
+                domainEvent, 
+                resolvedEvent.Event.EventNumber, 
+                headers, isSubscribedToAll
+                    ? resolvedEvent.OriginalPosition.ToCheckpointToken()
+                    : resolvedEvent.OriginalEventNumber.ToString());
         }
     }
 }

@@ -69,7 +69,7 @@
                     .Take(1)
                     .ToTask();
 
-                await _connection.AppendToStreamAsync("events", ExpectedVersion.Any, serializer.SerializeEventData(new TestEvent(), "events", 1));
+                await _connection.AppendToStreamAsync("events".FormatStreamNameWithBucket(), ExpectedVersion.Any, serializer.SerializeEventData(new TestEvent(), "events", 1));
 
                 await commitProjected;
 

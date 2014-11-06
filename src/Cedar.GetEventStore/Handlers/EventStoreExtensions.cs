@@ -6,15 +6,6 @@
 
     public static class EventStoreExtensions
     {
-        public static string FormatStreamName(this string streamId, string bucketId = null)
-        {
-            bucketId = bucketId ?? "default";
-
-            Guard.EnsureNotEmpty(bucketId, "bucketId");
-
-            return String.Format("[{0}].{1}", bucketId, streamId);
-        }
-
         public static string ToCheckpointToken(this Position? position)
         {
             return position.HasValue

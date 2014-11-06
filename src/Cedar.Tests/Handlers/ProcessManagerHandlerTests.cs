@@ -87,7 +87,7 @@
                 () => { });
 
             _orderId = Guid.NewGuid();
-            _streamName = "orders-" + _orderId.ToString("n");
+            _streamName = ("orders-" + _orderId.ToString("n")).FormatStreamNameWithBucket();
             _correlationId = _orderId.ToString();
         }
 
@@ -174,7 +174,7 @@
 
         private Task<WriteResult> AppendToStream(string streamName, int expectedVersion, object e)
         {
-            return _connection.AppendToStreamAsync(streamName,
+            return _connection.AppendToStreamAsync(streamName.FormatStreamNameWithBucket(),
                 expectedVersion,
                 _serializer.SerializeEventData(e, streamName, 0));
         }

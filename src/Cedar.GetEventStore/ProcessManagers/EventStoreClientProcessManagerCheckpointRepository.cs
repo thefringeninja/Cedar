@@ -1,6 +1,5 @@
 ﻿namespace Cedar.ProcessManagers
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Handlers;
@@ -21,25 +20,25 @@
             _serializer = serializer;
         }
 
-        public Task SaveCheckpointToken(IProcessManager processManager, string checkpointToken, CancellationToken ct)
+        public Task SaveCheckpointToken(IProcessManager processManager, string checkpointToken, CancellationToken ct, string bucketId = null)
         {
             return AppendToStream(processManager.Id, new CheckpointReached
             {
                 CheckpointToken = checkpointToken,
                 CorrelationId = processManager.CorrelationId,
                 ProcessId = processManager.Id
-            });
+            }, bucketId);
         }
 
-        public Task MarkProcessCompleted(ProcessCompleted message, CancellationToken ct)
+        public Task MarkProcessCompleted(ProcessCompleted message, CancellationToken ct, string bucketId = null)
         {
-            return AppendToStream(message.ProcessId, message);
+            return AppendToStream(message.ProcessId, message, bucketId);
         }
 
-        public async Task<CompareablePosition> GetCheckpoint(string processId, CancellationToken ct)
+        public async Task<CompareablePosition> GetCheckpoint(string processId, CancellationToken ct, string bucketId = null)
         {
             int streamPosition = StreamPosition.End;
-            var streamName = GetStreamName(processId);
+            var streamName = GetStreamName(processId, bucketId);
             do
             {
                 if(ct.IsCancellationRequested)
@@ -69,16 +68,16 @@
             return new CompareablePosition();
         }
 
-        private Task AppendToStream(string processId, object @event)
+        private Task AppendToStream(string processId, object @event, string bucketId = null)
         {
-            return _connection.AppendToStreamAsync(GetStreamName(processId),
+            return _connection.AppendToStreamAsync(GetStreamName(processId, bucketId),
                 ExpectedVersion.Any,
                 _serializer.SerializeEventData(@event, processId, 0));
         }
 
-        private static string GetStreamName(string processId)
+        private static string GetStreamName(string processId, string bucketId = null)
         {
-            return "checkpoints-" + processId;
+            return ("checkpoints-" + processId).FormatStreamNameWithBucket(bucketId);
         }
     }
 }

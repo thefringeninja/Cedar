@@ -61,7 +61,6 @@
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="DeterministicGuidGenerator.cs" />
     <Compile Include="Domain\Persistence\EventStoreClientRepository.cs" />
-    <Compile Include="EventStoreExtensions.cs" />
     <Compile Include="Guard.cs" />
     <Compile Include="Handlers\EventStoreExtensions.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />

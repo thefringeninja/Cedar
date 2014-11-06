@@ -8,7 +8,6 @@
     using Cedar.Handlers.TempImportFromNES;
     using FluentAssertions;
     using NEventStore;
-    using NEventStore.Client;
     using Xunit;
 
     public class DurableCommitDispatcherTests
@@ -27,7 +26,7 @@
                     handlerModule))
                 {
                     await host.Start();
-                    Guid streamId = Guid.NewGuid();
+                    var streamId = Guid.NewGuid().ToString().FormatStreamNameWithBucket();
                     Guid commitId = Guid.NewGuid();
                     Task<ICommit> commitProjected = host
                         .ProjectedCommits
@@ -65,7 +64,7 @@
                     handlerModule.DispatchCommit))
                 {
                     await host.Start();
-                    Guid streamId = Guid.NewGuid();
+                    var streamId = Guid.NewGuid().ToString().FormatStreamNameWithBucket();
                     Guid commitId = Guid.NewGuid();
                     Task<ICommit> commitProjected = host
                         .ProjectedCommits

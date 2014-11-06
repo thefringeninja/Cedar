@@ -16,7 +16,7 @@ namespace Cedar.Handlers
                 {NEventStoreMessageHeaders.Commit, commit}
             });
 
-            return new DomainEventMessage<T>(commit.StreamId, @event, version, headers, commit.CheckpointToken);
+            return new DomainEventMessage<T>(commit.StreamId.FormatStreamNameWithoutBucket(), @event, version, headers, commit.CheckpointToken);
         }
 
         public static ICommit Commit<T>(this DomainEventMessage<T> message) where T : class

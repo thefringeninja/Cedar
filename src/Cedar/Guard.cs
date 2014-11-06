@@ -12,11 +12,11 @@
             }
         }
 
-        internal static void EnsureNullOrWhiteSpace(string argument, string argumentName)
+        internal static void EnsureNotNullOrWhiteSpace(string argument, string argumentName)
         {
             if (string.IsNullOrWhiteSpace(argument))
             {
-                throw new ArgumentException("{0} is null ow whitespace".FormatWith(argumentName));
+                throw new ArgumentException("{0} is null or whitespace".FormatWith(argumentName));
             }
         }
     }

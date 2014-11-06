@@ -3,7 +3,6 @@ namespace Cedar.Domain
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using Cedar.Commands;
 
     public abstract class AggregateBase : IAggregate, IEquatable<IAggregate>
     {
@@ -18,7 +17,7 @@ namespace Cedar.Domain
 
         protected AggregateBase(string id, IEventRouter eventRouter)
         {
-            Guard.EnsureNullOrWhiteSpace(id, "id");
+            Guard.EnsureNotNullOrWhiteSpace(id, "id");
             Guard.EnsureNotNull(eventRouter, "eventRouter");
 
             _id = id;
