@@ -12,7 +12,7 @@ namespace Cedar.Queries.Client
     {
         public static async Task<TOutput> ExecuteQuery<TInput, TOutput>(this HttpClient client, TInput input, Guid queryId, IMessageExecutionSettings settings, Func<object, Type, Type, IMessageExecutionSettings, HttpRequestMessage> getRequest = null)
         {
-            getRequest = getRequest ?? DefaultGetRequest;
+            getRequest = getRequest ?? GetRequestFromBody;
 
             var request = getRequest(input, typeof(TInput), typeof(TOutput), settings);
             
@@ -26,7 +26,7 @@ namespace Cedar.Queries.Client
         }
 
         public static readonly Func<object, Type, Type, IMessageExecutionSettings, HttpRequestMessage>
-            DefaultGetRequest = (input, inputType, outputType, settings) =>
+            GetRequestFromBody = (input, inputType, outputType, settings) =>
             {
                 string queryJson = settings.Serializer.Serialize(input);
                 var httpContent = new StringContent(queryJson);
@@ -42,6 +42,27 @@ namespace Cedar.Queries.Client
 
                 request.Headers.Accept.ParseAdd(
                     "application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, outputType.Name).ToLower());
+
+                return request;
+            };
+
+        public static readonly Func<object, Type, Type, IMessageExecutionSettings, HttpRequestMessage>
+            GetRequestFromQuery = (input, inputType, outputType, settings) =>
+            {
+                string queryJson = settings.Serializer.Serialize(input);
+                var httpContent = new StringContent("");
+                httpContent.Headers.ContentType =
+                    MediaTypeHeaderValue.Parse(
+                        string.Format("application/vnd.{0}.{1}+json", settings.Vendor, inputType.Name).ToLower());
+
+                var request = new HttpRequestMessage(HttpMethod.Get,
+                    settings.Path + string.Format("/{0}?{1}", inputType.Name, queryJson).ToLower())
+                {
+                    Content = httpContent
+                };
+
+                request.Headers.Accept.ParseAdd(
+                    string.Format("application/vnd.{0}.{1}+json", settings.Vendor, outputType.Name).ToLower());
 
                 return request;
             };
