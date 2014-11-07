@@ -10,6 +10,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
+    using Cedar.Queries.Client;
     using Microsoft.Owin;
 
     using AppFunc = System.Func<
@@ -28,6 +29,19 @@
         >
     >;
 
+
+    public class Query<TRequest, TResult>
+    {
+        public TRequest Request { get; set; }
+        public QueryExecutionSettings QueryExecutionSettings { get; set; }
+
+        public Query(TRequest request, QueryExecutionSettings queryExecutionSettings)
+        {
+            Request = request;
+            QueryExecutionSettings = queryExecutionSettings;
+        }
+    }
+
     public static partial class Scenario
     {
         public static Middleware.IHttpClientRequest Does<TCommand>(this IAuthorization authorization, TCommand command)
@@ -41,6 +55,12 @@
         {
             return new Middleware.HttpClientQueryRequest<TResponse>(authorization, query);
         }
+
+        public static Middleware.IHttpClientRequest<TResponse> Queries<TRequest, TResponse>(this IAuthorization user, Query<TRequest, TResponse> query)
+        {
+            return user.Queries((client) => client.ExecuteQuery<TRequest, TResponse>(query.Request, Guid.NewGuid(), query.QueryExecutionSettings));
+        }
+
 
         public static Middleware.IWithUsers ForMiddleware(MidFunc midFunc, string vendor = null, string commandPath = null, [CallerMemberName] string scenarioName = null)
         {

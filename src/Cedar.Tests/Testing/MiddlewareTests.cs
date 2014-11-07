@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands;
@@ -25,10 +26,12 @@
     public class MiddlewareTests
     {
         private readonly QueryExecutionSettings _queryExecutionSettings;
+        private readonly Query<Query, QueryResult> _query;
 
         public MiddlewareTests()
         {
             _queryExecutionSettings = new QueryExecutionSettings("vendor");
+            _query = new Query<Query, QueryResult>(new Query(), _queryExecutionSettings);
         }
 
         class Something {
@@ -62,6 +65,7 @@
             public string Value { get; set; }
         }
 
+            
         [Fact]
         public async Task a_passing_middleware_scenario_should()
         {
@@ -71,7 +75,7 @@
                 .WithUsers(user)
                 .Given(user.Does(new Something {Value = "this"}))
                 .When(user.Does(new SomethingElse {Value = "that"}))
-                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
+                .ThenShould(user.Queries(_query),
                     q => q.Value == "that");
 
             Assert.True(result.Passed);
