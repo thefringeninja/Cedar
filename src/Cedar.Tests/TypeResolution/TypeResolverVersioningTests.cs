@@ -1,7 +1,7 @@
 namespace Cedar.TypeResolution
 {
+    using Cedar.Owin;
     using FluentAssertions;
-    using Microsoft.Owin;
     using Xunit;
 
     public class TypeResolverVersioningTests

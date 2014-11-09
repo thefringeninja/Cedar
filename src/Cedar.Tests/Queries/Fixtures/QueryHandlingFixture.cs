@@ -4,9 +4,9 @@ namespace Cedar.Queries.Fixtures
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
+    using Cedar.Owin;
     using Cedar.Queries.Client;
     using Cedar.TypeResolution;
-    using Microsoft.Owin;
 
     public class QueryHandlingFixture
     {

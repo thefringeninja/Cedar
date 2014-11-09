@@ -4,8 +4,8 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.ExceptionModels.Client;
+    using Cedar.Owin;
     using Cedar.Serialization.Client;
-    using Microsoft.Owin;
 
     internal static class ExceptionHandlingExtensions
     {

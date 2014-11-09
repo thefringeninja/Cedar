@@ -10,9 +10,10 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
+    using Cedar.Owin;
     using Cedar.Serialization.Client;
     using Cedar.TypeResolution;
-    using Microsoft.Owin;
+
     using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,

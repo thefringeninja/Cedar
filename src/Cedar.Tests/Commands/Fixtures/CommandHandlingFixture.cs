@@ -5,8 +5,8 @@ namespace Cedar.Commands.Fixtures
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
+    using Cedar.Owin;
     using Cedar.TypeResolution;
-    using Microsoft.Owin;
 
     public class CommandHandlingFixture
     {

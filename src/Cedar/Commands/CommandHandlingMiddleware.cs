@@ -7,8 +7,8 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
     using Cedar.ExceptionModels;
+    using Cedar.Owin;
     using Cedar.TypeResolution;
-    using Microsoft.Owin;
 
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
