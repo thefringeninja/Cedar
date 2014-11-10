@@ -1,11 +1,12 @@
-﻿namespace Cedar.Domain.Persistence
+﻿namespace Cedar.NEventStore.Domain.Persistence
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using NEventStore;
+    using Cedar.Domain;
+    using global::NEventStore;
 
     public static class RepositoryExtensions
     {

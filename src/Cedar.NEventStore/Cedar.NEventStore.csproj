@@ -7,7 +7,7 @@
     <ProjectGuid>{14571633-73BE-40E4-993B-0FF82648CBEC}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cedar</RootNamespace>
+    <RootNamespace>Cedar.NEventStore</RootNamespace>
     <AssemblyName>Cedar.NEventStore</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

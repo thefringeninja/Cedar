@@ -1,4 +1,4 @@
-namespace Cedar.Handlers.TempImportFromNES
+namespace Cedar.NEventStore.Handlers.TempImportFromNES
 {
     using System;
     using System.Collections.Concurrent;
@@ -7,8 +7,8 @@ namespace Cedar.Handlers.TempImportFromNES
     using System.Reactive.PlatformServices;
     using System.Threading.Tasks;
     using Cedar.Internal;
-    using NEventStore;
-    using NEventStore.Persistence;
+    using global::NEventStore;
+    using global::NEventStore.Persistence;
 
     // Imported from NES 6, will be removed when NES6 is out
 

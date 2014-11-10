@@ -7,6 +7,7 @@ namespace Cedar.Example.Handlers
     using Cedar.Domain;
     using Cedar.Domain.Persistence;
     using Cedar.Handlers;
+    using Cedar.NEventStore.Domain.Persistence;
 
     public class DomainCommandHandlerModule : HandlerModule
     {

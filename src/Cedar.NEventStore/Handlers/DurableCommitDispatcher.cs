@@ -1,4 +1,4 @@
-﻿namespace Cedar.Handlers
+﻿namespace Cedar.NEventStore.Handlers
 {
     using System;
     using System.Collections.Generic;
@@ -6,10 +6,10 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Commands;
+    using Cedar.Handlers;
     using Cedar.Internal;
     using Cedar.Logging;
-    using NEventStore;
+    using global::NEventStore;
 
     /// <summary>
     /// Subscribes to a stream of Commits from NEventStore and dispatches to a handler. It tracks the commit stream checkpoint

@@ -1,4 +1,4 @@
-namespace Cedar.Handlers.TempImportFromNES
+namespace Cedar.NEventStore.Handlers.TempImportFromNES
 {
     using System.Collections.Concurrent;
     using System.Diagnostics;

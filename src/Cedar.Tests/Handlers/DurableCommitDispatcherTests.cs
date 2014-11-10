@@ -5,9 +5,10 @@
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
     using System.Threading.Tasks;
-    using Cedar.Handlers.TempImportFromNES;
+    using Cedar.NEventStore.Handlers;
+    using Cedar.NEventStore.Handlers.TempImportFromNES;
     using FluentAssertions;
-    using NEventStore;
+    using global::NEventStore;
     using Xunit;
 
     public class DurableCommitDispatcherTests

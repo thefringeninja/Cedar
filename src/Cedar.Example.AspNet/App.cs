@@ -5,11 +5,13 @@
     using System.Threading.Tasks;
     using Cedar.Commands;
     using Cedar.Handlers;
-    using Cedar.Handlers.TempImportFromNES;
     using Cedar.Internal;
+    using Cedar.NEventStore.Handlers;
+    using Cedar.NEventStore.Handlers.TempImportFromNES;
     using Cedar.Queries;
     using Cedar.TypeResolution;
-    using NEventStore;
+    using global::NEventStore;
+
     using MidFunc = System.Func<
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>,
         System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;

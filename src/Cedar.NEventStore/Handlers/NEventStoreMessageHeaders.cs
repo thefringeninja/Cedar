@@ -1,4 +1,4 @@
-namespace Cedar.Handlers
+namespace Cedar.NEventStore.Handlers
 {
     public static class NEventStoreMessageHeaders
     {

@@ -1,8 +1,8 @@
-﻿namespace Cedar.Handlers
+﻿namespace Cedar.NEventStore.Handlers
 {
     using System;
     using System.Threading.Tasks;
-    using NEventStore;
+    using global::NEventStore;
 
     public interface IEventStoreClient
     {

@@ -1,9 +1,10 @@
-namespace Cedar.Domain.Persistence
+namespace Cedar.NEventStore.Domain.Persistence
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using Cedar.Domain;
 
     public interface IRepository
     {

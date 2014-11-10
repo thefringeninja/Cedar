@@ -1,7 +1,7 @@
-﻿namespace Cedar
+﻿namespace Cedar.NEventStore
 {
     using System;
-    using NEventStore;
+    using global::NEventStore;
 
     internal static class Guard
     {

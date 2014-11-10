@@ -1,7 +1,8 @@
-namespace Cedar.Handlers
+namespace Cedar.NEventStore.Handlers
 {
     using System.Collections.Generic;
-    using NEventStore;
+    using Cedar.Handlers;
+    using global::NEventStore;
 
     public static class NEventStoreMessage
     {

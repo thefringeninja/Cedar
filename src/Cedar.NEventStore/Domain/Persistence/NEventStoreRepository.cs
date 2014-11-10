@@ -1,4 +1,4 @@
-namespace Cedar.Domain.Persistence
+namespace Cedar.NEventStore.Domain.Persistence
 {
     using System;
     using System.Collections.Concurrent;
@@ -6,8 +6,10 @@ namespace Cedar.Domain.Persistence
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using NEventStore;
-    using NEventStore.Persistence;
+    using Cedar.Domain;
+    using Cedar.Domain.Persistence;
+    using global::NEventStore;
+    using global::NEventStore.Persistence;
 
     public class NEventStoreRepository : IRepository
     {
