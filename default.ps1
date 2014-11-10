@@ -45,13 +45,13 @@ task ILMerge -depends Compile {
 
 	$dllDir = "$srcDir\Cedar\bin\Release"
 	$inputDlls = "$dllDir\Cedar.dll"
-	@("Microsoft.Owin", "Newtonsoft.Json", "Owin", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
+	@("Newtonsoft.Json", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
 		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.NEventStore\bin\Release"
 	$inputDlls = "$dllDir\Cedar.NEventStore.dll"
-	@("Microsoft.Owin", "Newtonsoft.Json", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
+	@("Newtonsoft.Json", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
 		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.NEventStore.dll $inputDlls"
 
@@ -62,13 +62,13 @@ task ILMerge -depends Compile {
 
 	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Testing.dll "
-	@("Microsoft.Owin", "NewtonSoft.Json", "Inflector", "Owin", "OwinHttpMessageHandler", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
+	@("NewtonSoft.Json", "Inflector", "OwinHttpMessageHandler", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
 		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.Testing.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing.TestRunner\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Testing.TestRunner.exe "
-	@("Microsoft.Owin", "PowerArgs", "NewtonSoft.Json", "Inflector", "Owin", "OwinHttpMessageHandler") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	@("PowerArgs", "NewtonSoft.Json", "Inflector", "OwinHttpMessageHandler") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:exe /log /out:$mergedDir\Cedar.Testing.TestRunner.exe $inputDlls"
 }
 
