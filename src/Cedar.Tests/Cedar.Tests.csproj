@@ -63,7 +63,7 @@
       <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="OwinHttpMessageHandler">
-      <HintPath>..\packages\OwinHttpMessageHandler.1.0.0\lib\net45\OwinHttpMessageHandler.dll</HintPath>
+      <HintPath>..\packages\OwinHttpMessageHandler.1.0.2\lib\net45\OwinHttpMessageHandler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

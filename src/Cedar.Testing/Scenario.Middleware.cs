@@ -10,7 +10,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
-    using Microsoft.Owin;
+    using Cedar.Testing.Owin;
 
     using AppFunc = System.Func<
         System.Collections.Generic.IDictionary<string, object>, 
