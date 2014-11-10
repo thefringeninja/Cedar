@@ -12,6 +12,7 @@
     using Cedar.Internal;
     using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
+    using EventStore.ClientAPI.SystemData;
 
     public class ResolvedEventDispatcher : IDisposable
     {
@@ -21,6 +22,7 @@
         private readonly Func<ISerializer, ResolvedEvent, bool, CancellationToken, Task> _dispatchResolvedEvent;
         private readonly Action _onCaughtUp;
         private readonly string _streamId;
+        private readonly UserCredentials _userCredentials;
         private readonly TransientExceptionRetryPolicy _retryPolicy;
         private readonly Subject<ResolvedEvent> _projectedEvents;
         private readonly InterlockedBoolean _isStarted;
@@ -39,9 +41,10 @@
             ISerializer serializer,
             ICheckpointRepository checkpoints,
             Func<ISerializer, ResolvedEvent, bool, CancellationToken, Task> dispatchResolvedEvent,
-            Action onCaughtUp,
+            Action onCaughtUp = null,
             TransientExceptionRetryPolicy retryPolicy = null,
-            string streamId = null)
+            string streamId = null,
+            UserCredentials userCredentials = null)
         {
             _isStarted = new InterlockedBoolean();
             _isDisposed = new InterlockedBoolean();
@@ -50,8 +53,9 @@
             _serializer = serializer;
             _checkpoints = checkpoints;
             _dispatchResolvedEvent = dispatchResolvedEvent;
-            _onCaughtUp = onCaughtUp;
+            _onCaughtUp = onCaughtUp ?? (() => { });
             _streamId = streamId;
+            _userCredentials = userCredentials;
             _projectedEvents = new Subject<ResolvedEvent>();
             _retryPolicy = retryPolicy ?? TransientExceptionRetryPolicy.None();
 
@@ -82,10 +86,11 @@
             ISerializer serializer,
             ICheckpointRepository checkpoints,
             [NotNull] IEnumerable<IHandlerResolver> handlerModules,
-            Action onCaughtUp,
+            Action onCaughtUp = null,
             TransientExceptionRetryPolicy retryPolicy = null,
-            string streamId = null)
-            : this(eventStore, serializer, checkpoints, handlerModules.DispatchResolvedEvent, onCaughtUp, retryPolicy, streamId)
+            string streamId = null,
+            UserCredentials userCredentials = null)
+            : this(eventStore, serializer, checkpoints, handlerModules.DispatchResolvedEvent, onCaughtUp, retryPolicy, streamId, userCredentials)
         {}
 
         public ResolvedEventDispatcher(
@@ -93,10 +98,11 @@
             ISerializer serializer,
             ICheckpointRepository checkpoints,
             [NotNull] IHandlerResolver handlerModule,
-            Action onCaughtUp,
+            Action onCaughtUp = null,
             TransientExceptionRetryPolicy retryPolicy = null,
-            string streamId = null)
-            : this(eventStore, serializer, checkpoints, new[] {handlerModule}, onCaughtUp, retryPolicy, streamId)
+            string streamId = null,
+            UserCredentials userCredentials = null)
+            : this(eventStore, serializer, checkpoints, new[] {handlerModule}, onCaughtUp, retryPolicy, streamId, userCredentials)
         {}
 
         public IObservable<ResolvedEvent> ProjectedEvents
@@ -138,7 +144,7 @@
         private EventStoreCatchUpSubscription SubscribeToStreamFrom(int? lastCheckpoint)
         {
             return _eventStore.SubscribeToStreamFrom(_streamId, lastCheckpoint, true, EventAppeared,
-                _ => _onCaughtUp(), SubscriptionDropped);
+                _ => _onCaughtUp(), SubscriptionDropped, _userCredentials);
         }
 
         private EventStoreCatchUpSubscription SubscribeToAllFrom(Position? lastCheckpoint)
@@ -147,7 +153,8 @@
                 false,
                 EventAppeared,
                 _ => _onCaughtUp(),
-                SubscriptionDropped);
+                SubscriptionDropped,
+                _userCredentials);
         }
 
         private void SubscriptionDropped(EventStoreCatchUpSubscription _, SubscriptionDropReason reason, Exception ex)
