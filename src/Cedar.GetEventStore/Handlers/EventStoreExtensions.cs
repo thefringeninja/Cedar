@@ -1,4 +1,4 @@
-﻿namespace Cedar.Handlers
+﻿namespace Cedar.GetEventStore.Handlers
 {
     using System;
     using System.Linq;

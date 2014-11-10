@@ -1,10 +1,11 @@
-﻿namespace Cedar.ProcessManagers
+﻿namespace Cedar.GetEventStore.ProcessManagers
 {
     using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.Handlers;
+    using Cedar.GetEventStore.Handlers;
+    using Cedar.GetEventStore.Serialization;
+    using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Messages;
-    using Cedar.Serialization;
     using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
 

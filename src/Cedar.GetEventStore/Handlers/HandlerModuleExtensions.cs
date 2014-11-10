@@ -1,11 +1,12 @@
-﻿namespace Cedar.Handlers
+﻿namespace Cedar.GetEventStore.Handlers
 {
     using System.Collections.Generic;
     using System.Reflection;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Serialization;
+    using Cedar.GetEventStore.Serialization;
+    using Cedar.Handlers;
     using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
 

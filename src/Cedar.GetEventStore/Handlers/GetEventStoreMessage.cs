@@ -1,6 +1,7 @@
-﻿namespace Cedar.Handlers
+﻿namespace Cedar.GetEventStore.Handlers
 {
     using System.Collections.Generic;
+    using Cedar.Handlers;
     using EventStore.ClientAPI;
 
     public static class GetEventStoreMessage

@@ -1,4 +1,4 @@
-﻿namespace Cedar.Serialization
+﻿namespace Cedar.GetEventStore.Serialization
 {
     using System;
     using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿namespace Cedar.Handlers
+﻿namespace Cedar.GetEventStore.Handlers
 {
     using System;
     using System.Collections.Concurrent;
@@ -8,10 +8,10 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using Cedar.Handlers;
     using Cedar.Internal;
     using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
-
 
     public class ResolvedEventDispatcher : IDisposable
     {

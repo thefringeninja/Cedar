@@ -1,10 +1,12 @@
-﻿namespace Cedar.Domain.Persistence
+﻿namespace Cedar.GetEventStore.Domain.Persistence
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using Cedar.Serialization;
+    using Cedar.Domain;
+    using Cedar.Domain.Persistence;
+    using Cedar.GetEventStore.Serialization;
     using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
 

@@ -1,4 +1,4 @@
-﻿namespace Cedar
+﻿namespace Cedar.GetEventStore
 {
     using System;
     using System.Collections.Generic;
