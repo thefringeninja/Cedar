@@ -78,7 +78,7 @@
         }
 
         [Fact]
-        public async Task Transient_policy_none_should_not_retry()
+        public void Transient_policy_none_should_not_retry()
         {
             var sut = TransientExceptionRetryPolicy.None();
             int count = 0;

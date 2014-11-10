@@ -69,9 +69,9 @@
 
             var commandHandler = new CommandHandlerModule();
             commandHandler.For<ShipOrder>()
-                .Handle(async (message, ct) => _commands.Add(message.Command));
+                .Handle(message => _commands.Add(message.Command));
             commandHandler.For<BillCustomer>()
-                .Handle(async (message, ct) => _commands.Add(message.Command));
+                .Handle(message => _commands.Add(message.Command));
 
             ProcessHandler<OrderFulfillment, CompareablePosition> processHandler = ProcessHandler.For<OrderFulfillment, CompareablePosition>(
                 commandHandler,

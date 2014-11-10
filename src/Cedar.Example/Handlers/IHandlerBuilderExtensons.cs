@@ -16,7 +16,7 @@ namespace Cedar.Example.Handlers
                 {
                     await next(message, ct);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //logger.ErrorException("Exception occured while blah blah", ex);
                     throw;

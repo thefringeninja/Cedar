@@ -147,9 +147,9 @@
                 
                 var commandModule = new HandlerModule();
                 commandModule.For<CommandMessage<Something>>()
-                    .Handle(async (message, _) => result.Value = message.Command.Value);
+                    .Handle(message => result.Value = message.Command.Value);
                 commandModule.For<CommandMessage<SomethingElse>>()
-                    .Handle(async (message, _) => result.Value = message.Command.Value);
+                    .Handle(message => result.Value = message.Command.Value);
 
                 var commands = CommandHandlingMiddleware.HandleCommands(
                     new DefaultHandlerSettings(

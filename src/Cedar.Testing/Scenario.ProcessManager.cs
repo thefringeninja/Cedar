@@ -121,7 +121,7 @@
                     get { return _name; }
                 }
 
-                public async Task<ScenarioResult> Run()
+                public Task<ScenarioResult> Run()
                 {
                     _timer.Start();
 
@@ -139,7 +139,7 @@
                         {
                             _results = ex;
 
-                            return this;
+                            return Task.FromResult<ScenarioResult>(this);
                         }
 
                         _runThen(process);
@@ -150,12 +150,12 @@
                     {
                         _results = ex;
 
-                        return this;
+                        return Task.FromResult<ScenarioResult>(this);
                     }
 
                     _timer.Stop();
 
-                    return this;
+                    return Task.FromResult<ScenarioResult>(this);
                 }
 
                 public TaskAwaiter<ScenarioResult> GetAwaiter()

@@ -20,18 +20,22 @@
             _tableOfContents = new List<Tuple<string, List<ScenarioResult>>>();
         }
 
-        public async Task PrintResult(ScenarioResult result)
+        public Task PrintResult(ScenarioResult result)
         {
             _tableOfContents.Last().Item2.Add(result);
+            return Task.FromResult(0);
         }
 
-        public async Task PrintCategoryHeader(string category)
+        public Task PrintCategoryHeader(string category)
         {
             _tableOfContents.Add(Tuple.Create(category.Replace('.', ' ').Underscore().Titleize(), new List<ScenarioResult>()));
+            return Task.FromResult(0);
         }
 
-        public async Task PrintCategoryFooter(string category)
-        {}
+        public Task PrintCategoryFooter(string category)
+        {
+            return Task.FromResult(0);
+        }
 
         public async Task Flush()
         {

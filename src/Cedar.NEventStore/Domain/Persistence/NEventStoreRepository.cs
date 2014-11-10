@@ -40,7 +40,7 @@ namespace Cedar.NEventStore.Domain.Persistence
             return Task.FromResult(aggregate as TAggregate);
         }
 
-        public async Task Save(
+        public Task Save(
             string bucketId,
             IAggregate aggregate,
             Guid commitId,
@@ -69,11 +69,11 @@ namespace Cedar.NEventStore.Domain.Persistence
                     //await stream.CommitChanges(commitId).NotOnCapturedContext()
                     _eventStore.Advanced.Commit(commitAttempt);
                     aggregate.ClearUncommittedEvents();
-                    return;
+                    return Task.FromResult(0);
                 }
                 catch(DuplicateCommitException)
                 {
-                    return;
+                    return Task.FromResult(0);
                 }
                 catch(ConcurrencyException e)
                 {

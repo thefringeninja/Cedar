@@ -7,6 +7,9 @@
     using System.Threading.Tasks;
 
     public delegate Task Handler<TMessage>(TMessage message, CancellationToken ct);
+
+    public delegate void HandlerSync<TMessage>(TMessage message);
+
     public delegate Handler<TMessage> Pipe<TMessage>(Handler<TMessage> next);
 
     /// <summary>
