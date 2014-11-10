@@ -12,7 +12,7 @@
             bool isSubscribedToAll) where T : class
         {
             return new DomainEventMessage<T>(
-                resolvedEvent.Event.EventStreamId.FormatStreamNameWithoutBucket(), 
+                resolvedEvent.Event.EventStreamId, 
                 domainEvent, 
                 resolvedEvent.Event.EventNumber, 
                 headers, isSubscribedToAll
