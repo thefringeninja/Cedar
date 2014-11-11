@@ -98,6 +98,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="DefaultGetEventStoreJsonSerializer.cs" />
+    <Compile Include="Domain\AggregateTests.cs" />
     <Compile Include="Domain\GetEventStoreClientRepositoryTests.cs" />
     <Compile Include="Domain\NEventStoreRepositoryTests.cs" />
     <Compile Include="Handlers\ProcessManagerHandlerTests.cs" />

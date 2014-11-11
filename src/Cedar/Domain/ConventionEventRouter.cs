@@ -11,7 +11,7 @@ namespace Cedar.Domain
         private readonly bool _throwOnApplyNotFound;
         private IAggregate _registered;
 
-        public ConventionEventRouter(bool throwOnApplyNotFound = true)
+        public ConventionEventRouter(bool throwOnApplyNotFound = false)
         {
             _throwOnApplyNotFound = throwOnApplyNotFound;
         }
