@@ -59,7 +59,7 @@
          
             eventsToApply.ForEach(aggregate.ApplyEvent);
 
-            ((Action)aggregate.ClearUncommittedEvents)();
+            aggregate.ClearUncommittedEvents();
         }
 
         public async Task Save(T aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders = null, string bucketId = null)
