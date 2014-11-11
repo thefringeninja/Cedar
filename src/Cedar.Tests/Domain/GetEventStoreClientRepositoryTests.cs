@@ -64,13 +64,13 @@
 
             aggregate.DoSomething();
 
-            await _repository.Save(aggregate);
+            await _repository.Save(aggregate, Guid.NewGuid());
 
             aggregate = await _repository.GetById(_streamId);
 
             aggregate.DoSomething();
 
-            await _repository.Save(aggregate);
+            await _repository.Save(aggregate, Guid.NewGuid());
 
             aggregate = await _repository.GetById(_streamId);
 
@@ -88,13 +88,13 @@
 
             aggregate.DoSomething();
 
-            await _repository.Save(aggregate);
+            await _repository.Save(aggregate, Guid.NewGuid());
 
             aggregate = await _repository.GetById(_streamId);
 
             aggregate.DoSomething();
 
-            await _repository.Save(aggregate);
+            await _repository.Save(aggregate, Guid.NewGuid());
 
             aggregate = await _repository.GetById(_streamId);
 
@@ -125,7 +125,7 @@
 
             aggregate.DoSomething();
 
-            await _repository.Save(aggregate);
+            await _repository.Save(aggregate, Guid.NewGuid());
 
             aggregate = await _repository.GetById(_streamId, 2);
 
@@ -145,7 +145,7 @@
 
             aggregate.DoSomething();
 
-            await _repository.Save(aggregate);
+            await _repository.Save(aggregate, Guid.NewGuid());
 
             aggregate = await _repository.GetById(_streamId, 2);
 
@@ -155,7 +155,7 @@
 
             try
             {
-                await _repository.Save(aggregate);
+                await _repository.Save(aggregate, Guid.NewGuid());
             }
             catch (Exception ex)
             {

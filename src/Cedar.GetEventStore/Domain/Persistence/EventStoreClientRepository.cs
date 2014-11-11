@@ -62,7 +62,7 @@
             ((Action)aggregate.ClearUncommittedEvents)();
         }
 
-        public async Task Save(T aggregate, Action<IDictionary<string, object>> updateHeaders = null, string bucketId = null)
+        public async Task Save(T aggregate, Guid commitId, Action<IDictionary<string, object>> updateHeaders = null, string bucketId = null)
         {
             var changes = aggregate.GetUncommittedEvents().OfType<object>().ToList();
 
@@ -81,7 +81,18 @@
 
             var streamName = aggregate.Id.FormatStreamNameWithBucket(bucketId);
 
-            var eventData = changes.Select(@event => _serializer.SerializeEventData(@event, streamName, currentEventVersion++, updateHeaders));
+            updateHeaders = updateHeaders ?? (_ => { });
+
+            var eventData = changes.Select(@event => _serializer.SerializeEventData(
+                @event, 
+                streamName, 
+                currentEventVersion++,
+                headers =>
+                {
+                    updateHeaders(headers);
+
+                    headers["CommitId"] = commitId;
+                }));
 
             var result = await _connection.AppendToStreamAsync(streamName, expectedVersion - 1, eventData);
 
