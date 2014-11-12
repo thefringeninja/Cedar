@@ -7,6 +7,7 @@
     using Cedar.Domain;
     using Cedar.Domain.Persistence;
     using Cedar.GetEventStore.Serialization;
+    using Cedar.Handlers;
     using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
 
@@ -91,7 +92,7 @@
                 {
                     updateHeaders(headers);
 
-                    headers["CommitId"] = commitId;
+                    headers[DomainEventMessageHeaders.CommitId] = commitId;
                 }));
 
             var result = await _connection.AppendToStreamAsync(streamName, expectedVersion - 1, eventData);

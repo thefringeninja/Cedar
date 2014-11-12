@@ -4,14 +4,13 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using Cedar.Handlers;
     using Cedar.Serialization.Client;
     using EventStore.ClientAPI;
 
     public static class SerializationHelper
     {
         private const string Namespace = "9D18DAC8-678B-47E5-8406-E9B7FA19A6C5";
-        private const string ClrType = "ClrType";
-        private const string Timestamp = "Timestamp";
 
         private static readonly DeterministicGuidGenerator DeterministicGuidGenerator;
 
@@ -41,8 +40,8 @@
 
             var eventType = @event.GetType();
 
-            headers[ClrType] = getClrType(eventType);
-            headers[Timestamp] = DateTime.UtcNow;
+            headers[DomainEventMessageHeaders.Type] = getClrType(eventType);
+            headers[DomainEventMessageHeaders.Timestamp] = DateTime.UtcNow;
 
             var metadata = Encode(serializer.Serialize(headers));
 
@@ -69,7 +68,7 @@
         {
             headers = (IDictionary<string, object>)serializer.Deserialize(Decode(resolvedEvent.Event.Metadata), typeof(Dictionary<string, object>));
 
-            var type = Type.GetType((string)headers[ClrType]);
+            var type = Type.GetType((string)headers[DomainEventMessageHeaders.Type]);
 
             var @event = serializer.Deserialize(Decode(resolvedEvent.Event.Data), type);
 
