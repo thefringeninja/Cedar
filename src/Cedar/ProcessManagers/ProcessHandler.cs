@@ -102,7 +102,7 @@ namespace Cedar.ProcessManagers
             return module;
         }
 
-        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>()
+        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
         {
             return _dispatcher.GetHandlersFor<TMessage>();
         }
@@ -145,7 +145,7 @@ namespace Cedar.ProcessManagers
                 _activeProcesses = new ConcurrentDictionary<string, CheckpointedProcess>();
             }
 
-            public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>()
+            public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
             {
                 if(false == typeof(DomainEventMessage).IsAssignableFrom(typeof(TMessage))
                     || false == _byCorrelationId.ContainsKey(typeof(TMessage)))

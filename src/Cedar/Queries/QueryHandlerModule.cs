@@ -23,7 +23,7 @@
             return _inner.For<QueryMessage<TInput, TOutput>>();
         }
 
-        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>()
+        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
         {
             return _inner.GetHandlersFor<TMessage>();
         }

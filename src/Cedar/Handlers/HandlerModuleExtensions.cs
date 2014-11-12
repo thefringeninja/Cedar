@@ -12,8 +12,7 @@ namespace Cedar.Handlers
         public static Task Dispatch<TMessage>(
             [NotNull] this IHandlerResolver handlerModules,
             TMessage message,
-            CancellationToken cancellationToken)
-            where TMessage : class
+            CancellationToken cancellationToken) where TMessage : class
         {
             return new[] {handlerModules}.Dispatch(message, cancellationToken);
         }
@@ -21,8 +20,7 @@ namespace Cedar.Handlers
         public static async Task Dispatch<TMessage>(
             [NotNull] this IEnumerable<IHandlerResolver> handlerModules,
             TMessage message,
-            CancellationToken cancellationToken)
-            where TMessage: class
+            CancellationToken cancellationToken) where TMessage : class
         {
             Guard.EnsureNotNull(handlerModules, "handlerModules");
             Guard.EnsureNotNull(message, "message");
@@ -37,8 +35,7 @@ namespace Cedar.Handlers
         public static Task DispatchSingle<TMessage>(
             [NotNull] this IHandlerResolver handlerModules,
             TMessage message,
-            CancellationToken cancellationToken)
-            where TMessage : class
+            CancellationToken cancellationToken) where TMessage : class
         {
             return new[] { handlerModules }.DispatchSingle(message, cancellationToken);
         }
@@ -46,8 +43,7 @@ namespace Cedar.Handlers
         public static async Task DispatchSingle<TMessage>(
             [NotNull] this IEnumerable<IHandlerResolver> handlerModules,
             TMessage message,
-            CancellationToken cancellationToken)
-            where TMessage : class
+            CancellationToken cancellationToken) where TMessage : class
         {
             Guard.EnsureNotNull(handlerModules, "handlerModules");
             Guard.EnsureNotNull(message, "message");

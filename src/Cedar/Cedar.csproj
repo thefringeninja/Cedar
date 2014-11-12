@@ -63,7 +63,7 @@
     <Compile Include="App_Packages\LibOwin.1.0\LibOwin.cs" />
     <Compile Include="Commands\CommandHandlerModule.cs" />
     <Compile Include="Commands\CommandResult.cs" />
-    <Compile Include="Commands\CommandResultHandler.cs" />
+    <Compile Include="Commands\CommandResultStorage.cs" />
     <Compile Include="Handlers\DictionaryExtensions.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
     <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
@@ -166,9 +166,7 @@
       <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\Messages\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
