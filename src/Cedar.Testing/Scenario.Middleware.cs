@@ -12,7 +12,7 @@
     using Cedar.Commands.Client;
     using Cedar.Queries.Client;
     using Cedar.Testing.Owin;
-
+    using Newtonsoft.Json;
     using AppFunc = System.Func<
         System.Collections.Generic.IDictionary<string, object>, 
         System.Threading.Tasks.Task
@@ -147,23 +147,30 @@
                         var expect = _expect.GetEnumerator();
                         var actual = _queryResults.GetEnumerator();
 
-                        var differences = new List<Tuple<object, object>>();
-
+                        bool hasDifferences = false;
+                        var messages = new StringBuilder();
                         using (expect)
                         using(actual)
                         {
                             while(expect.MoveNext() & actual.MoveNext())
                             {
+                                messages
+                                    .AppendLine("Expected:")
+                                    .Append(JsonConvert.SerializeObject(expect.Current, Formatting.Indented)).AppendLine()
+                                    .AppendLine("Results:")
+                                    .Append(JsonConvert.SerializeObject(actual.Current, Formatting.Indented)).AppendLine()
+                                    .Append(new string(Enumerable.Repeat('=', 40).ToArray())).AppendLine();
+                                
                                 if(false == MessageEqualityComparer.Instance.Equals(expect.Current, actual.Current))
                                 {
-                                    differences.Add(Tuple.Create(expect.Current, actual.Current));
+                                    hasDifferences = true;
                                 }
                             }
                         }
 
-                        if(differences.Any())
+                        if(hasDifferences)
                         {
-                            throw new ScenarioException("");
+                            throw new ScenarioException(messages.ToString());
                         }
 
                     };
