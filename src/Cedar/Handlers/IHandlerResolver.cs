@@ -4,6 +4,6 @@
 
     public interface IHandlerResolver
     {
-        IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>();
+        IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class;
     }
 }

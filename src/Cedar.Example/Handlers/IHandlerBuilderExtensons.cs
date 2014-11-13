@@ -8,7 +8,7 @@ namespace Cedar.Example.Handlers
 
     internal static class IHandlerBuilderExtensons
     {
-        internal static IHandlerBuilder<TMessage> LogExceptions<TMessage>(this IHandlerBuilder<TMessage> handleBuilder)
+        internal static IHandlerBuilder<TMessage> LogExceptions<TMessage>(this IHandlerBuilder<TMessage> handleBuilder) where TMessage : class
         {
             return handleBuilder.Pipe(next => async (message, ct) =>
             {
@@ -24,7 +24,7 @@ namespace Cedar.Example.Handlers
             });
         }
 
-        internal static IHandlerBuilder<TMessage> PerformanceCounter<TMessage>(this IHandlerBuilder<TMessage> handleBuilder)
+        internal static IHandlerBuilder<TMessage> PerformanceCounter<TMessage>(this IHandlerBuilder<TMessage> handleBuilder) where TMessage : class
         {
             return handleBuilder.Pipe(next => async (message, ct) =>
             {

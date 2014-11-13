@@ -2,6 +2,6 @@
 {
     public interface ICreateHandlerBuilder
     {
-        IHandlerBuilder<TMessage> For<TMessage>();
+        IHandlerBuilder<TMessage> For<TMessage>() where TMessage : class;
     }
 }

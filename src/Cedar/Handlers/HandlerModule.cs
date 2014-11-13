@@ -6,11 +6,14 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    public delegate Task Handler<TMessage>(TMessage message, CancellationToken ct);
+    public delegate Task Handler<TMessage>(TMessage message, CancellationToken ct)
+        where TMessage: class;
 
-    public delegate void HandlerSync<TMessage>(TMessage message);
+    public delegate void HandlerSync<TMessage>(TMessage message) 
+        where TMessage : class;
 
-    public delegate Handler<TMessage> Pipe<TMessage>(Handler<TMessage> next);
+    public delegate Handler<TMessage> Pipe<TMessage>(Handler<TMessage> next) 
+    where TMessage : class;
 
     /// <summary>
     /// Represents a collection of handlers pipelines.
@@ -27,7 +30,7 @@
         /// </summary>
         /// <typeparam name="TMessage">The type of the message the pipeline will handle.</typeparam>
         /// <returns>A a handler builder to continue defining the pipeline.</returns>
-        public IHandlerBuilder<TMessage> For<TMessage>()
+        public IHandlerBuilder<TMessage> For<TMessage>() where TMessage : class
         {
             var key = typeof(TMessage);
             List<NonGenericHandler> handlers = _handlersByMessageType.ContainsKey(key) 
@@ -46,7 +49,7 @@
         /// </summary>
         /// <typeparam name="TMessage">The type of the message.</typeparam>
         /// <returns>The collection of handlers. Null if none exist.</returns>
-        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>()
+        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
         {
             if (!_handlersByMessageType.ContainsKey(typeof(TMessage)))
             {
@@ -56,7 +59,7 @@
                 .Select(handler => new Handler<TMessage>((message, ct) => handler(message, ct)));
         } 
 
-        private class HandlerBuilder<TMessage> : IHandlerBuilder<TMessage>
+        private class HandlerBuilder<TMessage> : IHandlerBuilder<TMessage> where TMessage : class
         {
             private readonly ICreateHandlerBuilder _createHandlerBuilder;
             private readonly Stack<Pipe<TMessage>> _middlewares = new Stack<Pipe<TMessage>>();

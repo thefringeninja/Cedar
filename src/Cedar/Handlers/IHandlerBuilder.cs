@@ -4,7 +4,7 @@
     /// Provides a mechanism to fluently build a message handler pipeline.
     /// </summary>
     /// <typeparam name="TMessage">The type of the message the handler will handle.</typeparam>
-    public interface IHandlerBuilder<TMessage>
+    public interface IHandlerBuilder<TMessage> where TMessage : class
     {
         /// <summary>
         /// Pipes the message through handler middleware.

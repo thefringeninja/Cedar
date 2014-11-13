@@ -36,9 +36,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -62,9 +61,12 @@
     </Compile>
     <Compile Include="App_Packages\LibOwin.1.0\LibOwin.cs" />
     <Compile Include="Commands\CommandHandlerModule.cs" />
+    <Compile Include="Commands\CommandResult.cs" />
+    <Compile Include="Commands\CommandResultStorage.cs" />
     <Compile Include="Handlers\DictionaryExtensions.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
     <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
+    <Compile Include="Handlers\EventHandled.cs" />
     <Compile Include="Handlers\HandlerBuilderExtensions.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
     <Compile Include="ProcessManagers\IProcessManagerCheckpointRepository.cs" />

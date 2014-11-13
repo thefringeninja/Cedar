@@ -6,6 +6,7 @@
     using System.Net.Http;
     using System.Threading.Tasks;
     using Cedar.Commands;
+    using Cedar.Commands.Client;
     using Cedar.Handlers;
     using Cedar.Queries;
     using Cedar.Queries.Client;
@@ -26,12 +27,12 @@
     public class MiddlewareTests
     {
         private readonly QueryExecutionSettings _queryExecutionSettings;
-        private readonly Query<Query, QueryResult> _query;
+        private readonly CommandExecutionSettings _commandExecutionSettings;
 
         public MiddlewareTests()
         {
             _queryExecutionSettings = new QueryExecutionSettings("vendor");
-            _query = new Query<Query, QueryResult>(new Query(), _queryExecutionSettings);
+            _commandExecutionSettings = new CommandExecutionSettings("vendor");
         }
 
         class Something {
@@ -71,12 +72,27 @@
         {
             var user = Authorization.Basic("user", "password");
 
-            var result =await Scenario.ForMiddleware(MySystem, commandPath:"/commands")
+            var result = await Scenario.ForMiddleware(MySystem, _commandExecutionSettings, _queryExecutionSettings)
                 .WithUsers(user)
                 .Given(user.Does(new Something {Value = "this"}))
                 .When(user.Does(new SomethingElse {Value = "that"}))
-                .ThenShould(user.Queries(_query),
-                    q => q.Value == "that");
+                .Then(user.Queries<Query, QueryResult>(new Query()))
+                .ShouldEqual(new QueryResult { Value = "that" });
+
+            Assert.True(result.Passed);
+        }
+
+        [Fact]
+        public async Task a_passing_middleware_scenario_within_should()
+        {
+            var user = Authorization.Basic("user", "password");
+
+            var result = await Scenario.ForMiddleware(MySystem, _commandExecutionSettings, _queryExecutionSettings)
+                .WithUsers(user)
+                .Given(user.Does(new Something { Value = "this" }).ProcessedWithin(200))
+                .When(user.Does(new SomethingElse { Value = "that" }).ProcessedWithin(200))
+                .Then(user.Queries<Query, QueryResult>(new Query()))
+                .ShouldEqual(new QueryResult { Value = "that" });
 
             Assert.True(result.Passed);
         }
@@ -86,12 +102,12 @@
         {
             var user = Authorization.Basic("user", "password");
 
-            var result = await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+            var result = await Scenario.ForMiddleware(MySystem, _commandExecutionSettings, _queryExecutionSettings)
                 .WithUsers(user)
                 .Given(user.Does(new Something { Value = "this" }))
                 .When(user.Does(new SomethingElse { Value = "that" }))
-                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
-                    q => q.Value == "this");
+                .Then(user.Queries<Query, QueryResult>(new Query()))
+                .ShouldEqual(new QueryResult { Value = "this" });
 
             Assert.False(result.Passed);
         }
@@ -102,12 +118,12 @@
         {
             var user = Authorization.Basic("user", "password");
 
-            var result = await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+            var result = await Scenario.ForMiddleware(MySystem, _commandExecutionSettings, _queryExecutionSettings)
                 .WithUsers(user)
                 .Given(user.Does(new SomethingExploding()))
                 .When(user.Does(new Something { Value = "this" }))
-                .ThenShould(user.Queries(client => client.ExecuteQuery<Query, QueryResult>(new Query(), Guid.NewGuid(), _queryExecutionSettings)),
-                    q => q.Value == "this");
+                .Then(user.Queries<Query, QueryResult>(new Query()))
+                .ShouldEqual(new QueryResult { Value = "this" });
 
             Assert.False(result.Passed);
             Assert.IsType<ScenarioException>(result.Results);
@@ -134,7 +150,7 @@
         {
             var user = Authorization.Basic("user", "password");
 
-            var result = await Scenario.ForMiddleware(MySystem, commandPath: "/commands")
+            var result = await Scenario.ForMiddleware(MySystem, _commandExecutionSettings, _queryExecutionSettings)
                 .WithUsers(user)
                 .Given(user.Does(new Something {Value = "this"}))
                 .When(user.Does(new SomethingExploding()))
