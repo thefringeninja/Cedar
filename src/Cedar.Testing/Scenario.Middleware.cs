@@ -44,6 +44,22 @@
             return new Middleware.HttpClientQueryRequest<TInput, TOutput>(authorization, request);
         }
 
+        public static Middleware.IHttpClientRequest<TCommand, CommandResult> ProcessedWithin<TCommand>(
+            this Middleware.IHttpClientRequest<TCommand, CommandResult> request,
+            TimeSpan within)
+            where TCommand: class
+        {
+            return new Middleware.HttpClientCommandResultPollingRequest<TCommand>(request, within);
+        }
+
+        public static Middleware.IHttpClientRequest<TCommand, CommandResult> ProcessedWithin<TCommand>(
+            this Middleware.IHttpClientRequest<TCommand, CommandResult> request,
+            int withinMilliseconds)
+            where TCommand : class
+        {
+            return request.ProcessedWithin(TimeSpan.FromMilliseconds(withinMilliseconds));
+        }
+
         public static Middleware.IWithUsers ForMiddleware(
             MidFunc midFunc,
             IMessageExecutionSettings commandSettings,
@@ -384,6 +400,63 @@
                 public override string ToString()
                 {
                     return _command + " (running as " + _authorization + ")";
+                }
+            }
+
+            internal class HttpClientCommandResultPollingRequest<TCommand> : IHttpClientRequest<TCommand, CommandResult>
+                where TCommand : class
+            {
+                private readonly IHttpClientRequest<TCommand, CommandResult> _inner;
+                private readonly TimeSpan _within;
+
+                public HttpClientCommandResultPollingRequest(IHttpClientRequest<TCommand, CommandResult> inner, TimeSpan within)
+                {
+                    _inner = inner;
+                    _within = within;
+                }
+
+                public Func<HttpClient, IMessageExecutionSettings, Task<CommandResult>> Sender
+                {
+                    get
+                    {
+                        return async (client, settings) =>
+                        {
+                            var initial = await _inner.Sender(client, settings);
+
+                            var stopwatch = Stopwatch.StartNew();
+
+                            while(stopwatch.Elapsed < _within)
+                            {
+                                try
+                                {
+                                    var result = await client.GetCommandStatus(Id, settings);
+
+                                    if(result.HandlersCompleted)
+                                    {
+                                        return result;
+                                    }
+                                }
+                                catch { }
+                            }
+
+                            return initial;
+                        };
+                    }
+                }
+
+                public string AuthorizationId
+                {
+                    get { return _inner.AuthorizationId; }
+                }
+
+                public Guid Id
+                {
+                    get { return _inner.Id; }
+                }
+
+                public TCommand Input
+                {
+                    get { return _inner.Input; }
                 }
             }
 

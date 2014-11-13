@@ -26,7 +26,7 @@
     public class MiddlewareTests
     {
         private readonly QueryExecutionSettings _queryExecutionSettings;
-        private CommandExecutionSettings _commandExecutionSettings;
+        private readonly CommandExecutionSettings _commandExecutionSettings;
 
         public MiddlewareTests()
         {
@@ -74,6 +74,21 @@
                 .WithUsers(user)
                 .Given(user.Does(new Something {Value = "this"}))
                 .When(user.Does(new SomethingElse {Value = "that"}))
+                .Then(user.Queries<Query, QueryResult>(new Query()))
+                .ShouldEqual(new QueryResult { Value = "that" });
+
+            Assert.True(result.Passed);
+        }
+
+        [Fact]
+        public async Task a_passing_middleware_scenario_within_should()
+        {
+            var user = Authorization.Basic("user", "password");
+
+            var result = await Scenario.ForMiddleware(MySystem, _commandExecutionSettings, _queryExecutionSettings)
+                .WithUsers(user)
+                .Given(user.Does(new Something { Value = "this" }).ProcessedWithin(200))
+                .When(user.Does(new SomethingElse { Value = "that" }).ProcessedWithin(200))
                 .Then(user.Queries<Query, QueryResult>(new Query()))
                 .ShouldEqual(new QueryResult { Value = "that" });
 
