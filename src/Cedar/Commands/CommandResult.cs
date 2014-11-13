@@ -4,17 +4,16 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
-    using Cedar.ExceptionModels.Client;
     using Cedar.Handlers;
 
-    public class CommandResult
+    internal class CommandResult
     {
-        private readonly Guid _commitId;
+        private readonly Guid _commandId;
         private readonly IEnumerable<IHandlerResolver> _handlerResolvers;
 
-        public Guid CommitId
+        public Guid CommandId
         {
-            get { return _commitId; }
+            get { return _commandId; }
         }
 
         public int HandlerCount
@@ -41,9 +40,9 @@
         private int _successfulHandlerCount;
         private int _unsuccessfulHandlerCount;
 
-        public CommandResult(Guid commitId, IEnumerable<IHandlerResolver> handlerResolvers)
+        public CommandResult(Guid commandId, IEnumerable<IHandlerResolver> handlerResolvers)
         {
-            _commitId = commitId;
+            _commandId = commandId;
             _handlerResolvers = handlerResolvers;
         }
 

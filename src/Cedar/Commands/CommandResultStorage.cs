@@ -16,7 +16,7 @@
             _storage = new ConcurrentDictionary<Guid, CommandResult>();
         }
 
-        public bool TryGetResult(Guid commitId, out CommandResult result)
+        internal bool TryGetResult(Guid commitId, out CommandResult result)
         {
             return _storage.TryGetValue(commitId, out result);
         }
