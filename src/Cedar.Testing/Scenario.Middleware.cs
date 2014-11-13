@@ -177,23 +177,28 @@
                         var actual = _queryResults.GetEnumerator();
 
                         bool hasDifferences = false;
+
                         var messages = new StringBuilder();
+                        
                         using (expect)
                         using(actual)
                         {
                             while(expect.MoveNext() & actual.MoveNext())
                             {
-                                messages
-                                    .AppendLine("Expected:")
-                                    .Append(JsonConvert.SerializeObject(expect.Current, Formatting.Indented)).AppendLine()
-                                    .AppendLine("Results:")
-                                    .Append(JsonConvert.SerializeObject(actual.Current, Formatting.Indented)).AppendLine()
-                                    .Append(new string(Enumerable.Repeat('=', 40).ToArray())).AppendLine();
-                                
-                                if(false == MessageEqualityComparer.Instance.Equals(expect.Current, actual.Current))
+                                var expectedJson = JsonConvert.SerializeObject(expect.Current, Formatting.Indented);
+                                var actualJson = JsonConvert.SerializeObject(actual.Current, Formatting.Indented);
+
+                                if(expectedJson != actualJson)
                                 {
                                     hasDifferences = true;
                                 }
+
+                                messages
+                                    .AppendLine("Expected:")
+                                    .Append(expectedJson).AppendLine()
+                                    .AppendLine("Results:")
+                                    .Append(actualJson).AppendLine()
+                                    .Append(new string(Enumerable.Repeat('=', 40).ToArray())).AppendLine();
                             }
                         }
 
@@ -201,7 +206,6 @@
                         {
                             throw new ScenarioException(messages.ToString());
                         }
-
                     };
 
                     _then = () => Task.FromResult(true);
