@@ -1,61 +1,66 @@
 ﻿namespace Cedar.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using System.Threading;
-    using Cedar.Annotations;
     using Cedar.ExceptionModels.Client;
     using Cedar.Handlers;
 
     public class CommandResult
     {
         private readonly Guid _commitId;
-        private readonly IHandlerResolver _handlerResolver;
+        private readonly IEnumerable<IHandlerResolver> _handlerResolvers;
 
         public Guid CommitId
         {
             get { return _commitId; }
         }
 
-        public ExceptionModel Exception { get; private set; }
+        public int HandlerCount
+        {
+            get { return _handlerCount; }
+        }
+
+        public int SuccessfulHandlerCount
+        {
+            get { return _successfulHandlerCount; }
+        }
+
+        public int UnsuccessfulHandlerCount
+        {
+            get { return _unsuccessfulHandlerCount; }
+        }
+
+        public bool HandlersCompleted
+        {
+            get { return HandlerCount - (SuccessfulHandlerCount + UnsuccessfulHandlerCount) == 0; }
+        }
 
         private int _handlerCount;
         private int _successfulHandlerCount;
         private int _unsuccessfulHandlerCount;
-        private static readonly MethodInfo NotifyEventWrittenInternalMethod;
 
-        public CommandResult(Guid commitId, IHandlerResolver handlerResolver)
+        public CommandResult(Guid commitId, IEnumerable<IHandlerResolver> handlerResolvers)
         {
             _commitId = commitId;
-            _handlerResolver = handlerResolver;
+            _handlerResolvers = handlerResolvers;
         }
 
-        static CommandResult()
-        {
-            NotifyEventWrittenInternalMethod = typeof(CommandResult).GetMethod("NotifyEventWrittenInternal",
-                BindingFlags.NonPublic | BindingFlags.Instance);
-        }
-
-        public void NotifyEventWritten(DomainEventMessage @event)
-        {
-            NotifyEventWrittenInternalMethod
-                .MakeGenericMethod(@event.DomainEvent.GetType())
-                .Invoke(this, new[] {@event});
-        }
-
-        [UsedImplicitly]
-        private void NotifyEventWrittenInternal<TEvent>(DomainEventMessage<TEvent> @event)
+        public void NotifyEventWritten<TEvent>()
             where TEvent : class
         {
-            Interlocked.Add(ref _handlerCount, _handlerResolver.GetHandlersFor<DomainEventMessage<TEvent>>().Count());
+            var count = _handlerResolvers.Sum(
+                handlerResolver => handlerResolver
+                    .GetHandlersFor<DomainEventMessage<TEvent>>()
+                    .Count());
+            Interlocked.Add(ref _handlerCount, count);
         }
 
         public void NotifyEventHandledSuccessfully()
         {
             Interlocked.Increment(ref _successfulHandlerCount);
         }
-
 
         public void NotifyEventHandledUnsuccessfully()
         {
