@@ -1,6 +1,7 @@
 ﻿namespace Cedar.ExceptionModels
 {
     using System;
+    using System.Linq;
     using System.Net;
     using System.Security;
     using System.Text;
@@ -24,6 +25,12 @@
             catch (Exception ex)
             {
                 caughtException = ex;
+            }
+
+            var aggregateException = caughtException as AggregateException;
+            if(aggregateException != null)
+            {
+                caughtException = aggregateException.InnerExceptions.First();
             }
 
             var httpStatusException = caughtException as HttpStatusException;
