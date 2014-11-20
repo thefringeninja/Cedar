@@ -1,6 +1,8 @@
 ﻿namespace Cedar.ExceptionModels
 {
     using System;
+    using System.Net;
+    using System.Security;
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.ExceptionModels.Client;
@@ -36,20 +38,59 @@
                 await context.HandleBadRequest(invalidOperationException, options);
                 return;
             }
+            var argumentException = caughtException as ArgumentException;
+            if (argumentException != null)
+            {
+                await context.HandleBadRequest(argumentException, options);
+                return;
+            }
+            var formatException = caughtException as FormatException;
+            if (formatException != null)
+            {
+                await context.HandleBadRequest(formatException, options);
+                return;
+            }
+            var SecurityException = caughtException as SecurityException;
+            if (SecurityException != null)
+            {
+                await context.HandleBadRequest(SecurityException, options);
+                return;
+            }
             await context.HandleInternalServerError(caughtException, options);
 
         }
 
         private static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
-            var exception = new HttpStatusException(ex.Message, 400, ex);
+            var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
+
+            return HandleHttpStatusException(context, exception, options);
+        }
+
+        private static Task HandleBadRequest(this IOwinContext context, ArgumentException ex, HandlerSettings options)
+        {
+            var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
+
+            return HandleHttpStatusException(context, exception, options);
+        }
+
+        private static Task HandleBadRequest(this IOwinContext context, FormatException ex, HandlerSettings options)
+        {
+            var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
+
+            return HandleHttpStatusException(context, exception, options);
+        }
+
+        private static Task HandleBadRequest(this IOwinContext context, SecurityException ex, HandlerSettings options)
+        {
+            var exception = new HttpStatusException(ex.Message, HttpStatusCode.Forbidden, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
         private static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
         {
-            var exception = new HttpStatusException(ex.Message, 500, ex);
+            var exception = new HttpStatusException(ex.Message, HttpStatusCode.InternalServerError, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
