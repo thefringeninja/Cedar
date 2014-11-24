@@ -6,7 +6,7 @@ namespace Cedar.Queries.Client
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Cedar.ExceptionModels.Client;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
 
     public static class HttpClientExtensions
     {

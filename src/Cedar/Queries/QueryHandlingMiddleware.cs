@@ -11,7 +11,7 @@
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
     using Cedar.Owin;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using Cedar.TypeResolution;
 
     using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
@@ -28,7 +28,7 @@
         private static readonly MethodInfo WidenTaskResultMethodInfo =
             typeof(QueryHandlingMiddleware).GetMethod("WidenTaskResult", BindingFlags.Static | BindingFlags.NonPublic);
 
-        public static MidFunc HandleQueries(HandlerSettings options,
+        public static MidFunc HandleQueries(HandlerConfiguration options,
             Func<IDictionary<string, object>, Type> getInputType = null,
             Func<IDictionary<string, object>, Type> getOutputType = null,
             Func<IRequest, Stream> getInputStream = null,
@@ -57,7 +57,7 @@
             };
         }
 
-        private static Func<IOwinContext, HandlerSettings, Task> BuildHandlerCall(AppFunc next, Func<IRequest, Stream> getInputStream = null)
+        private static Func<IOwinContext, HandlerConfiguration, Task> BuildHandlerCall(AppFunc next, Func<IRequest, Stream> getInputStream = null)
         {
             return (context, options) => HandleQuery(
                 next, 
@@ -67,7 +67,7 @@
                 getInputStream);
         }
 
-        private static async Task HandleQuery(AppFunc next, IOwinContext context, Guid queryId, HandlerSettings options, Func<IRequest, Stream> getInputStream = null)
+        private static async Task HandleQuery(AppFunc next, IOwinContext context, Guid queryId, HandlerConfiguration options, Func<IRequest, Stream> getInputStream = null)
         {
             getInputStream = getInputStream ?? DefaultGetInputStream;
 
@@ -102,7 +102,7 @@
 
             var task = dispatchQuery.Invoke(null, new[]
             {
-                options.HandlerModules, queryId, user, input, context.Request.CallCancelled
+                options.HandlerResolvers, queryId, user, input, context.Request.CallCancelled
             });
 
             var result = await (Task<object>)WidenTaskResultMethodInfo

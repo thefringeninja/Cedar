@@ -7,7 +7,7 @@
     using Cedar.Annotations;
     using Cedar.GetEventStore.Serialization;
     using Cedar.Handlers;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using EventStore.ClientAPI;
 
     public static class HandlerModuleExtensions

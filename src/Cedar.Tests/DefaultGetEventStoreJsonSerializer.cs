@@ -2,7 +2,7 @@
 {
     using System;
     using System.IO;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using Newtonsoft.Json;
 
     internal class DefaultGetEventStoreJsonSerializer : ISerializer
@@ -22,9 +22,9 @@
             return _jsonSerializer.Deserialize(reader, type);
         }
 
-        public void Serialize(TextWriter writer, object target)
+        public void Serialize(TextWriter writer, object source)
         {
-            _jsonSerializer.Serialize(writer, target);
+            _jsonSerializer.Serialize(writer, source);
         }
     }
 }

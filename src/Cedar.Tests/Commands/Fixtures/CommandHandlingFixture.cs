@@ -22,7 +22,7 @@ namespace Cedar.Commands.Fixtures
             var commandTypeFromContentTypeResolver = new DefaultRequestTypeResolver(
                 vendor,
                 handlerModule);
-            var options = new DefaultHandlerSettings(handlerModule, commandTypeFromContentTypeResolver);
+            var options = new DefaultHandlerConfiguration(handlerModule, commandTypeFromContentTypeResolver);
             _midFunc = CommandHandlingMiddleware.HandleCommands(options);
             _messageExecutionSettings = new CommandExecutionSettings(vendor);
         }

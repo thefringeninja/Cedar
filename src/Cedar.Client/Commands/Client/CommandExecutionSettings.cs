@@ -1,7 +1,7 @@
 ﻿namespace Cedar.Commands.Client
 {
     using Cedar.ExceptionModels.Client;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
 
     public class CommandExecutionSettings : MessageExecutionSettings
     {

@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
     using Cedar.Handlers;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using EventStore.ClientAPI;
 
     public static class SerializationHelper

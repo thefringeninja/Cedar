@@ -8,7 +8,7 @@
     using Cedar.Domain.Persistence;
     using Cedar.GetEventStore.Serialization;
     using Cedar.Handlers;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using EventStore.ClientAPI;
 
     public class EventStoreClientRepository<T>

@@ -1,7 +1,6 @@
 ﻿namespace Cedar.Commands
 {
     using System;
-    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -13,7 +12,7 @@
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
     using Cedar.Owin;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using Cedar.TypeResolution;
     
     using AppFunc = System.Func<
@@ -36,13 +35,13 @@
         private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
             .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleCommands(HandlerSettings options, string commandPath = "/commands")
+        public static MidFunc HandleCommands(HandlerConfiguration options, string commandPath = "/commands")
         {
             Guard.EnsureNotNull(options, "options");
 
-            var resultReportingHandler = new CommandResultHandlerModule(options.HandlerModules);
+            var resultReportingHandler = new CommandResultHandlerModule(options.HandlerResolvers);
 
-            options = new DefaultHandlerSettings(resultReportingHandler,
+            options = new DefaultHandlerConfiguration(resultReportingHandler,
                 options.RequestTypeResolver,
                 options.ExceptionToModelConverter,
                 options.Serializer);
@@ -94,12 +93,12 @@
             };
         }
 
-        private static Func<IOwinContext, HandlerSettings, Task> BuildSendCommand(Guid commandId)
+        private static Func<IOwinContext, HandlerConfiguration, Task> BuildSendCommand(Guid commandId)
         {
             return (context, options) => HandleCommand(context, commandId, options);
         }
 
-        private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerSettings options)
+        private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerConfiguration options)
         {
             string contentType = context.Request.ContentType;
 
@@ -122,7 +121,7 @@
             await (Task) dispatchCommand.Invoke(null,
                 new[]
                 {
-                    options.HandlerModules, commandId, user, command, context.Request.CallCancelled
+                    options.HandlerResolvers, commandId, user, command, context.Request.CallCancelled
                 });
             context.Response.StatusCode = 202;
             context.Response.ReasonPhrase = "Accepted";

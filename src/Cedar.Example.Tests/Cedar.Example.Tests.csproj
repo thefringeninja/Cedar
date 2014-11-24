@@ -86,7 +86,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="starbucks_should.cs" />
-    <Compile Include="DefaultHandlerSettings.cs" />
+    <Compile Include="DefaultHandlerConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

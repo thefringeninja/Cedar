@@ -1,4 +1,4 @@
-﻿namespace Cedar.Serialization.Client
+﻿namespace Cedar.Serialization
 {
     using System;
     using System.IO;
@@ -18,9 +18,9 @@
             return _jsonSerializer.Deserialize(reader, type);
         }
 
-        public void Serialize(TextWriter writer, object target)
+        public void Serialize(TextWriter writer, object source)
         {
-            _jsonSerializer.Serialize(writer, target);
+            _jsonSerializer.Serialize(writer, source);
         }
     }
 }

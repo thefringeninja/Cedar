@@ -2,37 +2,36 @@
 {
     using System.Collections.Generic;
     using Cedar.Annotations;
-    using Cedar.Commands;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using Cedar.TypeResolution;
 
-    public abstract class HandlerSettings
+    public abstract class HandlerConfiguration
     {
-        private readonly IEnumerable<IHandlerResolver> _handlerModules;
+        private readonly IEnumerable<IHandlerResolver> _handlerResolvers;
         private readonly IRequestTypeResolver _requestTypeResolver;
         private readonly IExceptionToModelConverter _exceptionToModelConverter;
         private readonly ISerializer _serializer;
 
-        protected HandlerSettings(
-            [NotNull] IEnumerable<IHandlerResolver> handlerModules,
+        protected HandlerConfiguration(
+            [NotNull] IEnumerable<IHandlerResolver> handlerResolvers,
             [NotNull] IRequestTypeResolver requestTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null,
             ISerializer serializer = null)
         {
-            Guard.EnsureNotNull(handlerModules, "handlerResolver");
+            Guard.EnsureNotNull(handlerResolvers, "handlerResolver");
             Guard.EnsureNotNull(requestTypeResolver, "requestTypeResolver");
 
-            _handlerModules = handlerModules;
+            _handlerResolvers = handlerResolvers;
             _requestTypeResolver = requestTypeResolver;
             _exceptionToModelConverter = exceptionToModelConverter ?? new ExceptionToModelConverter();
             _serializer = serializer ?? new DefaultJsonSerializer();
         }
 
-        public IEnumerable<IHandlerResolver> HandlerModules
+        public IEnumerable<IHandlerResolver> HandlerResolvers
         {
-            get { return _handlerModules; }
+            get { return _handlerResolvers; }
         }
 
         public IRequestTypeResolver RequestTypeResolver

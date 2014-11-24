@@ -4,12 +4,12 @@
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using Cedar.TypeResolution;
 
-    public class DefaultHandlerSettings : HandlerSettings
+    public class DefaultHandlerConfiguration : HandlerConfiguration
     {
-        public DefaultHandlerSettings(
+        public DefaultHandlerConfiguration(
            [NotNull] IHandlerResolver handlerModule,
            [NotNull] IRequestTypeResolver requestTypeResolver,
            IExceptionToModelConverter exceptionToModelConverter = null,
@@ -17,12 +17,12 @@
             : this(new[] { handlerModule }, requestTypeResolver, exceptionToModelConverter, serializer)
         {}
 
-        public DefaultHandlerSettings(
-            [NotNull] IEnumerable<IHandlerResolver> handlerModules,
+        public DefaultHandlerConfiguration(
+            [NotNull] IEnumerable<IHandlerResolver> handlerResolvers,
             [NotNull] IRequestTypeResolver requestTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null,
            ISerializer serializer = null)
-            : base(handlerModules, requestTypeResolver, exceptionToModelConverter, serializer)
+            : base(handlerResolvers, requestTypeResolver, exceptionToModelConverter, serializer)
         {}
 
     }

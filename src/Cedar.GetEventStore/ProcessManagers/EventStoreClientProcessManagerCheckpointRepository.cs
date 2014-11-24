@@ -6,7 +6,7 @@
     using Cedar.GetEventStore.Serialization;
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Messages;
-    using Cedar.Serialization.Client;
+    using Cedar.Serialization;
     using EventStore.ClientAPI;
 
     public class EventStoreClientProcessManagerCheckpointRepository : IProcessManagerCheckpointRepository<CompareablePosition>
