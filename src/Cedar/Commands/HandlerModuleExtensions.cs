@@ -12,19 +12,19 @@
     {
         [UsedImplicitly]
         public static Task DispatchCommand<TCommand>(
-            this IEnumerable<IHandlerResolver> handlerModules,
+            this IEnumerable<IHandlerResolver> handlerResolvers,
             Guid commandId,
             ClaimsPrincipal requstUser,
             TCommand command,
             CancellationToken cancellationToken)
             where TCommand : class
         {
-            Guard.EnsureNotNull(handlerModules, "handlerModules");
+            Guard.EnsureNotNull(handlerResolvers, "handlerModules");
             Guard.EnsureNotNull(requstUser, "requstUser");
             Guard.EnsureNotNull(command, "command");
 
             var commandMessage = new CommandMessage<TCommand>(commandId, requstUser, command);
-            return handlerModules.DispatchSingle(commandMessage, cancellationToken);
+            return handlerResolvers.DispatchSingle(commandMessage, cancellationToken);
         }
     }
 
