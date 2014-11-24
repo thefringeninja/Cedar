@@ -63,7 +63,6 @@
     <Compile Include="Commands\CommandHandlerModule.cs" />
     <Compile Include="Commands\CommandResult.cs" />
     <Compile Include="Commands\CommandResultStorage.cs" />
-    <Compile Include="Handlers\DictionaryExtensions.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
     <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
     <Compile Include="Handlers\EventHandled.cs" />

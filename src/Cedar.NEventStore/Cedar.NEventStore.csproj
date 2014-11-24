@@ -60,6 +60,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Handlers\DictionaryExtensions.cs" />
     <Compile Include="Domain\Persistence\IRepository.cs" />
     <Compile Include="Domain\Persistence\NEventStoreRepository.cs" />
     <Compile Include="Domain\Persistence\RepositoryExtensions.cs" />
