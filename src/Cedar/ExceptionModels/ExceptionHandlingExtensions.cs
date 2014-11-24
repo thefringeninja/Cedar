@@ -13,8 +13,8 @@
     internal static class ExceptionHandlingExtensions
     {
         internal static async Task ExecuteWithExceptionHandling(
-            this Func<IOwinContext, HandlerConfiguration, Task> actionToRun,
-            IOwinContext context, HandlerConfiguration options)
+            this Func<IOwinContext, HandlerSettings, Task> actionToRun,
+            IOwinContext context, HandlerSettings options)
         {
             Exception caughtException;
             try
@@ -67,42 +67,42 @@
 
         }
 
-        private static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerConfiguration options)
+        private static Task HandleBadRequest(this IOwinContext context, InvalidOperationException ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
-        private static Task HandleBadRequest(this IOwinContext context, ArgumentException ex, HandlerConfiguration options)
+        private static Task HandleBadRequest(this IOwinContext context, ArgumentException ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
-        private static Task HandleBadRequest(this IOwinContext context, FormatException ex, HandlerConfiguration options)
+        private static Task HandleBadRequest(this IOwinContext context, FormatException ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
-        private static Task HandleBadRequest(this IOwinContext context, SecurityException ex, HandlerConfiguration options)
+        private static Task HandleBadRequest(this IOwinContext context, SecurityException ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.Forbidden, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
-        private static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerConfiguration options)
+        private static Task HandleInternalServerError(this IOwinContext context, Exception ex, HandlerSettings options)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.InternalServerError, ex);
 
             return HandleHttpStatusException(context, exception, options);
         }
 
-        private static Task HandleHttpStatusException(this IOwinContext context, HttpStatusException exception, HandlerConfiguration options, string contentType = "application/json")
+        private static Task HandleHttpStatusException(this IOwinContext context, HttpStatusException exception, HandlerSettings options, string contentType = "application/json")
         {
             context.Response.StatusCode = (int) exception.StatusCode;
             context.Response.ReasonPhrase = exception.StatusCode.ToString();

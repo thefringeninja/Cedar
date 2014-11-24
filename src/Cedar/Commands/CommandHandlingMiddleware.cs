@@ -35,13 +35,13 @@
         private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
             .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleCommands(HandlerConfiguration options, string commandPath = "/commands")
+        public static MidFunc HandleCommands(HandlerSettings options, string commandPath = "/commands")
         {
             Guard.EnsureNotNull(options, "options");
 
             var resultReportingHandler = new CommandResultHandlerModule(options.HandlerResolvers);
 
-            options = new DefaultHandlerConfiguration(resultReportingHandler,
+            options = new HandlerSettings(resultReportingHandler,
                 options.RequestTypeResolver,
                 options.ExceptionToModelConverter,
                 options.Serializer);
@@ -93,12 +93,12 @@
             };
         }
 
-        private static Func<IOwinContext, HandlerConfiguration, Task> BuildSendCommand(Guid commandId)
+        private static Func<IOwinContext, HandlerSettings, Task> BuildSendCommand(Guid commandId)
         {
             return (context, options) => HandleCommand(context, commandId, options);
         }
 
-        private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerConfiguration options)
+        private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerSettings options)
         {
             string contentType = context.Request.ContentType;
 

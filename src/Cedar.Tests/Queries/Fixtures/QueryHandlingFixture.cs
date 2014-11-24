@@ -22,7 +22,7 @@ namespace Cedar.Queries.Fixtures
             var queryTypeFromContentTypeResolver = new DefaultRequestTypeResolver(
                 vendor,
                 handlerModule);
-            var options = new DefaultHandlerConfiguration(handlerModule, queryTypeFromContentTypeResolver);
+            var options = new HandlerSettings(handlerModule, queryTypeFromContentTypeResolver);
             _midFunc = QueryHandlingMiddleware.HandleQueries(options);
             _messageExecutionSettings = new QueryExecutionSettings(vendor);
         }

@@ -5,13 +5,13 @@
     using System.Threading.Tasks;
     using Cedar.ProcessManagers;
     using Cedar.Testing;
-    using Xunit;
     using ScenarioAttribute = Cedar.Testing.Xunit.ScenarioAttribute;
 
     public class starbucks_should
     {
         private readonly Guid _customerId = Guid.NewGuid();
         private readonly Guid _orderId = Guid.NewGuid();
+
         public class DrinkOrderPlaced
         {
             public Guid CustomerId { get; set; }

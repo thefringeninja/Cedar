@@ -172,7 +172,7 @@
                     .Handle(message => result.Value = message.Command.Value);
 
                 var commands = CommandHandlingMiddleware.HandleCommands(
-                    new DefaultHandlerConfiguration(
+                    new HandlerSettings(
                         commandModule,
                         new DefaultRequestTypeResolver(
                             "vendor",
@@ -185,7 +185,7 @@
                 queryModule.For<Query, QueryResult>()
                     .HandleQuery((_, __) => Task.FromResult(result));
 
-                var queries = QueryHandlingMiddleware.HandleQueries(new DefaultHandlerConfiguration(
+                var queries = QueryHandlingMiddleware.HandleQueries(new HandlerSettings(
                     queryModule,
                     new DefaultRequestTypeResolver(
                         "vendor",

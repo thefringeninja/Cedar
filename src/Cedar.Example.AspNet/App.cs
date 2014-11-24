@@ -32,7 +32,7 @@
             var queryHandlerModule = new QueryHandlerModule();
             queryHandlerModule.For<Query, Query.Response>().HandleQuery((message, ct) => Task.FromResult(new Query.Response()));
             
-            var settings = new DefaultHandlerConfiguration(
+            var settings = new HandlerSettings(
                 queryHandlerModule,
                 new DefaultRequestTypeResolver("cedar", new[] { typeof(Query), typeof(Query.Response) }));
 

@@ -7,14 +7,22 @@
     using Cedar.Serialization;
     using Cedar.TypeResolution;
 
-    public abstract class HandlerConfiguration
+    public class HandlerSettings
     {
         private readonly IEnumerable<IHandlerResolver> _handlerResolvers;
         private readonly IRequestTypeResolver _requestTypeResolver;
         private readonly IExceptionToModelConverter _exceptionToModelConverter;
         private readonly ISerializer _serializer;
 
-        protected HandlerConfiguration(
+        public HandlerSettings(
+           [NotNull] IHandlerResolver handlerModule,
+           [NotNull] IRequestTypeResolver requestTypeResolver,
+           IExceptionToModelConverter exceptionToModelConverter = null,
+           ISerializer serializer = null)
+            : this(new[] { handlerModule }, requestTypeResolver, exceptionToModelConverter, serializer)
+        {}
+
+        public HandlerSettings(
             [NotNull] IEnumerable<IHandlerResolver> handlerResolvers,
             [NotNull] IRequestTypeResolver requestTypeResolver,
             IExceptionToModelConverter exceptionToModelConverter = null,
