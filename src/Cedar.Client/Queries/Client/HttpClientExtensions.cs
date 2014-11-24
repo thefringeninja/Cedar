@@ -22,7 +22,7 @@ namespace Cedar.Queries.Client
 
             var jsonString = await response.Content.ReadAsStringAsync();
 
-            return (TOutput)settings.Serializer.Deserialize(jsonString, typeof (TOutput));
+            return settings.Serializer.Deserialize<TOutput>(jsonString);
         }
 
         public static readonly Func<object, Type, Type, IMessageExecutionSettings, HttpRequestMessage>
