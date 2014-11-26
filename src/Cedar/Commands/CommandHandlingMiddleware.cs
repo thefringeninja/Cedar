@@ -11,6 +11,7 @@
     using System.Threading.Tasks;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
+    using Cedar.Internal;
     using Cedar.Owin;
     using Cedar.Serialization;
     using Cedar.TypeResolution;
@@ -35,23 +36,23 @@
         private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
             .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
 
-        public static MidFunc HandleCommands(HandlerSettings options, string commandPath = "/commands")
+        public static MidFunc HandleCommands(HandlerSettings settings, string commandPath = "/commands")
         {
-            Guard.EnsureNotNull(options, "options");
+            Guard.EnsureNotNull(settings, "options");
 
-            var resultReportingHandler = new CommandResultHandlerModule(options.HandlerResolvers);
+            var resultReportingHandler = new CommandResultHandlerModule(settings.HandlerResolvers);
 
-            options = new HandlerSettings(resultReportingHandler,
-                options.RequestTypeResolver,
-                options.ExceptionToModelConverter,
-                options.Serializer);
+            settings = new HandlerSettings(resultReportingHandler,
+                settings.RequestTypeResolver,
+                settings.ExceptionToModelConverter,
+                settings.Serializer);
 
             return next => env =>
             {
                 var context = new OwinContext(env);
 
                 var path = context.Request.Path;
-                if(false == path.StartsWithSegments(new PathString(commandPath), out path))
+                if(!path.StartsWithSegments(new PathString(commandPath), out path))
                 {
                     // not routed to us
                     return next(env);
@@ -60,8 +61,9 @@
                 var commandIdString = path.Value.Substring(1);
                 Guid commandId;
 
-                if(false == Guid.TryParse(commandIdString, out commandId))
+                if(!Guid.TryParse(commandIdString, out commandId))
                 {
+                    // not a command route
                     return next(env);
                 }
 
@@ -69,23 +71,24 @@
                 if(context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
                 {
                     CommandResult result;
-                    if(false == resultReportingHandler.Storage.TryGetResult(commandId, out result))
+                    if(!resultReportingHandler.Storage.TryGetResult(commandId, out result))
                     {
+
+                        // Should this not be 404?
                         return next(env);
                     }
-
-                    var body = options.Serializer.Serialize(result);
 
                     context.Response.StatusCode = 200;
                     context.Response.ReasonPhrase = "OK";
 
+                    var body = settings.Serializer.Serialize(result);
                     return context.Response.WriteAsync(body);
                 }
 
                 // PUT "/{guid}" with a Json body.
                 if(context.Request.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
                 {
-                    return BuildSendCommand(commandId).ExecuteWithExceptionHandling(context, options);
+                    return BuildSendCommand(commandId).ExecuteWithExceptionHandling(context, settings);
                 }
 
                 // Not a command, pass through.
@@ -118,11 +121,11 @@
             }
             var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
             var dispatchCommand = DispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
-            await (Task) dispatchCommand.Invoke(null,
+            await ((Task) dispatchCommand.Invoke(null,
                 new[]
                 {
                     options.HandlerResolvers, commandId, user, command, context.Request.CallCancelled
-                });
+                })).NotOnCapturedContext();
             context.Response.StatusCode = 202;
             context.Response.ReasonPhrase = "Accepted";
         }
@@ -179,7 +182,7 @@
 
                         try
                         {
-                            await next(message, ct);
+                            await next(message, ct).NotOnCapturedContext();
                         }
                         catch(Exception ex)
                         {

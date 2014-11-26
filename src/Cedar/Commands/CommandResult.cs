@@ -10,6 +10,15 @@
     {
         private readonly Guid _commandId;
         private readonly IEnumerable<IHandlerResolver> _handlerResolvers;
+        private int _handlerCount;
+        private int _successfulHandlerCount;
+        private int _unsuccessfulHandlerCount;
+
+        public CommandResult(Guid commandId, IEnumerable<IHandlerResolver> handlerResolvers)
+        {
+            _commandId = commandId;
+            _handlerResolvers = handlerResolvers;
+        }
 
         public Guid CommandId
         {
@@ -36,20 +45,10 @@
             get { return HandlerCount - (SuccessfulHandlerCount + UnsuccessfulHandlerCount) == 0; }
         }
 
-        private int _handlerCount;
-        private int _successfulHandlerCount;
-        private int _unsuccessfulHandlerCount;
-
-        public CommandResult(Guid commandId, IEnumerable<IHandlerResolver> handlerResolvers)
-        {
-            _commandId = commandId;
-            _handlerResolvers = handlerResolvers;
-        }
-
-        public void NotifyEventWritten<TEvent>()
+        internal void NotifyEventWritten<TEvent>()
             where TEvent : class
         {
-            var count = _handlerResolvers.Sum(
+            int count = _handlerResolvers.Sum(
                 handlerResolver => handlerResolver
                     .GetHandlersFor<DomainEventMessage<TEvent>>()
                     .Count());
