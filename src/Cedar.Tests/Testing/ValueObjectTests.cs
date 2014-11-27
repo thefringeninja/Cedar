@@ -75,5 +75,16 @@
             Assert.True(result.Passed);
             Assert.IsType<ArgumentOutOfRangeException>(result.Results);
         }
+
+        [Fact]
+        public async Task a_value_object_with_no_when_should()
+        {
+            var result = await Scenario.For<DateTime>()
+                .Given(() => new DateTime(2000, 1, 1))
+                .ThenShouldEqual(new DateTime(2000, 1, 1));
+
+            Assert.True(result.Passed);
+        }
+
     }
 }

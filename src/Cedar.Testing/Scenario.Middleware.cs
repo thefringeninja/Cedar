@@ -346,7 +346,7 @@
                     if (false == _httpClients.TryGetValue(context.AuthorizationId, out httpClient))
                     {
                         throw new InvalidOperationException(
-                            "No Authorization for '{0}' was found. You must set it up using WithUsers.");
+                            string.Format("No Authorization for '{0}' was found. You must set it up using WithUsers.", context.AuthorizationId));
                     }
 
                     return context.Sender(httpClient, settings);

@@ -10,8 +10,15 @@
         {
             if(false == result is TException)
             {
-                throw new ScenarioException("Expected results to be {0}, got {1} instead.");
+                throw new ScenarioException(
+                    String.Format(
+                        "Expected results to be {0}, got {1} instead.",
+                        typeof(TException).FullName,
+                        result == null
+                            ? "null"
+                            : result.GetType().FullName));
             }
+
             if(isMatch != null)
             {
                 scenario.AssertExceptionMatches((TException)result, isMatch.Compile());
