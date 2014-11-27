@@ -20,31 +20,6 @@
             _handlerResolvers = handlerResolvers;
         }
 
-        public Guid CommandId
-        {
-            get { return _commandId; }
-        }
-
-        public int HandlerCount
-        {
-            get { return _handlerCount; }
-        }
-
-        public int SuccessfulHandlerCount
-        {
-            get { return _successfulHandlerCount; }
-        }
-
-        public int UnsuccessfulHandlerCount
-        {
-            get { return _unsuccessfulHandlerCount; }
-        }
-
-        public bool HandlersCompleted
-        {
-            get { return HandlerCount - (SuccessfulHandlerCount + UnsuccessfulHandlerCount) == 0; }
-        }
-
         internal void NotifyEventWritten<TEvent>()
             where TEvent : class
         {
@@ -63,6 +38,15 @@
         public void NotifyEventHandledUnsuccessfully()
         {
             Interlocked.Increment(ref _unsuccessfulHandlerCount);
+        }
+
+        internal Client.CommandResult ToResult()
+        {
+            return new Client.CommandResult
+            {
+                CommandId = _commandId,
+                HandlersCompleted = (_handlerCount - (_successfulHandlerCount + _unsuccessfulHandlerCount)) == 0
+            };
         }
     }
 }

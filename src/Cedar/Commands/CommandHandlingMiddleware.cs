@@ -81,7 +81,7 @@
                     context.Response.StatusCode = 200;
                     context.Response.ReasonPhrase = "OK";
 
-                    var body = settings.Serializer.Serialize(result);
+                    var body = settings.Serializer.Serialize(result.ToResult());
                     return context.Response.WriteAsync(body);
                 }
 
