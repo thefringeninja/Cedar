@@ -45,10 +45,10 @@
                 
                 private readonly Func<T> _runGiven;
                 private Func<T, Task<TResult>> _runWhen;
-                private Action<TResult> _runThen = _ => { };
+                private Action<object> _runThen = _ => { };
                 private Expression<Func<T>> _given;
                 private LambdaExpression _when;
-                private TResult _expect;
+                private object _expect;
                 private object _results;
                 private bool _passed;
                 private readonly Stopwatch _timer;
@@ -58,6 +58,7 @@
                     _name = name;
 
                     _runGiven = () => _given.Compile()();
+
                     _timer = new Stopwatch();
                 }
 
@@ -88,20 +89,25 @@
 
                 public IThen<TResult> ThenShouldEqual(TResult other)
                 {
+                    _expect = other;
+
                     _runThen = instance =>
                     {
                         if (false == instance.Equals(other))
                         {
                             throw new ScenarioException(String.Format("{0} was expected to equal {1}.", instance, other));
                         }
-                    };
+                    }; 
+                    
                     return this;
                 }
 
                 public IThen<TResult> ThenShouldThrow<TException>(Expression<Func<TException, bool>> isMatch = null)
                     where TException : Exception
                 {
-                    _runThen = _ =>  ((ScenarioResult)this).ThenShouldThrow(_results, isMatch);
+                    _expect = typeof(TException);
+
+                    _runThen = _ => ((ScenarioResult)this).ThenShouldThrow(_results, isMatch);
 
                     return this;
                 }
@@ -117,8 +123,6 @@
                 {
                     get { return _name; }
                 }
-
-
 
                 async Task<ScenarioResult> IScenario.Run()
                 {
@@ -138,16 +142,23 @@
                             return this;
                         }
 
-                        try
+                        if(_runWhen == null)
                         {
-                            _expect = await _runWhen(sut);
+                            _results = sut;
                         }
-                        catch (Exception ex)
+                        else 
                         {
-                            _results = ex;
+                            try
+                            {
+                                _results = await _runWhen(sut);
+                            }
+                            catch(Exception ex)
+                            {
+                                _results = ex;
+                            }
                         }
 
-                        _runThen(_expect);
+                        _runThen(_results);
 
                         _passed = true;
                     }
