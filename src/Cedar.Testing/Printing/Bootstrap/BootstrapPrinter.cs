@@ -57,7 +57,7 @@
 
         private async Task WriteHead()
         {
-            await _output.WriteLineAsync("<head><style>");
+            await _output.WriteLineAsync("<head><meta charset='UTF-8'><style>");
             
             var stylesheet = GetType().Assembly.GetManifestResourceStream(GetType(), "bootstrap.css");
             
