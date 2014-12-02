@@ -126,53 +126,60 @@
 
                 async Task<ScenarioResult> IScenario.Run()
                 {
-                    _timer.Start();
                     try
                     {
-                        T sut = default(T);
-
+                        _timer.Start();
                         try
                         {
-                            sut = _runGiven();
-                        }
-                        catch (Exception ex)
-                        {
-                            _results = ex;
-                        }
+                            T sut = default(T);
 
-                        if(_runWhen == null)
-                        {
-                            if(_results == null)
-                            {
-                                _results = sut;
-                            }
-                        }
-                        else 
-                        {
                             try
                             {
-                                _results = await _runWhen(sut);
+                                sut = _runGiven();
                             }
                             catch(Exception ex)
                             {
                                 _results = ex;
                             }
+
+                            if(_runWhen == null)
+                            {
+                                if(_results == null)
+                                {
+                                    _results = sut;
+                                }
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    _results = await _runWhen(sut);
+                                }
+                                catch(Exception ex)
+                                {
+                                    _results = ex;
+                                }
+                            }
+
+                            _runThen(_results);
+
+                            _passed = true;
+                        }
+                        catch(Exception ex)
+                        {
+                            _results = ex;
+
+                            return this;
                         }
 
-                        _runThen(_results);
-
-                        _passed = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        _results = ex;
+                        _timer.Stop();
 
                         return this;
                     }
-
-                    _timer.Stop();
-                    
-                    return this;
+                    finally
+                    {
+                        _timer.Stop();
+                    }
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T, TResult> builder)

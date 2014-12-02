@@ -298,43 +298,50 @@
 
                 async Task<ScenarioResult> IScenario.Run()
                 {
-                    _timer.Start();
-
                     try
                     {
+                        _timer.Start();
+
                         try
                         {
-                            await _runGiven();
+                            try
+                            {
+                                await _runGiven();
+                            }
+                            catch(Exception ex)
+                            {
+                                _results = new ScenarioException(ex.Message);
+
+                                return this;
+                            }
+                            try
+                            {
+                                await _runWhen();
+                            }
+                            catch(Exception ex)
+                            {
+                                _results = ex;
+                            }
+
+                            await _runThen();
+
+                            _passed = true;
                         }
-                        catch (Exception ex)
+                        catch(Exception ex)
                         {
-                            _results = new ScenarioException(ex.Message);
+                            _results = ex;
 
                             return this;
                         }
-                        try
-                        {
-                            await _runWhen();
-                        }
-                        catch (Exception ex)
-                        {
-                            _results = ex;
-                        }
 
-                        await _runThen();
-
-                        _passed = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        _results = ex;
+                        _timer.Stop();
 
                         return this;
                     }
-                    
-                    _timer.Stop();
-
-                    return this;
+                    finally
+                    {
+                        _timer.Stop();
+                    }
                 }
 
                 private Task<TOutput> Send<TInput, TOutput>(IHttpClientRequest<TInput, TOutput> context, IMessageExecutionSettings settings)
