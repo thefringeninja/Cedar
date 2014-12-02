@@ -60,8 +60,7 @@
                 .When(date => date.AddYears(Int32.MinValue))
                 .ThenShouldThrow<ArgumentOutOfRangeException>();
 
-            Assert.False(result.Passed);
-            Assert.IsType<ScenarioException>(result.Results);
+            Assert.True(result.Passed);
         }
 
         [Fact]
@@ -70,6 +69,17 @@
             var result = await Scenario.For<DateTime>()
                 .Given(() => new DateTime(2000, 1, 1))
                 .When(date => date.AddYears(Int32.MinValue))
+                .ThenShouldThrow<ArgumentOutOfRangeException>();
+
+            Assert.True(result.Passed);
+            Assert.IsType<ArgumentOutOfRangeException>(result.Results);
+        }
+
+        [Fact]
+        public async Task a_value_object_throwing_an_expected_exception_in_given_should()
+        {
+            var result = await Scenario.For<DateTime>()
+                .Given(() => new DateTime(Int32.MaxValue, 1, 1))
                 .ThenShouldThrow<ArgumentOutOfRangeException>();
 
             Assert.True(result.Passed);

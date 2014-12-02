@@ -129,7 +129,7 @@
                     _timer.Start();
                     try
                     {
-                        T sut;
+                        T sut = default(T);
 
                         try
                         {
@@ -137,14 +137,15 @@
                         }
                         catch (Exception ex)
                         {
-                            _results = new ScenarioException(ex.Message);
-
-                            return this;
+                            _results = ex;
                         }
 
                         if(_runWhen == null)
                         {
-                            _results = sut;
+                            if(_results == null)
+                            {
+                                _results = sut;
+                            }
                         }
                         else 
                         {
