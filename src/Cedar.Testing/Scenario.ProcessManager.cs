@@ -123,39 +123,46 @@
 
                 public Task<ScenarioResult> Run()
                 {
-                    _timer.Start();
-
                     try
                     {
-                        var process = _factory.Build(typeof(TProcess), _processId, _correlationId);
-
-                        _runGiven(process);
+                        _timer.Start();
 
                         try
                         {
-                            _runWhen(process);
+                            var process = _factory.Build(typeof(TProcess), _processId, _correlationId);
+
+                            _runGiven(process);
+
+                            try
+                            {
+                                _runWhen(process);
+                            }
+                            catch(Exception ex)
+                            {
+                                _results = ex;
+
+                                return Task.FromResult<ScenarioResult>(this);
+                            }
+
+                            _runThen(process);
+
+                            _passed = true;
                         }
-                        catch (Exception ex)
+                        catch(Exception ex)
                         {
                             _results = ex;
 
                             return Task.FromResult<ScenarioResult>(this);
                         }
 
-                        _runThen(process);
-
-                        _passed = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        _results = ex;
+                        _timer.Stop();
 
                         return Task.FromResult<ScenarioResult>(this);
                     }
-
-                    _timer.Stop();
-
-                    return Task.FromResult<ScenarioResult>(this);
+                    finally
+                    {
+                        _timer.Stop();
+                    }
                 }
 
                 public TaskAwaiter<ScenarioResult> GetAwaiter()

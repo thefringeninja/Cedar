@@ -194,53 +194,60 @@
 
                 async Task<ScenarioResult> IScenario.Run()
                 {
-                    _timer.Start();
-
                     try
                     {
-                        T aggregate;
+                        _timer.Start();
 
                         try
                         {
-                            aggregate = _factory(_aggregateId);
+                            T aggregate;
 
-                            _runGiven(aggregate);
+                            try
+                            {
+                                aggregate = _factory(_aggregateId);
+
+                                _runGiven(aggregate);
+                            }
+                            catch(Exception ex)
+                            {
+                                _results = new ScenarioException(ex.Message);
+
+                                return this;
+                            }
+
+                            try
+                            {
+                                await _runWhen(aggregate);
+                            }
+                            catch(Exception ex)
+                            {
+                                _results = ex;
+                            }
+
+                            if(_runThen == null)
+                            {
+                                throw new InvalidOperationException("Then not set.");
+                            }
+
+                            _runThen(aggregate);
+
+                            _passed = true;
                         }
-                        catch (Exception ex)
+                        catch(Exception ex)
                         {
-                            _results = new ScenarioException(ex.Message);
-                            
+                            _results = ex;
+
                             return this;
                         }
 
-                        try
-                        {
-                            await _runWhen(aggregate);
-                        }
-                        catch (Exception ex)
-                        {
-                            _results = ex;
-                        }
+                        _timer.Stop();
 
-                        if (_runThen == null)
-                        {
-                            throw new InvalidOperationException("Then not set.");
-                        }
-
-                        _runThen(aggregate);
-
-                        _passed = true;
-                    }
-                    catch (Exception ex)
-                    {
-                        _results = ex;
-                        
                         return this;
                     }
-
-                    _timer.Stop();
-                    
-                    return this;
+                    finally
+                    {
+                        _timer.Stop();
+                    }
                 }
 
                 public static implicit operator ScenarioResult(ScenarioBuilder<T> builder)
