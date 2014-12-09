@@ -5,6 +5,7 @@ namespace Cedar.Testing.Printing
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
+    using Inflector;
     using PowerAssert;
 
     public static class PrintingExtensions
@@ -45,6 +46,21 @@ namespace Cedar.Testing.Printing
             }
 
             return NicePrintString(target.ToString(), prefix);
+        }
+
+        public static string GetCategoryName(this Type foundOn)
+        {
+            return foundOn.Name.RemovePunctuation().Underscore().Titleize();
+        }
+
+        public static string GetCategoryId(this Type foundOn)
+        {
+            return foundOn.FullName.RemovePunctuation().Underscore();
+        }
+
+        private static string RemovePunctuation(this string target)
+        {
+            return target.Replace('.', ' ');
         }
 
         private static IEnumerable<string> NicePrintExpression(LambdaExpression target, string prefix)

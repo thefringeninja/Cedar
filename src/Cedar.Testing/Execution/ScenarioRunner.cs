@@ -132,7 +132,7 @@ namespace Cedar.Testing.Execution
                 );
         }
 
-        public async Task<KeyValuePair<string, ScenarioResult>[]> RunTests()
+        public async Task<KeyValuePair<Type, ScenarioResult>[]> RunTests()
         {
             var assembly = await _loadAssembly.Task;
 
@@ -143,15 +143,15 @@ namespace Cedar.Testing.Execution
             return results;
         }
 
-        private static async Task<KeyValuePair<string, ScenarioResult>> RunScenario(Func<KeyValuePair<string, Task<ScenarioResult>>> runScenario)
+        private static async Task<KeyValuePair<Type, ScenarioResult>> RunScenario(Func<KeyValuePair<Type, Task<ScenarioResult>>> runScenario)
         {
             var groupedScenarioResult = runScenario();
 
-            return new KeyValuePair<string, ScenarioResult>(groupedScenarioResult.Key,
+            return new KeyValuePair<Type, ScenarioResult>(groupedScenarioResult.Key,
                 await groupedScenarioResult.Value);
         }
 
-        private async Task PrintResults(IEnumerable<IGrouping<string, ScenarioResult>> results)
+        private async Task PrintResults(IEnumerable<IGrouping<Type, ScenarioResult>> results)
         {
             results = results.ToList();
 

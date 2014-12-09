@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Cedar.Testing.Printing.PlainText;
 
@@ -23,14 +24,14 @@
             Flush().Wait();
         }
 
-        public Task PrintCategoryFooter(string category)
+        public Task PrintCategoryFooter(Type foundOn)
         {
-            return _inner.PrintCategoryFooter(category);
+            return _inner.PrintCategoryFooter(foundOn);
         }
 
-        public Task PrintCategoryHeader(string category)
+        public Task PrintCategoryHeader(Type foundOn)
         {
-            return _inner.PrintCategoryHeader(category);
+            return _inner.PrintCategoryHeader(foundOn);
         }
 
         public Task PrintResult(ScenarioResult result)

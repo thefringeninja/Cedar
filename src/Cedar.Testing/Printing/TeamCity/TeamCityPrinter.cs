@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using System.Reflection;
     using System.Threading.Tasks;
 
     public class TeamCityPrinter : IScenarioResultPrinter
@@ -48,6 +49,16 @@
         public Task Flush()
         {
             return _output.FlushAsync();
+        }
+
+        public Task PrintCategoryFooter(Type foundOn)
+        {
+            return PrintCategoryFooter(foundOn.FullName);
+        }
+
+        public Task PrintCategoryHeader(Type foundOn)
+        {
+            return PrintCategoryHeader(foundOn.FullName);
         }
 
         public Task PrintCategoryFooter(string category)
