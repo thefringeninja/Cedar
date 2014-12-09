@@ -8,7 +8,7 @@ namespace Cedar.Testing.Execution
 
     public static class FindScenarios
     {
-        public static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> InAssemblies(params Assembly[] assemblies)
+        public static IEnumerable<Func<KeyValuePair<Type, Task<ScenarioResult>>>> InAssemblies(params Assembly[] assemblies)
         {
             return from assembly in assemblies
                 from type in assembly.GetTypes()
@@ -16,13 +16,13 @@ namespace Cedar.Testing.Execution
                 select result;
         }
 
-        private static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> InType(Type type)
+        private static IEnumerable<Func<KeyValuePair<Type, Task<ScenarioResult>>>> InType(Type type)
         {
             var constructor = type.GetConstructor(Type.EmptyTypes);
             
             if(constructor == null)
             {
-                return Enumerable.Empty<Func<KeyValuePair<string, Task<ScenarioResult>>>>();
+                return Enumerable.Empty<Func<KeyValuePair<Type, Task<ScenarioResult>>>>();
             }
 
             var singles = from method in type.GetMethods()
@@ -37,15 +37,13 @@ namespace Cedar.Testing.Execution
             return singles.Concat(enumerables);
         }
 
-        private static Func<KeyValuePair<string, Task<ScenarioResult>>> FromMethodInfo(MethodInfo method, ConstructorInfo constructor)
+        private static Func<KeyValuePair<Type, Task<ScenarioResult>>> FromMethodInfo(MethodInfo method, ConstructorInfo constructor)
         {
-            var suiteName = constructor.DeclaringType.FullName;
-
             var instance = constructor.Invoke(new object[0]);
 
             var result = ((Task<ScenarioResult>)method.Invoke(instance, new object[0]));
 
-            return () => new KeyValuePair<string, Task<ScenarioResult>>(suiteName,
+            return () => new KeyValuePair<Type, Task<ScenarioResult>>(method.DeclaringType,
                 result.ContinueWith(task =>
                 {
                     DisposeIfNecessary(instance);
@@ -54,17 +52,15 @@ namespace Cedar.Testing.Execution
                 }));
         }
 
-        private static IEnumerable<Func<KeyValuePair<string, Task<ScenarioResult>>>> FromEnumerableMethodInfo(
+        private static IEnumerable<Func<KeyValuePair<Type, Task<ScenarioResult>>>> FromEnumerableMethodInfo(
             MethodInfo method, ConstructorInfo constructor)
         {
-            var suiteName = constructor.DeclaringType.FullName;
-
             var instance = constructor.Invoke(new object[0]);
 
             var results = (IEnumerable<Task<ScenarioResult>>)method.Invoke(instance, new object[0]);
 
-            return results.Select(result => new Func<KeyValuePair<string, Task<ScenarioResult>>>(
-                () => new KeyValuePair<string, Task<ScenarioResult>>(suiteName, result)));
+            return results.Select(result => new Func<KeyValuePair<Type, Task<ScenarioResult>>>(
+                () => new KeyValuePair<Type, Task<ScenarioResult>>(method.DeclaringType, result)));
         }
 
 

@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Inflector;
 
@@ -77,14 +78,14 @@
             await _output.WriteLineAsync("</pre>");
         }
 
-        public async Task PrintCategoryHeader(string category)
+        public Task PrintCategoryFooter(Type foundOn)
         {
-            await _output.WriteLineAsync("##" + (String.IsNullOrEmpty(category) ? "???" : category).Replace('.', ' ').Underscore().Humanize());
-            await _output.WriteLineAsync();
+            return _output.WriteLineAsync();
         }
 
-        public async Task PrintCategoryFooter(string category)
+        public async Task PrintCategoryHeader(Type foundOn)
         {
+            await _output.WriteLineAsync("##" + foundOn.GetCategoryName());
             await _output.WriteLineAsync();
         }
 

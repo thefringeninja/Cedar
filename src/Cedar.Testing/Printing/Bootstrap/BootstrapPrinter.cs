@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Reflection;
     using System.Threading.Tasks;
     using Inflector;
 
@@ -11,13 +12,13 @@
     {
         private readonly TextWriter _output;
         private bool _disposed;
-        private readonly IList<Tuple<string, List<ScenarioResult>>> _tableOfContents;
+        private readonly IList<Tuple<Type, List<ScenarioResult>>> _tableOfContents;
 
         public BootstrapPrinter(Func<string, TextWriter> factory)
         {
             _output = factory(FileExtension);
 
-            _tableOfContents = new List<Tuple<string, List<ScenarioResult>>>();
+            _tableOfContents = new List<Tuple<Type, List<ScenarioResult>>>();
         }
 
         public Task PrintResult(ScenarioResult result)
@@ -26,14 +27,15 @@
             return Task.FromResult(0);
         }
 
-        public Task PrintCategoryHeader(string category)
+        public Task PrintCategoryFooter(Type foundOn)
         {
-            _tableOfContents.Add(Tuple.Create(category.Replace('.', ' ').Underscore().Titleize(), new List<ScenarioResult>()));
             return Task.FromResult(0);
         }
 
-        public Task PrintCategoryFooter(string category)
+        public Task PrintCategoryHeader(Type foundOn)
         {
+            _tableOfContents.Add(Tuple.Create(foundOn, new List<ScenarioResult>()));
+            
             return Task.FromResult(0);
         }
 
@@ -82,12 +84,16 @@
             await _output.WriteLineAsync("<nav><ul>");
             foreach (var item in _tableOfContents)
             {
-                var category = item.Item1;
+                var suiteName = item.Item1;
+
+                var categoryId = suiteName.GetCategoryId();
+                var categoryName = suiteName.GetCategoryName();
                 var results = item.Item2;
+
                 await _output.WriteLineAsync(
                         String.Format(
                             "<li><a href='#{0}'>{1}</a> ({2})</li>",
-                            category.Underscore(), category, results.All(result => result.Passed) ? "PASSED" : "FAILED"));
+                            categoryId, categoryName, results.All(result => result.Passed) ? "PASSED" : "FAILED"));
             }
             await _output.WriteLineAsync("</ul></nav>");
             await _output.WriteLineAsync();
@@ -126,10 +132,10 @@
             await _output.WriteLineAsync("</div>");
         }
 
-        private async Task WriteCategoryHeader(string category)
+        private async Task WriteCategoryHeader(Type foundOn)
         {
-            await _output.WriteLineAsync(String.Format("<section id='{0}'>", category.Underscore()));
-            await _output.WriteLineAsync(String.Format("<h1>{0}</h1>", category));
+            await _output.WriteLineAsync(String.Format("<section id='{0}'>", foundOn.GetCategoryId()));
+            await _output.WriteLineAsync(String.Format("<h1>{0}</h1>", foundOn.GetCategoryName()));
         }
 
         private async Task WriteCategoryFooter()
