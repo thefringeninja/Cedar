@@ -185,13 +185,13 @@
                         {
                             while(expect.MoveNext() & actual.MoveNext())
                             {
-                                var expectedJson = JsonConvert.SerializeObject(expect.Current, Formatting.Indented);
-                                var actualJson = JsonConvert.SerializeObject(actual.Current, Formatting.Indented);
-
-                                if(expectedJson != actualJson)
+                                if(false == MessageEqualityComparer.Instance.Equals(expect.Current, actual.Current))
                                 {
                                     hasDifferences = true;
                                 }
+
+                                var expectedJson = JsonConvert.SerializeObject(expect.Current, Formatting.Indented);
+                                var actualJson = JsonConvert.SerializeObject(actual.Current, Formatting.Indented);
 
                                 messages
                                     .AppendLine("Expected:")
