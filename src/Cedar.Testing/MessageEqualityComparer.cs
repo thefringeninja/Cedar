@@ -3,79 +3,76 @@ namespace Cedar.Testing
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
+    using KellermanSoftware.CompareNetObjects;
+
+    public class Any
+    {
+        public static readonly DateTime Date = DateTime.MaxValue.AddSeconds(-60);
+        public static readonly Guid Guid = Guid.NewGuid();
+    }
 
     public class MessageEqualityComparer : IEqualityComparer<object>
     {
-        private static bool ReflectionEquals(object x, object y)
+
+        public static readonly MessageEqualityComparer Instance = new MessageEqualityComparer();
+        private CompareLogic _compareLogic;
+
+        public MessageEqualityComparer()
         {
-            if (ReferenceEquals(x, y))
-                return true;
-
-            if (ReferenceEquals(x, null))
-                return false;
-
-            if (ReferenceEquals(y, null))
-                return false;
-
-            var type = x.GetType();
-
-            if (type != y.GetType())
-                return false;
-
-            if (x == y)
-                return true;
-
-            if (type.IsValueType)
-                return x.Equals(y);
-            
-            if(type == typeof(string))
-            {
-                return x.Equals(y);
-            }
-
-            if(typeof(IEnumerable).IsAssignableFrom(type))
-            {
-                return ((IEnumerable) x).OfType<object>()
-                    .SequenceEqual(((IEnumerable) y).OfType<object>(), Instance);
-            }
-
-            var fieldValues = from field in type.GetFields()
-                select new
-                {
-                    member = (MemberInfo)field,
-                    x = field.GetValue(x),
-                    y = field.GetValue(y)
-                };
-
-            var propertyValues = from property in type.GetProperties()
-                select new
-                {
-                    member = (MemberInfo)property,
-                    x = property.GetValue(x),
-                    y = property.GetValue(y)
-                };
-
-            var values = fieldValues.Concat(propertyValues);
-
-            var differences = (from value in values
-                where false == ReflectionEquals(value.x, value.y)
-                select value).ToList();
-
-            return false == differences.Any();
+            _compareLogic = new CompareLogic();
+            _compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
+            _compareLogic.Config.MaxDifferences = 50;
         }
 
-        new public bool Equals(Object x, Object y)
+        public bool Equals(object x, object y)
         {
-            return ReflectionEquals(x, y);
+
+            var result = _compareLogic.Compare(x, y);
+
+            if(result.ExceededDifferences)
+            {
+                var type = x == null ? null : x.GetType();
+                Debug.WriteLine("Warning while comparing objects of type {1}exceeded maximum number of {0}", _compareLogic.Config.MaxDifferences, "ARG1");
+            }
+
+            FilterResults(result);
+            if(!result.AreEqual)
+            {
+
+                var type = x == null ? null:x.GetType();
+                Debug.WriteLine("Found differences while comparing objects of type: {0} " + result.DifferencesString, type);
+            }
+
+            return result.AreEqual;
         }
 
-        public int GetHashCode(Object obj)
+        private void FilterResults(ComparisonResult result)
+        {
+            foreach(var difference in result.Differences.ToList())
+            {
+                if (difference.Object1TypeName == difference.Object2TypeName && difference.Object1TypeName == typeof(DateTime).Name)
+                {
+                    if (difference.Object1Value == Any.Date.ToString() || difference.Object2Value == Any.Date.ToString())
+                    {
+                        result.Differences.Remove(difference);
+                    }
+                }
+                if (difference.Object1TypeName == difference.Object2TypeName && difference.Object1TypeName == typeof(Guid).Name)
+                {
+                    if (difference.Object2Value == Any.Guid.ToString() || difference.Object2Value == Any.Guid.ToString())
+                    {
+                        result.Differences.Remove(difference);
+                    }
+                }
+            }
+        }
+
+        public int GetHashCode(object obj)
         {
             return 0;
         }
-
-        public static readonly MessageEqualityComparer Instance = new MessageEqualityComparer();
     }
 }
