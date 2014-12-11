@@ -15,7 +15,7 @@ task default -depends Clean, UpdateVersion, RunTests, CreateNuGetPackages
 
 task Clean {
 	Remove-Item $buildOutputDir -Force -Recurse -ErrorAction SilentlyContinue
-	exec { msbuild /nologo /verbosity:quiet $solutionFilePath /t:Clean }
+	exec { msbuild /nologo /verbosity:quiet $solutionFilePath /t:Clean /p:platform="Any CPU"}
 }
 
 task UpdateVersion {
@@ -26,7 +26,7 @@ task UpdateVersion {
 }
 
 task Compile {
-	exec { msbuild /nologo /verbosity:quiet $solutionFilePath /p:Configuration=Release }
+	exec { msbuild /nologo /verbosity:quiet $solutionFilePath /p:Configuration=Release /p:platform="Any CPU"}
 }
 
 task RunTests -depends Compile {
@@ -63,7 +63,7 @@ task ILMerge -depends Compile {
 	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Testing.dll "
 	@("NewtonSoft.Json", "Inflector", "OwinHttpMessageHandler", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
-		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+		"KellermanSoftware.Compare-NET-Objects", "System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.Testing.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing.TestRunner\bin\Release"
