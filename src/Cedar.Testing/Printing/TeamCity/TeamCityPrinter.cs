@@ -2,7 +2,6 @@
 {
     using System;
     using System.IO;
-    using System.Reflection;
     using System.Threading.Tasks;
 
     public class TeamCityPrinter : IScenarioResultPrinter
@@ -18,7 +17,7 @@
         {
             exception = exception ?? new Exception();
             return String.Format(TeamCityServiceMessageFormat, "testFailed",
-                String.Format("name='{0}' message='{1}' details='{2}'", name, exception.Message, exception));
+                String.Format("name='{0}' message='{1}' details='{2}'", name, FormatNewLines(exception.Message), FormatNewLines(exception)));
         }
 
         private static string Finished(string name, TimeSpan? duration)
@@ -36,6 +35,16 @@
         private static string SuiteFinished(string name)
         {
             return String.Format(TeamCityServiceMessageFormat, "testSuiteFinished", String.Format("name='{0}'", name));
+        }
+
+        private static string FormatNewLines(object text)
+        {
+            return text == null ? null : FormatNewLines(text.ToString());
+        }
+
+        private static string FormatNewLines(string text)
+        {
+            return text == null ? null : text.Replace("\r", "|r").Replace("\n", "|n");
         }
 
         private readonly TextWriter _output;
