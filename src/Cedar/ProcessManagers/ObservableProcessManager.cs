@@ -30,9 +30,9 @@
             _id = id;
             _correlationId = correlationId;
 
-            _inbox = new ReplaySubject<DomainEventMessage>();
+            _inbox = new Subject<DomainEventMessage>();
             _commands = new List<object>();
-            _events = new ReplaySubject<object>();
+            _events = new Subject<object>();
             _subscriptions = new List<IDisposable>();
 
             Subscribe(OnAny(), _ => _version++);
