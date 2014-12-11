@@ -6,13 +6,6 @@ namespace Cedar.Testing
     using System.Diagnostics;
     using System.Linq;
     using System.Reflection;
-    using KellermanSoftware.CompareNetObjects;
-
-    public class Any
-    {
-        public static readonly DateTime Date = DateTime.MaxValue.AddSeconds(-60);
-        public static readonly Guid Guid = Guid.NewGuid();
-    }
 
     public class MessageEqualityComparer : IEqualityComparer<object>
     {
