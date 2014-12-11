@@ -1,26 +1,23 @@
 namespace Cedar.Testing
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
-    using System.Reflection;
+    using KellermanSoftware.CompareNetObjects;
 
     public class MessageEqualityComparer : IEqualityComparer<object>
     {
 
         public static readonly MessageEqualityComparer Instance = new MessageEqualityComparer();
-        private CompareLogic _compareLogic;
+        private readonly CompareLogic _compareLogic;
 
         public MessageEqualityComparer()
         {
-            _compareLogic = new CompareLogic();
-            _compareLogic.Config.TreatStringEmptyAndNullTheSame = true;
-            _compareLogic.Config.MaxDifferences = 50;
+            _compareLogic = new CompareLogic {Config = {TreatStringEmptyAndNullTheSame = true, MaxDifferences = 50}};
         }
 
-        public bool Equals(object x, object y)
+        new public bool Equals(object x, object y)
         {
 
             var result = _compareLogic.Compare(x, y);
@@ -28,7 +25,7 @@ namespace Cedar.Testing
             if(result.ExceededDifferences)
             {
                 var type = x == null ? null : x.GetType();
-                Debug.WriteLine("Warning while comparing objects of type {1}exceeded maximum number of {0}", _compareLogic.Config.MaxDifferences, "ARG1");
+                Debug.WriteLine("Warning while comparing objects of type {1} exceeded maximum number of {0}", _compareLogic.Config.MaxDifferences, type);
             }
 
             FilterResults(result);
