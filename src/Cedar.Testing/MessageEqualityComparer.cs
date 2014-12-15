@@ -25,7 +25,7 @@ namespace Cedar.Testing
             if(result.ExceededDifferences)
             {
                 var type = x == null ? null : x.GetType();
-                Debug.WriteLine("Warning while comparing objects of type {1} exceeded maximum number of {0}", _compareLogic.Config.MaxDifferences, type);
+                Console.WriteLine("Warning while comparing objects of type {1} exceeded maximum number of {0}", _compareLogic.Config.MaxDifferences, type);
             }
 
             FilterResults(result);
@@ -33,7 +33,7 @@ namespace Cedar.Testing
             {
 
                 var type = x == null ? null:x.GetType();
-                Debug.WriteLine("Found differences while comparing objects of type: {0} " + result.DifferencesString, type);
+                Console.WriteLine("Found differences while comparing objects of type: \r\n\t\t - {0} " + string.Join("\r\n\t\t - ", result.Differences.Select(dif => dif.ToString())), type);
             }
 
             return result.AreEqual;
