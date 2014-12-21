@@ -5,20 +5,20 @@
 // Modifying this file may result in difficulties when upgrading the package.
 // All types are internal. Add a LIBOWIN_PUBLIC compilation symbol to make them public.
 
-namespace Cedar.Testing.Owin.Infrastructure
+namespace Cedar.Testing.LibOwin.Infrastructure
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
 
-    internal static class Constants
+    internal static partial class Constants
     {
         internal const string Https = "HTTPS";
 
         internal const string HttpDateFormat = "r";
 
-        internal static class Headers
+        internal static partial class Headers
         {
             internal const string ContentType = "Content-Type";
             internal const string CacheControl = "Cache-Control";
@@ -879,7 +879,7 @@ namespace Cedar.Testing.Owin.Infrastructure
     }
 }
 
-namespace Cedar.Testing.Owin
+namespace Cedar.Testing.LibOwin
 {
     using System;
     using System.Collections;
@@ -887,11 +887,12 @@ namespace Cedar.Testing.Owin
     using System.Globalization;
     using System.IO;
     using System.Linq;
+    using System.Security.Claims;
     using System.Security.Principal;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.Testing.Owin.Infrastructure;
+    using Cedar.Testing.LibOwin.Infrastructure;
 
     /// <summary>
     /// Options used to create a new cookie.
@@ -997,7 +998,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         public ICollection<string[]> Values
         {
@@ -1721,10 +1722,10 @@ namespace Cedar.Testing.Owin
         int? RemotePort { get; set; }
 
         /// <summary>
-        /// Gets or set the server.User.
+        /// Gets or set the owin.RequestUser (or gets server.User for non-standard implementations).
         /// </summary>
         /// <returns>The server.User.</returns>
-        IPrincipal User { get; set; }
+        ClaimsPrincipal User { get; set; }
 
         /// <summary>
         /// Asynchronously reads and parses the request body as a form.
@@ -1978,6 +1979,7 @@ namespace Cedar.Testing.Owin
         public const string RequestProtocol = "owin.RequestProtocol";
         public const string RequestHeaders = "owin.RequestHeaders";
         public const string RequestBody = "owin.RequestBody";
+        public const string RequestUser = "owin.RequestUser"; //owin 1.0.1
 
         #endregion
 
@@ -2066,7 +2068,7 @@ namespace Cedar.Testing.Owin
         {
             // 3.1. Startup
             public const string Version = "opaque.Version";
-            
+
             // 3.2. Per Request
             public const string Upgrade = "opaque.Upgrade";
 
@@ -2543,13 +2545,17 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// Gets or set the server.User.
+        /// Gets or set the owin.RequestUser (or gets server.User for non-standard implementations).
         /// </summary>
         /// <returns>The server.User.</returns>
-        public virtual IPrincipal User
+        public virtual ClaimsPrincipal User
         {
-            get { return Get<IPrincipal>(OwinConstants.Security.User); }
-            set { Set(OwinConstants.Security.User, value); }
+            get
+            {
+                var claimsPrincipal = Get<ClaimsPrincipal>(OwinConstants.RequestUser);
+                return claimsPrincipal ?? Get<IPrincipal>(OwinConstants.Security.User) as ClaimsPrincipal;
+            }
+            set { Set(OwinConstants.RequestUser, value); }
         }
 
         /// <summary>
@@ -2982,7 +2988,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// Provides the path string escaped in a way which is correct for combining into the URI representation. 
+        /// Provides the path string escaped in a way which is correct for combining into the URI representation.
         /// </summary>
         /// <returns>The escaped path value</returns>
         public override string ToString()
@@ -3094,7 +3100,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// Adds two PathString instances into a combined PathString value. 
+        /// Adds two PathString instances into a combined PathString value.
         /// </summary>
         /// <returns>The combined PathString value</returns>
         public PathString Add(PathString other)
@@ -3103,7 +3109,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// Combines a PathString and QueryString into the joined URI formatted string value. 
+        /// Combines a PathString and QueryString into the joined URI formatted string value.
         /// </summary>
         /// <returns>The joined URI formatted string value</returns>
         public string Add(QueryString other)
@@ -3218,8 +3224,8 @@ namespace Cedar.Testing.Owin
         private readonly string _value;
 
         /// <summary>
-        /// Initalize the query string with a given value. This value must be in escaped and delimited format without 
-        /// a leading '?' character. 
+        /// Initalize the query string with a given value. This value must be in escaped and delimited format without
+        /// a leading '?' character.
         /// </summary>
         /// <param name="value">The query string to be assigned to the Value property.</param>
         public QueryString(string value)
@@ -3228,7 +3234,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// Initialize a query string with a single given parameter name and value. The value is 
+        /// Initialize a query string with a single given parameter name and value. The value is
         /// </summary>
         /// <param name="name">The unencoded parameter name</param>
         /// <param name="value">The unencoded parameter value</param>
@@ -3254,7 +3260,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// Provides the query string escaped in a way which is correct for combining into the URI representation. 
+        /// Provides the query string escaped in a way which is correct for combining into the URI representation.
         /// A leading '?' character will be prepended unless the Value is null or empty. Characters which are potentally
         /// dangerous are escaped.
         /// </summary>
@@ -3265,7 +3271,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// Provides the query string escaped in a way which is correct for combining into the URI representation. 
+        /// Provides the query string escaped in a way which is correct for combining into the URI representation.
         /// A leading '?' character will be prepended unless the Value is null or empty. Characters which are potentially
         /// dangerous are escaped.
         /// </summary>
@@ -3427,7 +3433,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public IEnumerator<KeyValuePair<string, string[]>> GetEnumerator()
@@ -3436,7 +3442,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -3487,7 +3493,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
@@ -3496,7 +3502,7 @@ namespace Cedar.Testing.Owin
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <returns></returns>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -3646,5 +3652,30 @@ namespace Cedar.Testing.Owin
                 Expires = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc),
             });
         }
+    }
+
+
+    #if LIBOWIN_PUBLIC
+    public
+#else
+    internal
+#endif
+    static class IOwinResponseExtension 
+    {
+        /// <summary>
+        /// Registers for an event that fires when the response headers are sent.
+        /// </summary>
+        /// <param name="response">The owin response</param>
+        /// <param name="callback">The callback method.</param>
+        /// <param name="state">The callback state.</param>
+        public static void OnSendingHeaders<T>(this IOwinResponse response, Action<T> callback, T state)
+        {
+            if (response == null) {
+                throw new ArgumentNullException("response");
+            }
+            Action<object> innerCallback = innerState => callback((T)innerState);
+            response.OnSendingHeaders(innerCallback, state);
+        }
+        
     }
 }

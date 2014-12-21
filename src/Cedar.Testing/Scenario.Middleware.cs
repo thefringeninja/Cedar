@@ -11,7 +11,7 @@
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
     using Cedar.Queries.Client;
-    using Cedar.Testing.Owin;
+    using Cedar.Testing.LibOwin;
     using Newtonsoft.Json;
     using AppFunc = System.Func<
         System.Collections.Generic.IDictionary<string, object>, 

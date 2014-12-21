@@ -12,7 +12,7 @@
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
     using Cedar.Internal;
-    using Cedar.Owin;
+    using Cedar.LibOwin;
     using Cedar.Serialization;
     using Cedar.TypeResolution;
     

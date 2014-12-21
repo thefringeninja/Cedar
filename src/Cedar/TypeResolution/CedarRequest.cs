@@ -4,7 +4,7 @@ namespace Cedar.TypeResolution
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using Cedar.Owin;
+    using Cedar.LibOwin;
 
     internal class CedarRequest : IRequest
     {

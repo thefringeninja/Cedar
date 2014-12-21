@@ -1,7 +1,7 @@
 ﻿namespace Cedar.TypeResolution
 {
     using System;
-    using Cedar.Owin;
+    using Cedar.LibOwin;
     using FluentAssertions;
     using Xunit;
 

@@ -7,7 +7,7 @@
     using System.Text;
     using System.Threading.Tasks;
     using Cedar.ExceptionModels.Client;
-    using Cedar.Owin;
+    using Cedar.LibOwin;
     using Cedar.Serialization;
 
     internal static class ExceptionHandlingExtensions
