@@ -8,7 +8,7 @@ properties {
 	$srcDir = "$rootDir\src"
 	$solutionFilePath = "$srcDir\$projectName.sln"
 	$assemblyInfoFilePath = "$srcDir\SharedAssemblyInfo.cs"
-	$ilmerge_path = "$srcDir\packages\ILMerge.2.13.0307\ILMerge.exe"
+	$ilmerge_path = "$srcDir\packages\ILMerge.2.13.1208\tools\ilmerge.exe"
 }
 
 task default -depends Clean, UpdateVersion, RunTests, CreateNuGetPackages
