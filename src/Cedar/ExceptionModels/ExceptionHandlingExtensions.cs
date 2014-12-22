@@ -14,7 +14,8 @@
     {
         internal static async Task ExecuteWithExceptionHandling(
             this Func<IOwinContext, HandlerSettings, Task> actionToRun,
-            IOwinContext context, HandlerSettings options)
+            IOwinContext context,
+            HandlerSettings options)
         {
             Exception caughtException;
             try

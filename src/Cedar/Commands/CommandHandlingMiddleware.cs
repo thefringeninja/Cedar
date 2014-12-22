@@ -2,19 +2,16 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Net;
     using System.Reflection;
     using System.Runtime.ExceptionServices;
-    using System.Security.Claims;
     using System.Threading.Tasks;
+    using System.Web.Http;
     using System.Web.Http.Dependencies;
-    using Cedar.ExceptionModels;
+    using System.Web.Http.Dispatcher;
     using Cedar.Handlers;
-    using Cedar.LibOwin;
-    using Cedar.Serialization;
-    using Cedar.TypeResolution;
+    using Microsoft.Owin.Builder;
+    using Owin;
     using TinyIoC;
     using AppFunc = System.Func<
         System.Collections.Generic.IDictionary<string, object>, 
@@ -39,6 +36,7 @@
         public static MidFunc HandleCommands(HandlerSettings settings, string commandPath = "/commands")
         {
             Guard.EnsureNotNull(settings, "options");
+            Guard.EnsureNotNullOrWhiteSpace(commandPath, "commandPath");
 
             var resultReportingHandler = new CommandResultHandlerModule(settings.HandlerResolvers);
 
@@ -47,87 +45,19 @@
                 settings.ExceptionToModelConverter,
                 settings.Serializer);
 
-            return next => env =>
+            return next =>
             {
-                var context = new OwinContext(env);
-
-                var path = context.Request.Path;
-                if(!path.StartsWithSegments(new PathString(commandPath), out path))
-                {
-                    // not routed to us
-                    return next(env);
-                }
-
-                var commandIdString = path.Value.Substring(1);
-                Guid commandId;
-
-                if(!Guid.TryParse(commandIdString, out commandId))
-                {
-                    // not a command route
-                    return next(env);
-                }
-
-                // GET" /{guid}"
-                if(context.Request.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
-                {
-                    CommandResult result;
-                    if(!resultReportingHandler.Storage.TryGetResult(commandId, out result))
-                    {
-
-                        // Should this not be 404?
-                        return next(env);
-                    }
-
-                    context.Response.StatusCode = 200;
-                    context.Response.ReasonPhrase = "OK";
-
-                    var body = settings.Serializer.Serialize(result.ToResult());
-                    return context.Response.WriteAsync(body);
-                }
-
-                // PUT "/{guid}" with a Json body.
-                if(context.Request.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase))
-                {
-                    return BuildSendCommand(commandId).ExecuteWithExceptionHandling(context, settings);
-                }
-
-                // Not a command, pass through.
-                return next(env);
+                var webApiConfig = ConfigureWebApi(settings);
+                var appBuilder = new AppBuilder();
+                appBuilder
+                    .Map(commandPath,
+                        commandsApp =>
+                        {
+                            commandsApp.UseWebApi(webApiConfig);
+                        })
+                    .Run(ctx => next(ctx.Environment));
+                return appBuilder.Build();
             };
-        }
-
-        private static Func<IOwinContext, HandlerSettings, Task> BuildSendCommand(Guid commandId)
-        {
-            return (context, options) => HandleCommand(context, commandId, options);
-        }
-
-        private static async Task HandleCommand(IOwinContext context, Guid commandId, HandlerSettings options)
-        {
-            string contentType = context.Request.ContentType;
-
-            Type commandType;
-            if(!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
-               || (commandType = options.RequestTypeResolver.ResolveInputType(new CedarRequest(context))) == null)
-            {
-                // Not a json entity, bad request
-                throw new HttpStatusException("The specified media type is not supported.",
-                    HttpStatusCode.UnsupportedMediaType,
-                    new NotSupportedException());
-            }
-            object command;
-            using(var streamReader = new StreamReader(context.Request.Body))
-            {
-                command = options.Serializer.Deserialize(streamReader, commandType);
-            }
-            var user = (context.Request.User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
-            var dispatchCommand = DispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
-            await ((Task) dispatchCommand.Invoke(null,
-                new[]
-                {
-                    options.HandlerResolvers, commandId, user, command, context.Request.CallCancelled
-                })).NotOnCapturedContext();
-            context.Response.StatusCode = 202;
-            context.Response.ReasonPhrase = "Accepted";
         }
 
         private class CommandResultHandlerModule : IHandlerResolver
@@ -211,6 +141,21 @@
             }
         }
 
+        private static HttpConfiguration ConfigureWebApi(HandlerSettings settings)
+        {
+            var container = new TinyIoCContainer();
+            container.Register(settings);
+
+            var config = new HttpConfiguration
+            {
+                DependencyResolver = new TinyIoCDependencyResolver(container)
+            };
+            config.Services.Replace(typeof(IHttpControllerTypeResolver), new CommandHandlingHttpControllerTypeResolver());
+            config.MapHttpAttributeRoutes();
+
+            return config;
+        }
+
         private class TinyIoCDependencyResolver : IDependencyResolver
         {
             private readonly TinyIoCContainer _container;
@@ -250,6 +195,14 @@
             public IDependencyScope BeginScope()
             {
                 return this;
+            }
+        }
+
+        private class CommandHandlingHttpControllerTypeResolver : IHttpControllerTypeResolver
+        {
+            public ICollection<Type> GetControllerTypes(IAssembliesResolver _)
+            {
+                return new[] { typeof(CommandController) };
             }
         }
     }

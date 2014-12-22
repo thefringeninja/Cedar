@@ -53,34 +53,13 @@
             }
         }
 
-        [Theory] // None of these are guid so the request should be passed through the middleware
-        [InlineData("PUT", "D28B0541-8EBD-42FE-A42A")]
-        [InlineData("PUT", "D28B0541-8EBD-42FE-A42A-71D503CF0646/")]
-        [InlineData("GET", "D28B0541-8EBD-42FE-A42A-71D503CF0646")]
-        [InlineData("GET", "D28B0541-8EBD-42FE-A42A-71D503CF0646/")]
-        public async Task When_request_does_not_match_then_should_pass_through(string httpMethod, string commandId)
-        {
-            bool passedThrough = false;
-            using (var client = _fixture.CreateHttpClient(env =>
-            {
-                passedThrough = true;
-                return Task.FromResult(0);
-            }))
-            {
-                var request = new HttpRequestMessage(
-                    new HttpMethod(httpMethod),
-                    _fixture.MessageExecutionSettings.Path + "/" + commandId);
-                await client.SendAsync(request);
-                passedThrough.Should().BeTrue();
-            }
-        }
-
         [Fact]
         public async Task When_request_is_not_json_then_should_get_Unsupported_Media_Type()
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                var request = new HttpRequestMessage(HttpMethod.Put,
+                var request = new HttpRequestMessage(
+                    HttpMethod.Put,
                     _fixture.MessageExecutionSettings.Path + "/" + Guid.NewGuid())
                 {
                     Content = new StringContent("text")
