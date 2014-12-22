@@ -11,7 +11,6 @@
     using System.Threading.Tasks;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
-    using Cedar.Internal;
     using Cedar.LibOwin;
     using Cedar.Serialization;
     using Cedar.TypeResolution;

@@ -5,7 +5,6 @@
     using System.Threading.Tasks;
     using Cedar.Commands;
     using Cedar.Handlers;
-    using Cedar.Internal;
     using Cedar.NEventStore.Handlers;
     using Cedar.NEventStore.Handlers.TempImportFromNES;
     using Cedar.Queries;

@@ -5,8 +5,8 @@ namespace Cedar.NEventStore.Handlers.TempImportFromNES
     using System.Linq;
     using System.Reactive.Linq;
     using System.Reactive.PlatformServices;
+    using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.Internal;
     using global::NEventStore;
     using global::NEventStore.Persistence;
 

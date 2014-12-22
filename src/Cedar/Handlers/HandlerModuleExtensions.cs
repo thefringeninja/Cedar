@@ -5,7 +5,6 @@ namespace Cedar.Handlers
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Internal;
 
     /// <summary>
     ///     A set of extensions around <see cref="IHandlerResolver" /> or <see cref="IEnumerable{T}" />

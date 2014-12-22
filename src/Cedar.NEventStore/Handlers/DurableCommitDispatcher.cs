@@ -7,7 +7,6 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Handlers;
-    using Cedar.Internal;
     using Cedar.Logging;
     using global::NEventStore;
 

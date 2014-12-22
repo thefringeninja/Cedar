@@ -1,4 +1,5 @@
-﻿namespace Cedar.Internal
+﻿ // ReSharper disable once CheckNamespace
+namespace System.Threading
 {
     public static class InterlockedBooleanExtensions
     {

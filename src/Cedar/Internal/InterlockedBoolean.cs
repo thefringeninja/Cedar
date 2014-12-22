@@ -16,10 +16,10 @@
 // limitations under the License.
 // 
 
-namespace Cedar.Internal
-{
-    using System.Threading;
 
+// ReSharper disable once CheckNamespace
+namespace System.Threading
+{
     /// <summary>
     /// Interlocked support for boolean values
     /// </summary>
