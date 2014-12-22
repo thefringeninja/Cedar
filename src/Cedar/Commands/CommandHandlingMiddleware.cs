@@ -200,6 +200,9 @@
 
         private class CommandHandlingHttpControllerTypeResolver : IHttpControllerTypeResolver
         {
+            // We want to be very explicit which controllers we want to use.
+            // Also we want our controllers internal.
+
             public ICollection<Type> GetControllerTypes(IAssembliesResolver _)
             {
                 return new[] { typeof(CommandController) };
