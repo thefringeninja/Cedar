@@ -1,5 +1,5 @@
 ﻿// ReSharper disable once CheckNamespace
-namespace Cedar.Internal
+namespace System
 {
     using System.Globalization;
 
