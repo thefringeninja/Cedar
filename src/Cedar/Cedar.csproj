@@ -90,7 +90,6 @@
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
     <Compile Include="ExceptionModels\ExceptionHandlingExtensions.cs" />
     <Compile Include="HttpStatusException.cs" />
-    <Compile Include="Internal\DeterministicGuidGenerator.cs" />
     <Compile Include="Internal\InterlockedBoolean.cs" />
     <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\StringExtensions.cs" />
