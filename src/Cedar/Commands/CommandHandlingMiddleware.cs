@@ -9,12 +9,13 @@
     using System.Runtime.ExceptionServices;
     using System.Security.Claims;
     using System.Threading.Tasks;
+    using System.Web.Http.Dependencies;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
     using Cedar.LibOwin;
     using Cedar.Serialization;
     using Cedar.TypeResolution;
-    
+    using TinyIoC;
     using AppFunc = System.Func<
         System.Collections.Generic.IDictionary<string, object>, 
         System.Threading.Tasks.Task
@@ -207,6 +208,48 @@
                             ExceptionDispatchInfo.Capture(caughtException).Throw();
                         }
                     }));
+            }
+        }
+
+        private class TinyIoCDependencyResolver : IDependencyResolver
+        {
+            private readonly TinyIoCContainer _container;
+
+            public TinyIoCDependencyResolver(TinyIoCContainer container)
+            {
+                _container = container;
+            }
+
+            public void Dispose()
+            { }
+
+            public object GetService(Type serviceType)
+            {
+                try
+                {
+                    return _container.Resolve(serviceType);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+
+            public IEnumerable<object> GetServices(Type serviceType)
+            {
+                try
+                {
+                    return _container.ResolveAll(serviceType, true);
+                }
+                catch
+                {
+                    return Enumerable.Empty<object>();
+                }
+            }
+
+            public IDependencyScope BeginScope()
+            {
+                return this;
             }
         }
     }
