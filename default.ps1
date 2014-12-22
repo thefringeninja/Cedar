@@ -8,7 +8,7 @@ properties {
 	$srcDir = "$rootDir\src"
 	$solutionFilePath = "$srcDir\$projectName.sln"
 	$assemblyInfoFilePath = "$srcDir\SharedAssemblyInfo.cs"
-	$ilmerge_path = "$srcDir\packages\ILMerge.2.13.1208\tools\ilmerge.exe"
+	$ilmerge_path = "$srcDir\packages\ILMerge.2.14.1208\tools\ilmerge.exe"
 }
 
 task default -depends Clean, UpdateVersion, RunTests, CreateNuGetPackages
@@ -45,8 +45,8 @@ task ILMerge -depends Compile {
 
 	$dllDir = "$srcDir\Cedar\bin\Release"
 	$inputDlls = "$dllDir\Cedar.dll"
-	@("Newtonsoft.Json", "System.Reactive.Core", "System.Reactive.Interfaces", "System.Reactive.Linq",`
-		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	@("Microsoft.Owin", "Newtonsoft.Json", "Owin", "System.Net.Http.Formatting", "System.Reactive.Core", "System.Reactive.Interfaces",`
+		"System.Reactive.Linq", "System.Reactive.PlatformServices", "System.Web.Http", "System.Web.Http.Owin") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.NEventStore\bin\Release"
