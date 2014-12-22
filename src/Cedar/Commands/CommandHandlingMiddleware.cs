@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Reflection;
     using System.Runtime.ExceptionServices;
     using System.Threading.Tasks;
     using System.Web.Http;
@@ -35,13 +34,6 @@
             Guard.EnsureNotNull(settings, "options");
             Guard.EnsureNotNullOrWhiteSpace(commandPath, "commandPath");
 
-            var resultReportingHandler = new CommandResultHandlerModule(settings.HandlerResolvers);
-
-            settings = new HandlerSettings(resultReportingHandler,
-                settings.RequestTypeResolver,
-                settings.ExceptionToModelConverter,
-                settings.Serializer);
-
             return next =>
             {
                 var webApiConfig = ConfigureWebApi(settings);
@@ -55,87 +47,6 @@
                     .Run(ctx => next(ctx.Environment));
                 return appBuilder.Build();
             };
-        }
-
-        private class CommandResultHandlerModule : IHandlerResolver
-        {
-            private readonly IEnumerable<IHandlerResolver> _inner;
-            private readonly CommandResultStorage _storage;
-
-            public CommandResultHandlerModule(IEnumerable<IHandlerResolver> inner)
-            {
-                _inner = inner;
-                _storage = new CommandResultStorage(inner);
-            }
-
-            public CommandResultStorage Storage
-            {
-                get { return _storage; }
-            }
-
-            public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
-            {
-                if(typeof(DomainEventMessage).IsAssignableFrom(typeof(TMessage)))
-                {
-                    return HandleEventAndReportResults<TMessage>();
-                }
-
-                if(typeof(CommandMessage).IsAssignableFrom(typeof(TMessage)))
-                {
-                    return HandleCommand<TMessage>();
-                }
-
-                return Enumerable.Empty<Handler<TMessage>>();
-            }
-
-            private IEnumerable<Handler<TMessage>> HandleCommand<TMessage>() where TMessage : class
-            {
-                yield return (message, ct) => _inner.DispatchSingle(message, ct);
-
-            }
-
-            private IEnumerable<Handler<TMessage>> HandleEventAndReportResults<TMessage>() where TMessage : class
-            {
-                var handlers = from handlerResolver in _inner
-                    from handler in handlerResolver.GetHandlersFor<TMessage>()
-                    select handler;
-
-                return handlers
-                    .Select(next => new Handler<TMessage>(async (message, ct) =>
-                    {
-                        Exception caughtException = null;
-
-                        var domainEventMessage = message as DomainEventMessage;
-
-                        try
-                        {
-                            await next(message, ct).NotOnCapturedContext();
-                        }
-                        catch(Exception ex)
-                        {
-                            caughtException = ex;
-                        }
-
-                        var commitId = domainEventMessage.GetCommitId();
-
-                        if(commitId.HasValue)
-                        {
-                            if(caughtException != null)
-                            {
-                                Storage.NotifyEventHandledSuccessfully(commitId.Value);
-                            }
-                            else
-                            {
-                                Storage.NotifyEventHandledUnsuccessfully(commitId.Value);
-                            }
-                        }
-
-                        if(caughtException != null)
-                        {
-                            ExceptionDispatchInfo.Capture(caughtException).Throw();
-                        }
-                    }));
-            }
         }
 
         private static HttpConfiguration ConfigureWebApi(HandlerSettings settings)

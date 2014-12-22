@@ -33,6 +33,7 @@
     public class Query<TRequest, TResult>
     {
         public TRequest Request { get; set; }
+
         public QueryExecutionSettings QueryExecutionSettings { get; set; }
 
         public Query(TRequest request, QueryExecutionSettings queryExecutionSettings)
@@ -44,7 +45,7 @@
 
     public static partial class Scenario
     {
-        public static Middleware.IHttpClientRequest<TCommand, CommandResult> Does<TCommand>(this IAuthorization authorization, TCommand command)
+        public static Middleware.IHttpClientRequest<TCommand> Does<TCommand>(this IAuthorization authorization, TCommand command)
             where TCommand : class
         {
             return new Middleware.HttpClientCommandRequest<TCommand>(authorization, command);
@@ -57,16 +58,16 @@
             return new Middleware.HttpClientQueryRequest<TInput, TOutput>(authorization, request);
         }
 
-        public static Middleware.IHttpClientRequest<TCommand, CommandResult> ProcessedWithin<TCommand>(
-            this Middleware.IHttpClientRequest<TCommand, CommandResult> request,
+        public static Middleware.IHttpClientRequest<TCommand> ProcessedWithin<TCommand>(
+            this Middleware.IHttpClientRequest<TCommand> request,
             TimeSpan within)
             where TCommand: class
         {
             return new Middleware.HttpClientCommandResultPollingRequest<TCommand>(request, within);
         }
 
-        public static Middleware.IHttpClientRequest<TCommand, CommandResult> ProcessedWithin<TCommand>(
-            this Middleware.IHttpClientRequest<TCommand, CommandResult> request,
+        public static Middleware.IHttpClientRequest<TCommand> ProcessedWithin<TCommand>(
+            this Middleware.IHttpClientRequest<TCommand> request,
             int withinMilliseconds)
             where TCommand : class
         {
@@ -92,7 +93,7 @@
 
             public interface IGiven : IWhen
             {
-                IWhen Given(params IHttpClientRequest<object, CommandResult>[] given);
+                IWhen Given(params IHttpClientRequest<object>[] given);
             }
 
             public interface IThen : IScenario
@@ -104,7 +105,7 @@
 
             public interface IWhen : IThen
             {
-                IThen When(IHttpClientRequest<object, CommandResult> when);
+                IThen When(IHttpClientRequest<object> when);
             }
 
             public interface IExpectedResult<TInput, TOutput>
@@ -127,8 +128,8 @@
                 private Func<Task> _then;
 
 
-                private IHttpClientRequest<object, CommandResult>[] _given = new IHttpClientRequest<object, CommandResult>[0];
-                private IHttpClientRequest<object, CommandResult> _when;
+                private IHttpClientRequest<object>[] _given = new IHttpClientRequest<object>[0];
+                private IHttpClientRequest<object> _when;
                 private bool _passed;
                 private readonly Stopwatch _timer;
                 private object _results;
@@ -365,21 +366,24 @@
                 }
             }
 
-            public interface IHttpClientRequest<out TInput, TOutput>
+            public interface IHttpClientRequest<out TInput>
             {
-                Func<HttpClient, IMessageExecutionSettings, Task<TOutput>> Sender { get; }
+                Func<HttpClient, IMessageExecutionSettings, Task> Sender { get; }
+
                 string AuthorizationId { get; }
+
                 Guid Id { get; }
+
                 TInput Input { get; }
             }
 
-            internal class HttpClientCommandRequest<TCommand> : IHttpClientRequest<TCommand, CommandResult>
+            internal class HttpClientCommandRequest<TCommand> : IHttpClientRequest<TCommand>
                 where TCommand : class
             {
                 private readonly IAuthorization _authorization;
                 private readonly TCommand _command;
                 private readonly Guid _id;
-                private readonly Func<HttpClient, IMessageExecutionSettings, Task<CommandResult>> _sender;
+                private readonly Func<HttpClient, IMessageExecutionSettings, Task> _sender;
 
                 public HttpClientCommandRequest(IAuthorization authorization, TCommand command, Guid? commandId = null)
                 {
@@ -401,7 +405,7 @@
                         settings);
                 }
 
-                public Func<HttpClient, IMessageExecutionSettings, Task<CommandResult>> Sender
+                public Func<HttpClient, IMessageExecutionSettings, Task> Sender
                 {
                     get { return _sender; }
                 }
@@ -427,19 +431,19 @@
                 }
             }
 
-            internal class HttpClientCommandResultPollingRequest<TCommand> : IHttpClientRequest<TCommand, CommandResult>
+            internal class HttpClientCommandResultPollingRequest<TCommand> : IHttpClientRequest<TCommand>
                 where TCommand : class
             {
-                private readonly IHttpClientRequest<TCommand, CommandResult> _inner;
+                private readonly IHttpClientRequest<TCommand> _inner;
                 private readonly TimeSpan _within;
 
-                public HttpClientCommandResultPollingRequest(IHttpClientRequest<TCommand, CommandResult> inner, TimeSpan within)
+                public HttpClientCommandResultPollingRequest(IHttpClientRequest<TCommand> inner, TimeSpan within)
                 {
                     _inner = inner;
                     _within = within;
                 }
 
-                public Func<HttpClient, IMessageExecutionSettings, Task<CommandResult>> Sender
+                public Func<HttpClient, IMessageExecutionSettings, Task> Sender
                 {
                     get
                     {
@@ -451,9 +455,7 @@
 
                             while(stopwatch.Elapsed < _within)
                             {
-                                try
-                                {
-                                    var result = await client.GetCommandStatus(Id, settings);
+                                var result = await client.GetCommandStatus(Id, settings);
 
                                     if(result.HandlersCompleted)
                                     {

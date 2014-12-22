@@ -9,7 +9,6 @@
     using Cedar.GetEventStore;
     using Cedar.GetEventStore.Handlers;
     using Cedar.GetEventStore.Serialization;
-    using Cedar.Serialization;
     using EventStore.ClientAPI;
     using EventStore.ClientAPI.Embedded;
     using EventStore.Core;

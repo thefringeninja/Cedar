@@ -79,8 +79,6 @@
     <Compile Include="App_Packages\LibOwin.1.0\LibOwin.cs" />
     <Compile Include="Commands\CommandController.cs" />
     <Compile Include="Commands\CommandHandlerModule.cs" />
-    <Compile Include="Commands\CommandResult.cs" />
-    <Compile Include="Commands\CommandResultStorage.cs" />
     <Compile Include="ExceptionModels\ExceptionHandlingExtensionsTempWebApi.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
     <Compile Include="Handlers\DomainEventMessageHeaders.cs" />

@@ -116,7 +116,6 @@
     <Compile Include="Testing\EnumerableTests.cs" />
     <Compile Include="Testing\QueryTests.cs" />
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
-    <Compile Include="Testing\MiddlewareTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
     <Compile Include="TypeResolution\TypeResolverTests.cs" />
     <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolverTests.cs" />
