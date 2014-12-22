@@ -75,7 +75,7 @@
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
-    <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="HandlerSettings.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
