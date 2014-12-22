@@ -49,8 +49,5 @@ namespace Cedar.Commands.Client
                 await response.Content.ReadAsStringAsync(),
                 typeof(CommandResult));
         }
-
-
-
     }
 }
