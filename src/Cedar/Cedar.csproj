@@ -72,7 +72,6 @@
     <Compile Include="ProcessManagers\Messages\CheckpointReached.cs" />
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
-    <Compile Include="StreamExtensions.cs" />
     <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />

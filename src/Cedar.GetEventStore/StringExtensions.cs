@@ -1,8 +1,8 @@
-﻿namespace Cedar
+namespace Cedar.GetEventStore
 {
     using System;
 
-    public static class StreamExtensions
+    public static class StringExtensions
     {
         public static string FormatStreamNameWithBucket(this string streamId, string bucketId = null)
         {

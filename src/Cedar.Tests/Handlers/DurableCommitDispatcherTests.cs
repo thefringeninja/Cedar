@@ -5,6 +5,7 @@
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
     using System.Threading.Tasks;
+    using Cedar.GetEventStore;
     using Cedar.NEventStore.Handlers;
     using Cedar.NEventStore.Handlers.TempImportFromNES;
     using FluentAssertions;

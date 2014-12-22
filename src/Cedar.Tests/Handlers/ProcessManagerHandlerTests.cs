@@ -9,6 +9,7 @@
     using System.Security.Claims;
     using System.Threading.Tasks;
     using Cedar.Commands;
+    using Cedar.GetEventStore;
     using Cedar.GetEventStore.Handlers;
     using Cedar.GetEventStore.ProcessManagers;
     using Cedar.GetEventStore.Serialization;
