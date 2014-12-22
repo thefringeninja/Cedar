@@ -37,11 +37,6 @@ namespace Cedar.ProcessManagers
 
         public delegate string BuildProcessManagerId(string correlationId);
 
-        // ReSharper disable StaticFieldInGenericType
-        private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
-            .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
-        // ReSharper restore StaticFieldInGenericType
-
         private readonly IList<Pipe<object>> _pipes;
         private readonly ProcessManagerDispatcher _dispatcher;
 
@@ -236,7 +231,7 @@ namespace Cedar.ProcessManagers
             {
                 Guard.EnsureNotNull(command, "command");
 
-                await (Task)DispatchCommandMethodInfo.MakeGenericMethod(command.GetType())
+                await (Task)CommandController.DispatchCommandMethodInfo.MakeGenericMethod(command.GetType())
                     .Invoke(null, new[]
                 {
                     new[]{_commandDispatcher},

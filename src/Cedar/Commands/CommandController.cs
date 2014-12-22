@@ -1,6 +1,7 @@
 namespace Cedar.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Net.Http;
@@ -9,13 +10,15 @@ namespace Cedar.Commands
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Http;
+    using Cedar.Annotations;
     using Cedar.ExceptionModels;
+    using Cedar.Handlers;
     using Cedar.TypeResolution;
 
     internal class CommandController : ApiController
     {
-        private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
-            .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
+        internal static readonly MethodInfo DispatchCommandMethodInfo = typeof(CommandController)
+            .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.NonPublic);
 
         private readonly HandlerSettings _handlerSettings;
 
@@ -63,6 +66,23 @@ namespace Cedar.Commands
             {
                 return _handlerSettings.Serializer.Deserialize(streamReader, commandType);
             }
+        }
+
+        [UsedImplicitly]
+        private static Task DispatchCommand<TCommand>(
+            IEnumerable<IHandlerResolver> handlerResolvers,
+            Guid commandId,
+            ClaimsPrincipal requstUser,
+            TCommand command,
+            CancellationToken cancellationToken)
+            where TCommand : class
+        {
+            Guard.EnsureNotNull(handlerResolvers, "handlerModules");
+            Guard.EnsureNotNull(requstUser, "requstUser");
+            Guard.EnsureNotNull(command, "command");
+
+            var commandMessage = new CommandMessage<TCommand>(commandId, requstUser, command);
+            return handlerResolvers.DispatchSingle(commandMessage, cancellationToken);
         }
     }
 }

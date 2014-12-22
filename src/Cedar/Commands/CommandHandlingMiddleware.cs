@@ -30,9 +30,6 @@
 
     public static class CommandHandlingMiddleware
     {
-        private static readonly MethodInfo DispatchCommandMethodInfo = typeof(HandlerModulesDispatchCommand)
-            .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.Public);
-
         public static MidFunc HandleCommands(HandlerSettings settings, string commandPath = "/commands")
         {
             Guard.EnsureNotNull(settings, "options");

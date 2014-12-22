@@ -124,7 +124,6 @@
     <Compile Include="Guard.cs" />
     <Compile Include="TypeResolution\IRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\IExceptionToModelConverter.cs" />
-    <Compile Include="Commands\HandlerModuleExtensions.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
     <Compile Include="Domain\ConventionEventRouter.cs" />
