@@ -1,22 +1,22 @@
 namespace Cedar.GetEventStore
 {
     using System;
+    using CuttingEdge.Conditions;
 
     public static class StringExtensions
     {
         public static string FormatStreamNameWithBucket(this string streamId, string bucketId = null)
         {
-            bucketId = bucketId ?? "default";
+            Condition.Requires(streamId, "streamId").IsNotNullOrWhiteSpace();
 
-            Guard.EnsureNotNullOrWhiteSpace(bucketId, "bucketId");
-            Guard.EnsureNotNullOrWhiteSpace(streamId, "streamId");
+            bucketId = string.IsNullOrWhiteSpace(bucketId) ? "default" : bucketId;
 
             return String.Format("[{0}].{1}", bucketId, streamId);
         }
 
         public static string FormatStreamNameWithoutBucket(this string streamId)
         {
-            Guard.EnsureNotNullOrWhiteSpace(streamId, "streamId");
+            Condition.Requires(streamId, "streamId").IsNotNullOrWhiteSpace();
 
             var split = streamId.Split(new[] {'.'}, 2);
 

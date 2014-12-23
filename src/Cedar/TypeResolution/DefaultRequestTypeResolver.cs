@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using CuttingEdge.Conditions;
 
     /// <summary>
     ///     Represents and way to get command type from a http Content-Type. ConentType is expected
@@ -32,8 +33,8 @@
             Func<IRequest, IEnumerable<string>> getInputMediaTypes = null,
             Func<IRequest, IEnumerable<string>> getOutputMediaTypes = null)
         {
-            Guard.EnsureNotNullOrWhiteSpace(vendorName, "vendorName");
-            Guard.EnsureNotNull(knownRequestTypes, "knownRequestTypes");
+            Condition.Requires(vendorName, "vendorName").IsNotNullOrWhiteSpace();
+            Condition.Requires(knownRequestTypes, "knownRequestTypes").IsNotNull();
 
             _vendorName = vendorName;
             _getInputMediaTypes = getInputMediaTypes ?? (request => request.FromContentType().Union(request.FromPath(_vendorName)));
@@ -55,8 +56,6 @@
 
         private string GetName(string mediaType)
         {
-            Guard.EnsureNotNull(mediaType, "mediaType");
-
             return mediaType.Split('+').First().Remove(0, ("application/vnd." + _vendorName + ".").Length)
                 .Split('.')
                 .FirstOrDefault();
@@ -64,8 +63,6 @@
 
         private int? GetVersion(string mediaType)
         {
-            Guard.EnsureNotNull(mediaType, "mediaType");
-
             mediaType = mediaType.Split('+').First(); // get rid of the serailization format if any
             foreach(string piece in mediaType.Split('.').Reverse()) // look for the last instance of 'v{digits}'
             {

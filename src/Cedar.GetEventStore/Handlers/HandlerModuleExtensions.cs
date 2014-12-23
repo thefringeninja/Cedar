@@ -8,6 +8,7 @@
     using Cedar.GetEventStore.Serialization;
     using Cedar.Handlers;
     using Cedar.Serialization;
+    using CuttingEdge.Conditions;
     using EventStore.ClientAPI;
 
     public static class HandlerModuleExtensions
@@ -27,9 +28,8 @@
             bool isSubscribedToAll,
             CancellationToken cancellationToken)
         {
-            Guard.EnsureNotNull(handlerModules, "handlerModules");
-            Guard.EnsureNotNull(resolvedEvent, "resolvedEvent");
-            Guard.EnsureNotNull(serializer, "serializer");
+            Condition.Requires(handlerModules, "handlerModules").IsNotNull();
+            Condition.Requires(serializer, "serializer").IsNotNull();
 
             IDictionary<string, object> headers;
             var @event = serializer.DeserializeEventData(resolvedEvent, out headers);
@@ -47,9 +47,8 @@
             bool isSubscribedToAll,
             CancellationToken cancellationToken)
         {
-            Guard.EnsureNotNull(handlerModule, "handlerModule");
-            Guard.EnsureNotNull(resolvedEvent, "resolvedEvent");
-            Guard.EnsureNotNull(serializer, "serializer");
+            Condition.Requires(handlerModule, "handlerModule").IsNotNull();
+            Condition.Requires(serializer, "serializer").IsNotNull();
 
             IDictionary<string, object> headers;
             var @event = serializer.DeserializeEventData(resolvedEvent, out headers);

@@ -5,6 +5,7 @@ namespace Cedar.Handlers
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using CuttingEdge.Conditions;
 
     /// <summary>
     ///     A set of extensions around <see cref="IHandlerResolver" /> or <see cref="IEnumerable{T}" />
@@ -40,10 +41,11 @@ namespace Cedar.Handlers
         public static async Task Dispatch<TMessage>(
             [NotNull] this IEnumerable<IHandlerResolver> handlerResolvers,
             TMessage message,
-            CancellationToken cancellationToken) where TMessage : class
+            CancellationToken cancellationToken) 
+            where TMessage : class
         {
-            Guard.EnsureNotNull(handlerResolvers, "handlerModules");
-            Guard.EnsureNotNull(message, "message");
+            Condition.Requires(handlerResolvers, "handlerResolvers").IsNotNull();
+            Condition.Requires(message, "message").IsNotNull();
 
             IEnumerable<Handler<TMessage>> handlers = handlerResolvers.SelectMany(m => m.GetHandlersFor<TMessage>());
             foreach(var handler in handlers)
@@ -83,8 +85,8 @@ namespace Cedar.Handlers
             CancellationToken cancellationToken)
             where TMessage : class
         {
-            Guard.EnsureNotNull(handlerResolvers, "handlerResolvers");
-            Guard.EnsureNotNull(message, "message");
+            Condition.Requires(handlerResolvers, "handlerResolvers").IsNotNull();
+            Condition.Requires(message, "message").IsNotNull();
 
             Handler<TMessage> handler = handlerResolvers.SelectMany(m => m.GetHandlersFor<TMessage>()).Single();
             await handler(message, cancellationToken).NotOnCapturedContext();

@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Handlers;
+    using CuttingEdge.Conditions;
 
     public static class HandlerModulesDispatchQuery
     {
@@ -17,10 +18,11 @@
             ClaimsPrincipal requstUser,
             TInput query,
             CancellationToken cancellationToken)
+            where TInput : class
         {
-            Guard.EnsureNotNull(handlerModules, "handlerModules");
-            Guard.EnsureNotNull(requstUser, "requstUser");
-            Guard.EnsureNotNull(query, "query");
+            Condition.Requires(handlerModules, "handlermodules").IsNotNull();
+            Condition.Requires(requstUser, "requstUser").IsNotNull();
+            Condition.Requires(query, "query").IsNotNull();
 
             var queryMessage = new QueryMessage<TInput, TOutput>(queryId, requstUser, query);
             await handlerModules.DispatchSingle(queryMessage, cancellationToken);
@@ -53,9 +55,8 @@
             TInput query,
             CancellationToken cancellationToken)
         {
-            Guard.EnsureNotNull(handlerModule, "handlerModules");
-            Guard.EnsureNotNull(requstUser, "requstUser");
-            Guard.EnsureNotNull(query, "query");
+            Condition.Requires(handlerModule, "handlerModule").IsNotNull();
+            Condition.Requires(requstUser, "requstUser").IsNotNull();
 
             var queryMessage = new QueryMessage<TInput, TOutput>(queryId, requstUser, query);
             await handlerModule.DispatchSingle(queryMessage, cancellationToken);

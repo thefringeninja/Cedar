@@ -6,6 +6,7 @@
     using System.Text;
     using Cedar.Handlers;
     using Cedar.Serialization;
+    using CuttingEdge.Conditions;
     using EventStore.ClientAPI;
 
     public static class SerializationHelper
@@ -27,8 +28,8 @@
             Action<IDictionary<string, object>> updateHeaders = null, 
             Func<Type, string> getClrType = null)
         {
-            Guard.EnsureNotNull(serializer, "serializer");
-            Guard.EnsureNotNull(@event, "event");
+            Condition.Requires(serializer, "serializer").IsNotNull();
+            Condition.Requires(@event, "@event").IsNotNull();
 
             getClrType = getClrType ?? TypeUtilities.ToPartiallyQualifiedName;
             updateHeaders = updateHeaders ?? (_ => { });

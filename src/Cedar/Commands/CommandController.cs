@@ -78,10 +78,6 @@ namespace Cedar.Commands
             CancellationToken cancellationToken)
             where TCommand : class
         {
-            Guard.EnsureNotNull(handlerResolvers, "handlerModules");
-            Guard.EnsureNotNull(requstUser, "requstUser");
-            Guard.EnsureNotNull(command, "command");
-
             var commandMessage = new CommandMessage<TCommand>(commandId, requstUser, command);
             return handlerResolvers.DispatchSingle(commandMessage, cancellationToken);
         }

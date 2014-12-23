@@ -13,6 +13,7 @@
     using Cedar.LibOwin;
     using Cedar.Serialization;
     using Cedar.TypeResolution;
+    using CuttingEdge.Conditions;
     using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>;
     using MidFunc = System.Func<System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>, System.Func<System.Collections.Generic.IDictionary<string, object>, System.Threading.Tasks.Task>>;
 
@@ -31,7 +32,7 @@
             Func<IRequest, Stream> getInputStream = null,
             string queryPath = "/query")
         {
-            Guard.EnsureNotNull(options, "options");
+            Condition.Requires(options, "options").IsNotNull();
 
             var acceptableMethods = new[] { "GET", "POST" };
 

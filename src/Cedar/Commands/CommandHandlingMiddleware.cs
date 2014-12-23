@@ -6,9 +6,13 @@
     using System.Web.Http;
     using System.Web.Http.Dependencies;
     using System.Web.Http.Dispatcher;
+    using Cedar.Annotations;
+    using Cedar.Handlers;
+    using CuttingEdge.Conditions;
     using Microsoft.Owin.Builder;
     using Owin;
     using TinyIoC;
+
     using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>, 
         System.Threading.Tasks.Task
     >;
@@ -19,12 +23,20 @@
         >
     >;
 
+    public class CommandHandlingSettings
+    {
+        public CommandHandlingSettings([NotNull] IHandlerResolver handlerResolver)
+        {
+            Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
+        }
+    }
+
     public static class CommandHandlingMiddleware
     {
         public static MidFunc HandleCommands(HandlerSettings settings, string commandPath = "/commands")
         {
-            Guard.EnsureNotNull(settings, "options");
-            Guard.EnsureNotNullOrWhiteSpace(commandPath, "commandPath");
+            Condition.Requires(settings, "settings").IsNotNull();
+            Condition.Requires(commandPath, "commandPath").IsNotNullOrWhiteSpace();
 
             return next =>
             {

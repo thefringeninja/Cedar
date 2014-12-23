@@ -6,6 +6,7 @@
     using Cedar.Handlers;
     using Cedar.Serialization;
     using Cedar.TypeResolution;
+    using CuttingEdge.Conditions;
 
     public class HandlerSettings
     {
@@ -28,8 +29,8 @@
             IExceptionToModelConverter exceptionToModelConverter = null,
             ISerializer serializer = null)
         {
-            Guard.EnsureNotNull(handlerResolvers, "handlerResolver");
-            Guard.EnsureNotNull(requestTypeResolver, "requestTypeResolver");
+            Condition.Requires(handlerResolvers, "handlerResolvers").IsNotNull();
+            Condition.Requires(requestTypeResolver, "requestTypeResolver").IsNotNull();
 
             _handlerResolvers = handlerResolvers;
             _requestTypeResolver = requestTypeResolver;

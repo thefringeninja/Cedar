@@ -15,6 +15,7 @@ namespace Cedar.ProcessManagers
     using Cedar.Handlers;
     using Cedar.ProcessManagers.Messages;
     using Cedar.ProcessManagers.Persistence;
+    using CuttingEdge.Conditions;
 
     public static class ProcessHandler
     {
@@ -47,9 +48,9 @@ namespace Cedar.ProcessManagers
             IProcessManagerFactory processManagerFactory = null,
             BuildProcessManagerId buildProcessId = null)
         {
-            Guard.EnsureNotNull(commandDispatcher, "commandDispatcher");
-            Guard.EnsureNotNull(principal, "principal");
-            Guard.EnsureNotNull(checkpointRepository, "checkpointRepository");
+            Condition.Requires(commandDispatcher, "commandDispatcher").IsNotNull();
+            Condition.Requires(principal, "principal").IsNotNull();
+            Condition.Requires(checkpointRepository, "checkpointRepository").IsNotNull();
 
             _pipes = new List<Pipe<object>>();
             _dispatcher = new ProcessManagerDispatcher(commandDispatcher, principal, checkpointRepository, processManagerFactory, buildProcessId);
@@ -229,8 +230,6 @@ namespace Cedar.ProcessManagers
             [UsedImplicitly]
             private async Task DispatchCommand(TProcess process, object command, CancellationToken ct)
             {
-                Guard.EnsureNotNull(command, "command");
-
                 await (Task)CommandController.DispatchCommandMethodInfo.MakeGenericMethod(command.GetType())
                     .Invoke(null, new[]
                 {

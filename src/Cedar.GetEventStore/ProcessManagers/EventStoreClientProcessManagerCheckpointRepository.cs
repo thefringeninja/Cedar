@@ -7,6 +7,7 @@
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Messages;
     using Cedar.Serialization;
+    using CuttingEdge.Conditions;
     using EventStore.ClientAPI;
 
     public class EventStoreClientProcessManagerCheckpointRepository : IProcessManagerCheckpointRepository<CompareablePosition>
@@ -16,7 +17,9 @@
 
         public EventStoreClientProcessManagerCheckpointRepository(IEventStoreConnection connection, ISerializer serializer)
         {
-            Guard.EnsureNotNull(connection, "connection");
+            Condition.Requires(connection, "connection").IsNotNull();
+            Condition.Requires(serializer, "serializer").IsNotNull();
+
             _connection = connection;
             _serializer = serializer;
         }

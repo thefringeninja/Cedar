@@ -12,14 +12,12 @@ namespace Cedar.TypeResolution
         private readonly ILookup<string, string> _headers;
         private Stream _body;
 
-        public CedarRequest(IDictionary<string, object> env)
+        internal CedarRequest(IDictionary<string, object> env)
             :this(new OwinContext(env))
         {}
 
-        public CedarRequest(IOwinContext context)
+        internal CedarRequest(IOwinContext context)
         {
-            Guard.EnsureNotNull(context, "context");
-
             _uri = context.Request.Uri;
             _headers = (from pair in context.Request.Headers
                 from value in pair.Value

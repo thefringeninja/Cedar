@@ -35,6 +35,9 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CuttingEdge.Conditions">
+      <HintPath>..\packages\CuttingEdge.Conditions.1.2.0.0\lib\NET35\CuttingEdge.Conditions.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Owin">
       <HintPath>..\packages\Microsoft.Owin.2.0.2\lib\net45\Microsoft.Owin.dll</HintPath>
@@ -119,7 +122,6 @@
     <Compile Include="Commands\CommandMessage.cs" />
     <Compile Include="TypeResolution\DefaultRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\ExceptionToModelConverter.cs" />
-    <Compile Include="Guard.cs" />
     <Compile Include="TypeResolution\IRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\IExceptionToModelConverter.cs" />
     <Compile Include="Domain\AggregateBase.cs" />

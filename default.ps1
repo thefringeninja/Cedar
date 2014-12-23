@@ -45,8 +45,9 @@ task ILMerge -depends Compile {
 
 	$dllDir = "$srcDir\Cedar\bin\Release"
 	$inputDlls = "$dllDir\Cedar.dll"
-	@("Microsoft.Owin", "Newtonsoft.Json", "Owin", "System.Net.Http.Formatting", "System.Reactive.Core", "System.Reactive.Interfaces",`
-		"System.Reactive.Linq", "System.Reactive.PlatformServices", "System.Web.Http", "System.Web.Http.Owin") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	@("CuttingEdge.Conditions", Microsoft.Owin", "Newtonsoft.Json", "Owin", "System.Net.Http.Formatting", "System.Reactive.Core",`
+		"System.Reactive.Interfaces", "System.Reactive.Linq", "System.Reactive.PlatformServices", "System.Web.Http",`
+		"System.Web.Http.Owin") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.NEventStore\bin\Release"
@@ -57,7 +58,7 @@ task ILMerge -depends Compile {
 
 	$dllDir = "$srcDir\Cedar.GetEventStore\bin\Release"
 	$inputDlls = "$dllDir\Cedar.GetEventStore.dll"
-	@("Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	@("CuttingEdge.Conditions", "Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.GetEventStore.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
