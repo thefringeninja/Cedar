@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using PowerAssert.Infrastructure.Nodes;
-
-namespace PowerAssert.Infrastructure
+﻿namespace PowerAssert.Infrastructure
 {
+    using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+    using PowerAssert.Infrastructure.Nodes;
+
     internal class NaturalExpressionParser
     {
         public static Node Parse(Expression e)
@@ -284,7 +283,7 @@ namespace PowerAssert.Infrastructure
                 {
                     return FormatException(exception);
                 }
-                if (Object.Equals(left, right))
+                if (Equals(left, right))
                 {
                     return ", but would have been True with .Equals()";
                 }

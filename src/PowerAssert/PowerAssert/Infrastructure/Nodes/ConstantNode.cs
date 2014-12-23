@@ -1,7 +1,7 @@
-﻿using JetBrains.Annotations;
-
-namespace PowerAssert.Infrastructure.Nodes
+﻿namespace PowerAssert.Infrastructure.Nodes
 {
+    using JetBrains.Annotations;
+
     internal class ConstantNode : Node
     {
         [NotNull]

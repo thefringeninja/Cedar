@@ -4,11 +4,9 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Domain.Persistence;
     using Cedar.NEventStore.Domain.Persistence;
     using FluentAssertions;
     using global::NEventStore;
-    using NEventStore;
     using Xunit;
 
     public class NEventStoreRepositoryTests

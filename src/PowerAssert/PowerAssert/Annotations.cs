@@ -1,8 +1,8 @@
-using System;
-using System.Collections.Generic;
-
 namespace JetBrains.Annotations
 {
+    using System;
+    using System.Collections.Generic;
+
     /// <summary>
     /// Indicates that marked element should be localized or not.
     /// </summary>

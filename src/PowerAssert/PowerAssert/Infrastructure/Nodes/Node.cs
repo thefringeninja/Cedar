@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Linq;
-
-namespace PowerAssert.Infrastructure.Nodes
+﻿namespace PowerAssert.Infrastructure.Nodes
 {
+    using System;
+    using System.Collections;
+    using System.Linq;
+
     internal abstract class Node
     {
         internal abstract void Walk(NodeWalker walker, int depth);

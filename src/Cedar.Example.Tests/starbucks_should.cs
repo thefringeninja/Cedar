@@ -5,7 +5,7 @@
     using System.Threading.Tasks;
     using Cedar.ProcessManagers;
     using Cedar.Testing;
-    using ScenarioAttribute = Cedar.Testing.Xunit.ScenarioAttribute;
+    using Cedar.Testing.Xunit;
 
     public class starbucks_should
     {

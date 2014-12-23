@@ -5,7 +5,6 @@ namespace Cedar.Example.Handlers
     using System.Threading.Tasks;
     using Cedar.Commands;
     using Cedar.Domain;
-    using Cedar.Domain.Persistence;
     using Cedar.Handlers;
     using Cedar.NEventStore.Domain.Persistence;
 

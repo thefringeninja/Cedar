@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using JetBrains.Annotations;
-
-namespace PowerAssert.Infrastructure.Nodes
+﻿namespace PowerAssert.Infrastructure.Nodes
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using JetBrains.Annotations;
+
     internal class MethodCallNode : MemberAccessNode
     {
         internal MethodCallNode()

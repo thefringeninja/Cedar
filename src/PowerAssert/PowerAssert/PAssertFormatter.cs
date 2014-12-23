@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq.Expressions;
-using PowerAssert.Infrastructure;
-using PowerAssert.Infrastructure.Nodes;
-
-namespace PowerAssert
+﻿namespace PowerAssert
 {
+    using System;
+    using System.Linq.Expressions;
+    using PowerAssert.Infrastructure;
+    using PowerAssert.Infrastructure.Nodes;
+
     public static class PAssertFormatter
     {
         public static string CreateSimpleFormatFor(LambdaExpression expression)

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using PowerAssert.Infrastructure.Nodes;
-
-namespace PowerAssert.Infrastructure
+﻿namespace PowerAssert.Infrastructure
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Text;
+    using PowerAssert.Infrastructure.Nodes;
+
     internal class NodeFormatter
     {
         const char pipe = '|';

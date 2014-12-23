@@ -6,7 +6,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Commands;
     using Cedar.Handlers;
 
     public static class HandlerModulesDispatchQuery

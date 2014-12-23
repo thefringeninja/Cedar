@@ -1,9 +1,7 @@
 ﻿// ReSharper disable once CheckNamespace
 namespace System.Threading.Tasks
 {
-    using System;
     using System.Runtime.CompilerServices;
-    using System.Threading;
 
     internal static class TaskExtensions
     {

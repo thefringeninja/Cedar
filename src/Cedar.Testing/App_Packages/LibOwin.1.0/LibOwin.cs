@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 // Copyright (c) Damian Hickey. All rights reserved. See License.txt in the project root for license information.
 
 // https://github.com/damianh/LibOwin
@@ -3445,7 +3445,7 @@ namespace Cedar.Testing.LibOwin
         ///
         /// </summary>
         /// <returns></returns>
-        IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }
@@ -3505,7 +3505,7 @@ namespace Cedar.Testing.LibOwin
         ///
         /// </summary>
         /// <returns></returns>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
         }

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace PowerAssert
+﻿namespace PowerAssert
 {
+    using System.Linq;
+    using System.Text.RegularExpressions;
+
     public static class Extensions
     {
         public static string CleanupName(this string name)
@@ -22,10 +20,10 @@ namespace PowerAssert
 
         public static string CleanupCamelCasing(this string name)
         {
-            return System.Text.RegularExpressions.Regex.Replace(name,
+            return Regex.Replace(name,
             "([A-Z])",
             " $1",
-            System.Text.RegularExpressions.RegexOptions.Compiled
+            RegexOptions.Compiled
             ).Trim();
         }
     }

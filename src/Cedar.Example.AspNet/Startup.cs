@@ -6,7 +6,7 @@ using Microsoft.Owin;
 namespace Cedar.Example.AspNet
 {
     using System.Threading;
-    using global::Owin;
+    using Owin;
 
     public class Startup
     {

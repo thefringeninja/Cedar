@@ -9,7 +9,6 @@
     using Cedar.Commands.Fixtures;
     using FluentAssertions;
     using Xunit;
-    using Xunit.Extensions;
 
     public class CommandHandlingTests : IUseFixture<CommandHandlingFixture>
     {

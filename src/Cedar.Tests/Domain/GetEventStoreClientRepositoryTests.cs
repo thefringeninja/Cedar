@@ -3,7 +3,6 @@
     using System;
     using System.Net;
     using System.Threading.Tasks;
-    using Cedar.Domain.Persistence;
     using Cedar.GetEventStore.Domain.Persistence;
     using EventStore.ClientAPI;
     using EventStore.ClientAPI.Embedded;

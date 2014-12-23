@@ -42,7 +42,8 @@ namespace Cedar.Commands
                     _handlerSettings.HandlerResolvers, commandId, user, command, cancellationToken
                 })).NotOnCapturedContext();
 
-            var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(_handlerSettings) ?? new HttpResponseMessage(HttpStatusCode.Accepted);
+            var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(_handlerSettings) 
+                ?? new HttpResponseMessage(HttpStatusCode.Accepted);
 
             return response;
         }

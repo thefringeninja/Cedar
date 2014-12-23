@@ -1,4 +1,4 @@
-//===============================================================================
+﻿//===============================================================================
 // LibLog
 //
 // https://github.com/damianh/LibLog
@@ -26,11 +26,11 @@
 
 namespace Cedar.Logging
 {
-    using System.Collections.Generic;
-    using Cedar.Logging.LogProviders;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Globalization;
+    using Cedar.Logging.LogProviders;
 
     /// <summary>
     /// Simple interface that represent a logger.
@@ -497,7 +497,6 @@ namespace Cedar.Logging.LogProviders
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
-    using System.Threading;
 
     public class NLogLogProvider : ILogProvider
     {

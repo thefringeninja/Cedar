@@ -1,7 +1,6 @@
 ﻿namespace Cedar.Testing.Printing
 {
     using System;
-    using System.Reflection;
     using System.Threading.Tasks;
 
     public interface IScenarioResultPrinter : IDisposable

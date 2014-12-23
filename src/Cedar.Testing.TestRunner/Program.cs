@@ -5,7 +5,7 @@
     using System.Reflection;
     using Cedar.Testing.Execution;
     using PowerArgs;
-    
+
     public class Program
     {
         private readonly TestRunnerOptions _options;

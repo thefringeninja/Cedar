@@ -1,8 +1,8 @@
-﻿using System.Linq.Expressions;
-using System.Collections.Generic;
-
-namespace PowerAssert.Infrastructure
+﻿namespace PowerAssert.Infrastructure
 {
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
+
     internal class Util
     {
         internal static Dictionary<ExpressionType, string> NaturalOperators = new Dictionary<ExpressionType, string>
