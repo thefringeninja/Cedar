@@ -63,49 +63,49 @@
             return HandleInternalServerError(caughtException, handlerSettings);
         }
 
-        private static HttpResponseMessage HandleBadRequest(InvalidOperationException ex, HandlerSettings options)
+        private static HttpResponseMessage HandleBadRequest(InvalidOperationException ex, HandlerSettings settings)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
-            return HandleHttpStatusException(exception, options);
+            return HandleHttpStatusException(exception, settings);
         }
 
-        private static HttpResponseMessage HandleBadRequest(ArgumentException ex, HandlerSettings options)
+        private static HttpResponseMessage HandleBadRequest(ArgumentException ex, HandlerSettings settings)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
-            return HandleHttpStatusException(exception, options);
+            return HandleHttpStatusException(exception, settings);
         }
 
-        private static HttpResponseMessage HandleBadRequest(FormatException ex, HandlerSettings options)
+        private static HttpResponseMessage HandleBadRequest(FormatException ex, HandlerSettings settings)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
-            return HandleHttpStatusException(exception, options);
+            return HandleHttpStatusException(exception, settings);
         }
 
-        private static HttpResponseMessage HandleBadRequest(SecurityException ex, HandlerSettings options)
+        private static HttpResponseMessage HandleBadRequest(SecurityException ex, HandlerSettings settings)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.Forbidden, ex);
 
-            return HandleHttpStatusException(exception, options);
+            return HandleHttpStatusException(exception, settings);
         }
 
-        private static HttpResponseMessage HandleInternalServerError(Exception ex, HandlerSettings options)
+        private static HttpResponseMessage HandleInternalServerError(Exception ex, HandlerSettings settings)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.InternalServerError, ex);
 
-            return HandleHttpStatusException(exception, options);
+            return HandleHttpStatusException(exception, settings);
         }
 
         private static HttpResponseMessage HandleHttpStatusException(
             HttpStatusException exception,
-            HandlerSettings options,
+            HandlerSettings settings,
             string contentType = "application/json")
         {
             var response = new HttpResponseMessage(exception.StatusCode);
-            ExceptionModel exceptionModel = options.ExceptionToModelConverter.Convert(exception);
-            string exceptionJson = options.Serializer.Serialize(exceptionModel);
+            ExceptionModel exceptionModel = settings.ExceptionToModelConverter.Convert(exception);
+            string exceptionJson = settings.Serializer.Serialize(exceptionModel);
             response.Content = new StringContent(exceptionJson, Encoding.UTF8, contentType);
             return response;
         }

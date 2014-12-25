@@ -27,14 +27,16 @@
         {
             var queryHandlerModule = new QueryHandlerModule();
             queryHandlerModule.For<Query, Query.Response>().HandleQuery((message, ct) => Task.FromResult(new Query.Response()));
-            
-            var settings = new HandlerSettings(
-                queryHandlerModule,
-                new DefaultRequestTypeResolver("cedar", new[] { typeof(Query), typeof(Query.Response) }));
+
+            var requestTypeResolver = new DefaultRequestTypeResolver("cedar", new[] { typeof(Query), typeof(Query.Response) });
+
+            var settings = new HandlerSettings(queryHandlerModule, requestTypeResolver);
+
+            var commandHandlingSettings = new CommandHandlingSettings(queryHandlerModule, requestTypeResolver);
 
             var commitDispatcherFailed = new TaskCompletionSource<Exception>();
-            
-            _commandingMiddleware = CommandHandlingMiddleware.HandleCommands(settings);
+
+            _commandingMiddleware = CommandHandlingMiddleware.HandleCommands(commandHandlingSettings);
             _queryingMiddleware = QueryHandlingMiddleware.HandleQueries(settings);
             
             _storeEvents = Wireup.Init().UsingInMemoryPersistence().Build();

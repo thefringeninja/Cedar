@@ -15,6 +15,7 @@
             _registeredTypes = new HashSet<Type>();
             _inner = new HandlerModule();
         }
+
         public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
         {
             return _inner.GetHandlersFor<TMessage>();

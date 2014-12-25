@@ -59,7 +59,7 @@
             {
                 var request = new HttpRequestMessage(
                     HttpMethod.Put,
-                    _fixture.MessageExecutionSettings.Path + "/" + Guid.NewGuid())
+                    Guid.NewGuid().ToString())
                 {
                     Content = new StringContent("text")
                 };

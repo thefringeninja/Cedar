@@ -9,7 +9,7 @@
             string vendor, 
             IModelToExceptionConverter modelToExceptionConverter = null,
             ISerializer serializer = null,
-            string path = "commands") 
+            string path = "") 
             : base(vendor, modelToExceptionConverter, serializer, path)
         {}
     }

@@ -20,11 +20,11 @@ namespace Cedar.Commands
         internal static readonly MethodInfo DispatchCommandMethodInfo = typeof(CommandController)
             .GetMethod("DispatchCommand", BindingFlags.Static | BindingFlags.NonPublic);
 
-        private readonly HandlerSettings _handlerSettings;
+        private readonly CommandHandlingSettings _settings;
 
-        public CommandController(HandlerSettings handlerSettings)
+        public CommandController(CommandHandlingSettings settings)
         {
-            _handlerSettings = handlerSettings;
+            _settings = settings;
         }
 
         [Route("{commandId}")]
@@ -39,10 +39,11 @@ namespace Cedar.Commands
             Func<Task> act = async () => await ((Task)dispatchCommand.Invoke(null,
                new[]
                 {
-                    _handlerSettings.HandlerResolvers, commandId, user, command, cancellationToken
+                    new [] { _settings.HandlerResolver }, commandId, user, command, cancellationToken
                 })).NotOnCapturedContext();
 
-            var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(_handlerSettings) 
+            var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(
+                new HandlerSettings(_settings.HandlerResolver, _settings.RequestTypeResolver, _settings.ExceptionToModelConverter, _settings.Serializer)) 
                 ?? new HttpResponseMessage(HttpStatusCode.Accepted);
 
             return response;
@@ -54,7 +55,7 @@ namespace Cedar.Commands
 
             Type commandType;
             if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
-               || (commandType = _handlerSettings.RequestTypeResolver.ResolveInputType(new CedarRequest(Request.GetOwinEnvironment()))) == null)
+               || (commandType = _settings.RequestTypeResolver.ResolveInputType(new CedarRequest(Request.GetOwinEnvironment()))) == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
@@ -65,7 +66,7 @@ namespace Cedar.Commands
         {
             using (var streamReader = new StreamReader(await Request.Content.ReadAsStreamAsync()))
             {
-                return _handlerSettings.Serializer.Deserialize(streamReader, commandType);
+                return _settings.Serializer.Deserialize(streamReader, commandType);
             }
         }
 

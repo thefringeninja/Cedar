@@ -6,10 +6,6 @@
     using System.Web.Http;
     using System.Web.Http.Dependencies;
     using System.Web.Http.Dispatcher;
-    using Cedar.Annotations;
-    using Cedar.ExceptionModels;
-    using Cedar.Handlers;
-    using Cedar.Serialization;
     using CuttingEdge.Conditions;
     using Microsoft.Owin.Builder;
     using Owin;
@@ -25,55 +21,24 @@
         >
     >;
 
-    public class CommandHandlingSettings
-    {
-        private static readonly ISerializer DefaultSerializer = new DefaultJsonSerializer();
-        private static readonly IExceptionToModelConverter DefaultExceptionToModelConverter = new ExceptionToModelConverter();
-
-        private ISerializer _serializer;
-        private IExceptionToModelConverter _exceptionToModelConverter;
-
-        public CommandHandlingSettings([NotNull] IHandlerResolver handlerResolver)
-        {
-            Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
-        }
-
-        public IExceptionToModelConverter ExceptionToModelConverter
-        {
-            get { return _exceptionToModelConverter ?? DefaultExceptionToModelConverter; }
-            set { _exceptionToModelConverter = value; }
-        }
-
-        public ISerializer Serializer
-        {
-            get { return _serializer ?? DefaultSerializer; }
-            set { _serializer = value; }
-        }
-    }
-
     public static class CommandHandlingMiddleware
     {
-        public static MidFunc HandleCommands(HandlerSettings settings, string commandPath = "/commands")
+        public static MidFunc HandleCommands(CommandHandlingSettings settings)
         {
             Condition.Requires(settings, "settings").IsNotNull();
-            Condition.Requires(commandPath, "commandPath").IsNotNullOrWhiteSpace();
 
             return next =>
             {
                 var webApiConfig = ConfigureWebApi(settings);
                 var appBuilder = new AppBuilder();
                 appBuilder
-                    .Map(commandPath,
-                        commandsApp =>
-                        {
-                            commandsApp.UseWebApi(webApiConfig);
-                        })
+                    .UseWebApi(webApiConfig)
                     .Run(ctx => next(ctx.Environment));
                 return appBuilder.Build();
             };
         }
 
-        private static HttpConfiguration ConfigureWebApi(HandlerSettings settings)
+        private static HttpConfiguration ConfigureWebApi(CommandHandlingSettings settings)
         {
             var container = new TinyIoCContainer();
             container.Register(settings);
