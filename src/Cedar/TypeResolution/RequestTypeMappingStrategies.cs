@@ -7,7 +7,7 @@ namespace Cedar.TypeResolution
 
     public static class RequestTypeMappingStrategies
     {
-        public static VersionedName FromTypeName(Type type)
+        public static TypeNameAndVersionOld FromTypeName(Type type)
         {
             var version = 1;
             var typeName = type.Name;
@@ -24,7 +24,7 @@ namespace Cedar.TypeResolution
                 version = Int32.Parse(pieces[1].Replace("v", String.Empty));
             }
 
-            return new VersionedName(name, version);
+            return new TypeNameAndVersionOld(name, version);
         }
 
         public static IEnumerable<string> FromContentType(this IRequest request)

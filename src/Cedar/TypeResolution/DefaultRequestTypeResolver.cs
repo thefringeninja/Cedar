@@ -29,7 +29,7 @@
         public DefaultRequestTypeResolver(
             string vendorName,
             IEnumerable<Type> knownRequestTypes,
-            Func<Type, VersionedName> getVersionedName = null,
+            Func<Type, TypeNameAndVersionOld> getVersionedName = null,
             Func<IRequest, IEnumerable<string>> getInputMediaTypes = null,
             Func<IRequest, IEnumerable<string>> getOutputMediaTypes = null)
         {
@@ -89,7 +89,7 @@
                 {
                     continue;
                 }
-                var versionedName = new VersionedName(GetName(mediaType), GetVersion(mediaType));
+                var versionedName = new TypeNameAndVersionOld(GetName(mediaType), GetVersion(mediaType));
                 List<TypeDescriptor> typeDescriptors =
                     _mapping[versionedName.Name].OrderBy(typeDescriptor => typeDescriptor.Version).ToList();
 
@@ -117,15 +117,15 @@
 
         private class TypeDescriptor
         {
-            private readonly VersionedName _name;
+            private readonly TypeNameAndVersionOld _nameAndVersion;
             private readonly Type _type;
             private readonly string _vendor;
 
-            public TypeDescriptor(string vendor, Type type, Func<Type, VersionedName> getVersionedName)
+            public TypeDescriptor(string vendor, Type type, Func<Type, TypeNameAndVersionOld> getVersionedName)
             {
                 _vendor = vendor;
                 _type = type;
-                _name = getVersionedName(type);
+                _nameAndVersion = getVersionedName(type);
             }
 
             public Type Type
@@ -135,17 +135,17 @@
 
             public int? Version
             {
-                get { return _name.Version; }
+                get { return _nameAndVersion.Version; }
             }
 
             public string FullName
             {
-                get { return "application/vnd." + _vendor + "." + _name.Name + ".v" + _name.Version; }
+                get { return "application/vnd." + _vendor + "." + _nameAndVersion.Name + ".v" + _nameAndVersion.Version; }
             }
 
             public string Name
             {
-                get { return _name.Name; }
+                get { return _nameAndVersion.Name; }
             }
 
             public override string ToString()

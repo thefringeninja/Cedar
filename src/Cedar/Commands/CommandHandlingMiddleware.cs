@@ -7,7 +7,9 @@
     using System.Web.Http.Dependencies;
     using System.Web.Http.Dispatcher;
     using Cedar.Annotations;
+    using Cedar.ExceptionModels;
     using Cedar.Handlers;
+    using Cedar.Serialization;
     using CuttingEdge.Conditions;
     using Microsoft.Owin.Builder;
     using Owin;
@@ -25,9 +27,27 @@
 
     public class CommandHandlingSettings
     {
+        private static readonly ISerializer DefaultSerializer = new DefaultJsonSerializer();
+        private static readonly IExceptionToModelConverter DefaultExceptionToModelConverter = new ExceptionToModelConverter();
+
+        private ISerializer _serializer;
+        private IExceptionToModelConverter _exceptionToModelConverter;
+
         public CommandHandlingSettings([NotNull] IHandlerResolver handlerResolver)
         {
             Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
+        }
+
+        public IExceptionToModelConverter ExceptionToModelConverter
+        {
+            get { return _exceptionToModelConverter ?? DefaultExceptionToModelConverter; }
+            set { _exceptionToModelConverter = value; }
+        }
+
+        public ISerializer Serializer
+        {
+            get { return _serializer ?? DefaultSerializer; }
+            set { _serializer = value; }
         }
     }
 

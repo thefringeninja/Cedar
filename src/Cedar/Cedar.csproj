@@ -155,8 +155,13 @@
     <Compile Include="Queries\QueryHandlerModule.cs" />
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
+    <Compile Include="TypeResolution\ITypeFromMediaTypeResolver.cs" />
+    <Compile Include="TypeResolution\ITypeNameAndVersion.cs" />
+    <Compile Include="TypeResolution\MediaTypeParsers.cs" />
     <Compile Include="TypeResolution\RequestTypeMappingStrategies.cs" />
-    <Compile Include="TypeResolution\VersionedName.cs" />
+    <Compile Include="TypeResolution\TryParseMediaType.cs" />
+    <Compile Include="TypeResolution\TypeNameAndVersion.cs" />
+    <Compile Include="TypeResolution\TypeNameAndVersionOld.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

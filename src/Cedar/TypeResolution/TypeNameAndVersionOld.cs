@@ -1,11 +1,11 @@
 namespace Cedar.TypeResolution
 {
-    public class VersionedName
+    public class TypeNameAndVersionOld
     {
         private readonly string _name;
         private readonly int? _version;
 
-        public VersionedName(string name, int? version)
+        public TypeNameAndVersionOld(string name, int? version = null)
         {
             _name = name;
             _version = version;

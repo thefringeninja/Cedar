@@ -4,6 +4,16 @@ namespace Cedar.TypeResolution
     using FluentAssertions;
     using Xunit;
 
+    class SomeCommand { }
+
+    class SomeCommand_v2 { }
+
+    class SomeCommand_v12 { }
+
+    class SomeCommand_v25 { }
+
+    class SomeCommand_v26 { }
+
     public class TypeResolverVersioningTests
     {
         private readonly DefaultRequestTypeResolver _sut;

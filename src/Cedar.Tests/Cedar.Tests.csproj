@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cedar</RootNamespace>
     <AssemblyName>Cedar.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>5d4c591c</NuGetPackageImportStamp>
     <TargetFrameworkProfile />
@@ -117,6 +117,7 @@
     <Compile Include="Testing\QueryTests.cs" />
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
+    <Compile Include="TypeResolution\MediaTypeParsersTests.cs" />
     <Compile Include="TypeResolution\TypeResolverTests.cs" />
     <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolverTests.cs" />
     <Compile Include="Commands\ExceptionToModelConverterTests.cs" />
