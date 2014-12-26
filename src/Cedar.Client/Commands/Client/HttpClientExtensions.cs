@@ -22,8 +22,7 @@ namespace Cedar.Commands.Client
             string commandJson = settings.Serializer.Serialize(command);
             var httpContent = new StringContent(commandJson);
             httpContent.Headers.ContentType =
-                MediaTypeHeaderValue.Parse("application/vnd.{0}.{1}+json".FormatWith(settings.Vendor,
-                    command.GetType().Name.ToLower()));
+                MediaTypeHeaderValue.Parse("application/vnd.{0}+json".FormatWith(command.GetType().FullName.ToLowerInvariant()));
 
             var request = new HttpRequestMessage(HttpMethod.Put, settings.Path + "/{0}".FormatWith(commandId))
             {

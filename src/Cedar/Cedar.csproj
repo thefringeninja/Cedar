@@ -83,6 +83,8 @@
     <Compile Include="Commands\CommandController.cs" />
     <Compile Include="Commands\CommandHandlerModule.cs" />
     <Compile Include="Commands\CommandHandlingSettings.cs" />
+    <Compile Include="TypeResolution\DefaultTypeResolver.cs" />
+    <Compile Include="TypeResolution\IParsedMediaAndSerializationType.cs" />
     <Compile Include="TypeResolution\ITypeResolver.cs" />
     <Compile Include="ExceptionModels\ExceptionHandlingExtensionsTempWebApi.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
@@ -157,11 +159,11 @@
     <Compile Include="Queries\QueryHandlerModule.cs" />
     <Compile Include="Queries\QueryHandlingMiddleware.cs" />
     <Compile Include="Queries\QueryMessage.cs" />
-    <Compile Include="TypeResolution\ITypeNameAndVersion.cs" />
+    <Compile Include="TypeResolution\IParsedMediaType.cs" />
     <Compile Include="TypeResolution\MediaTypeParsers.cs" />
     <Compile Include="TypeResolution\RequestTypeMappingStrategies.cs" />
     <Compile Include="TypeResolution\TryParseMediaType.cs" />
-    <Compile Include="TypeResolution\TypeNameAndVersion.cs" />
+    <Compile Include="TypeResolution\ParsedMediaAndSerializationType.cs" />
     <Compile Include="TypeResolution\TypeNameAndVersionOld.cs" />
   </ItemGroup>
   <ItemGroup>

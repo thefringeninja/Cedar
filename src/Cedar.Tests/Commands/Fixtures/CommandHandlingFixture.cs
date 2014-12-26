@@ -18,12 +18,10 @@ namespace Cedar.Commands.Fixtures
             const string vendor = "vendor";
 
             var handlerModule = new TestHandlerModule();
-           
-            var commandTypeFromContentTypeResolver = new DefaultRequestTypeResolver(
-                vendor,
-                handlerModule);
 
-            var commandHandlingSettings = new CommandHandlingSettings(handlerModule, commandTypeFromContentTypeResolver);
+            var typeResolver = new DefaultTypeResolver(handlerModule);
+           
+            var commandHandlingSettings = new CommandHandlingSettings(handlerModule, typeResolver);
 
             _midFunc = CommandHandlingMiddleware.HandleCommands(commandHandlingSettings);
             _messageExecutionSettings = new CommandExecutionSettings(vendor);

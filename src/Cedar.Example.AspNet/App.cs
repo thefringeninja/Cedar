@@ -28,11 +28,13 @@
             var queryHandlerModule = new QueryHandlerModule();
             queryHandlerModule.For<Query, Query.Response>().HandleQuery((message, ct) => Task.FromResult(new Query.Response()));
 
+            var typeResolver = new DefaultTypeResolver(new[] { typeof(Query) });
+
             var requestTypeResolver = new DefaultRequestTypeResolver("cedar", new[] { typeof(Query), typeof(Query.Response) });
 
             var settings = new HandlerSettings(queryHandlerModule, requestTypeResolver);
 
-            var commandHandlingSettings = new CommandHandlingSettings(queryHandlerModule, requestTypeResolver);
+            var commandHandlingSettings = new CommandHandlingSettings(queryHandlerModule, typeResolver);
 
             var commitDispatcherFailed = new TaskCompletionSource<Exception>();
 

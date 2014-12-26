@@ -42,8 +42,7 @@ namespace Cedar.Commands
                     new [] { _settings.HandlerResolver }, commandId, user, command, cancellationToken
                 })).NotOnCapturedContext();
 
-            var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(
-                new HandlerSettings(_settings.HandlerResolver, _settings.TypeResolver, _settings.ExceptionToModelConverter, _settings.Serializer)) 
+            var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(_settings.ExceptionToModelConverter, _settings.Serializer) 
                 ?? new HttpResponseMessage(HttpStatusCode.Accepted);
 
             return response;
@@ -51,11 +50,22 @@ namespace Cedar.Commands
 
         private Type GetCommandType()
         {
-            string contentType = Request.Content.Headers.ContentType.MediaType;
+            string mediaType = Request.Content.Headers.ContentType.MediaType;
+            IParsedMediaAndSerializationType parsedMediaAndSerializationType = null;
+            foreach(var tryParseMediaType in _settings.MediaTypeParsers)
+            {
+                if(tryParseMediaType(mediaType, out parsedMediaAndSerializationType))
+                {
+                    break;
+                }
+            }
+            if(parsedMediaAndSerializationType == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            }
 
-            Type commandType;
-            if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
-               || (commandType = _settings.TypeResolver.ResolveInputType(new CedarRequest(Request.GetOwinEnvironment()))) == null)
+            var commandType = _settings.TypeResolver.Resolve(parsedMediaAndSerializationType);
+            if(commandType == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }

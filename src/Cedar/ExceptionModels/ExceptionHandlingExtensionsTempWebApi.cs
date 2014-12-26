@@ -16,9 +16,10 @@
     {
         internal static async Task<HttpResponseMessage> ExecuteWithExceptionHandling_ThisIsToBeReplaced(
             this Func<Task> actionToRun,
-            HandlerSettings handlerSettings)
+            IExceptionToModelConverter exceptionToModelConverter,
+            ISerializer serializer)
         {
-            Exception caughtException = null;
+            Exception caughtException;
             try
             {
                 await actionToRun();
@@ -38,74 +39,80 @@
             var httpStatusException = caughtException as HttpStatusException;
             if (httpStatusException != null)
             {
-                return HandleHttpStatusException(httpStatusException, handlerSettings);
+                return HandleHttpStatusException(httpStatusException, exceptionToModelConverter, serializer);
             }
             var invalidOperationException = caughtException as InvalidOperationException;
             if (invalidOperationException != null)
             {
-                return HandleBadRequest(invalidOperationException, handlerSettings);
+                return HandleBadRequest(invalidOperationException, exceptionToModelConverter, serializer);
             }
             var argumentException = caughtException as ArgumentException;
             if (argumentException != null)
             {
-                return HandleBadRequest(argumentException, handlerSettings);
+                return HandleBadRequest(argumentException, exceptionToModelConverter, serializer);
             }
             var formatException = caughtException as FormatException;
             if (formatException != null)
             {
-                return HandleBadRequest(formatException, handlerSettings);
+                return HandleBadRequest(formatException, exceptionToModelConverter, serializer);
             }
             var securityException = caughtException as SecurityException;
             if (securityException != null)
             {
-                return HandleBadRequest(securityException, handlerSettings);
+                return HandleBadRequest(securityException, exceptionToModelConverter, serializer);
             }
-            return HandleInternalServerError(caughtException, handlerSettings);
+            return HandleInternalServerError(caughtException, exceptionToModelConverter, serializer);
         }
 
-        private static HttpResponseMessage HandleBadRequest(InvalidOperationException ex, HandlerSettings settings)
+        private static HttpResponseMessage HandleBadRequest(InvalidOperationException ex, IExceptionToModelConverter exceptionToModelConverter,
+            ISerializer serializer)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
-            return HandleHttpStatusException(exception, settings);
+            return HandleHttpStatusException(exception, exceptionToModelConverter, serializer);
         }
 
-        private static HttpResponseMessage HandleBadRequest(ArgumentException ex, HandlerSettings settings)
+        private static HttpResponseMessage HandleBadRequest(ArgumentException ex, IExceptionToModelConverter exceptionToModelConverter,
+            ISerializer serializer)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
-            return HandleHttpStatusException(exception, settings);
+            return HandleHttpStatusException(exception, exceptionToModelConverter, serializer);
         }
 
-        private static HttpResponseMessage HandleBadRequest(FormatException ex, HandlerSettings settings)
+        private static HttpResponseMessage HandleBadRequest(FormatException ex, IExceptionToModelConverter exceptionToModelConverter,
+            ISerializer serializer)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.BadRequest, ex);
 
-            return HandleHttpStatusException(exception, settings);
+            return HandleHttpStatusException(exception, exceptionToModelConverter, serializer);
         }
 
-        private static HttpResponseMessage HandleBadRequest(SecurityException ex, HandlerSettings settings)
+        private static HttpResponseMessage HandleBadRequest(SecurityException ex, IExceptionToModelConverter exceptionToModelConverter,
+            ISerializer serializer)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.Forbidden, ex);
 
-            return HandleHttpStatusException(exception, settings);
+            return HandleHttpStatusException(exception, exceptionToModelConverter, serializer);
         }
 
-        private static HttpResponseMessage HandleInternalServerError(Exception ex, HandlerSettings settings)
+        private static HttpResponseMessage HandleInternalServerError(Exception ex, IExceptionToModelConverter exceptionToModelConverter,
+            ISerializer serializer)
         {
             var exception = new HttpStatusException(ex.Message, HttpStatusCode.InternalServerError, ex);
 
-            return HandleHttpStatusException(exception, settings);
+            return HandleHttpStatusException(exception, exceptionToModelConverter, serializer);
         }
 
         private static HttpResponseMessage HandleHttpStatusException(
             HttpStatusException exception,
-            HandlerSettings settings,
+            IExceptionToModelConverter exceptionToModelConverter,
+            ISerializer serializer,
             string contentType = "application/json")
         {
             var response = new HttpResponseMessage(exception.StatusCode);
-            ExceptionModel exceptionModel = settings.ExceptionToModelConverter.Convert(exception);
-            string exceptionJson = settings.Serializer.Serialize(exceptionModel);
+            ExceptionModel exceptionModel = exceptionToModelConverter.Convert(exception);
+            string exceptionJson = serializer.Serialize(exceptionModel);
             response.Content = new StringContent(exceptionJson, Encoding.UTF8, contentType);
             return response;
         }

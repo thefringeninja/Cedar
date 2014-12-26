@@ -5,7 +5,7 @@ namespace Cedar.TypeResolution
 
     public static class MediaTypeParsers
     {
-        private static readonly TryParseMediaType[] MediaTypeParserCollection = new[]
+        private static readonly TryParseMediaType[] MediaTypeParserCollection =
         {
             MediaTypeWithoutVersion,
             MediaTypeWithMinusVersion,
@@ -14,17 +14,17 @@ namespace Cedar.TypeResolution
         };
 
         /// <summary>
-        /// Gets the collection of default parsers. The order is MediaTypeWithoutVersion, MediaTypeWithMinusVersion,
+        ///         Gets the collection of default parsers. The order is MediaTypeWithoutVersion, MediaTypeWithMinusVersion,
         /// MediaTypeWithQualifierVersion, MediaTypeWithDotVersion.
         /// </summary>
         /// <value>
-        /// The default parsers.
+        ///     The default parsers.
         /// </value>
         public static IEnumerable<TryParseMediaType> DefaultParsers { get { return MediaTypeParserCollection; } } 
 
         /// <summary>
-        /// Gets the media type parser that handles media types that have the version
-        /// in the format 'application/vnd.{TypeName}+{SerializationType}'
+        ///     Gets the media type parser that handles media types that have the version
+        ///     in the format 'application/vnd.{TypeName}+{SerializationType}'
         /// </summary>
         /// <value>
         /// A media type parser.
@@ -33,7 +33,7 @@ namespace Cedar.TypeResolution
         {
             get 
             { 
-                return (string mediaType, out ITypeNameAndVersion typeNameAndVersion) =>
+                return (string mediaType, out IParsedMediaAndSerializationType typeNameAndVersion) =>
                 {
                     typeNameAndVersion = null;
 
@@ -49,24 +49,24 @@ namespace Cedar.TypeResolution
                     string typeName = typeAndSerialization[0];
                     string serializationType = typeAndSerialization[1];
 
-                    typeNameAndVersion = new TypeNameAndVersion(typeName, null, serializationType);
+                    typeNameAndVersion = new ParsedMediaAndSerializationType(typeName, null, serializationType);
                     return true;
                 }; 
             }
         }
 
         /// <summary>
-        /// Gets the media type parser that handles media types that have the version
-        /// in the format 'application/vnd.{TypeName}.v{Version}+{SerializationType}'
+        ///     Gets the media type parser that handles media types that have the version
+        ///     in the format 'application/vnd.{TypeName}.v{Version}+{SerializationType}'
         /// </summary>
         /// <value>
-        /// A media type parser.
+        ///     A media type parser.
         /// </value>
         public static TryParseMediaType MediaTypeWithDotVersion
         {
             get
             {
-                return (string mediaType, out ITypeNameAndVersion typeNameAndVersion) =>
+                return (string mediaType, out IParsedMediaAndSerializationType typeNameAndVersion) =>
                 {
                     typeNameAndVersion = null;
 
@@ -101,24 +101,24 @@ namespace Cedar.TypeResolution
                     {
                         return false;
                     }
-                    typeNameAndVersion = new TypeNameAndVersion(type, version, serializationType);
+                    typeNameAndVersion = new ParsedMediaAndSerializationType(type, version, serializationType);
                     return true;
                 };
             }
         }
 
         /// <summary>
-        /// Gets the media type parser that handles media types that have the version
-        /// in the format 'application/vnd.{TypeName}-v{Version}+{SerializationType}'
+        ///     Gets the media type parser that handles media types that have the version
+        ///     in the format 'application/vnd.{TypeName}-v{Version}+{SerializationType}'
         /// </summary>
         /// <value>
-        /// A media type parser.
+        ///     A media type parser.
         /// </value>
         public static TryParseMediaType MediaTypeWithMinusVersion
         {
             get
             {
-                return (string mediaType, out ITypeNameAndVersion typeNameAndVersion) =>
+                return (string mediaType, out IParsedMediaAndSerializationType typeNameAndVersion) =>
                 {
                     typeNameAndVersion = null;
 
@@ -153,24 +153,24 @@ namespace Cedar.TypeResolution
                     {
                         return false;
                     }
-                    typeNameAndVersion = new TypeNameAndVersion(type, version, serializationType);
+                    typeNameAndVersion = new ParsedMediaAndSerializationType(type, version, serializationType);
                     return true;
                 };
             }
         }
 
         /// <summary>
-        /// Gets the media type parser that handles media types that have the version
-        /// in the format 'application/vnd.{TypeName}+{SerializationType};v={Version}'
+        ///     Gets the media type parser that handles media types that have the version
+        ///     in the format 'application/vnd.{TypeName}+{SerializationType};v={Version}'
         /// </summary>
         /// <value>
-        /// A media type parser.
+        ///     A media type parser.
         /// </value>
         public static TryParseMediaType MediaTypeWithQualifierVersion
         {
             get
             {
-                return (string mediaType, out ITypeNameAndVersion typeNameAndVersion) =>
+                return (string mediaType, out IParsedMediaAndSerializationType typeNameAndVersion) =>
                 {
                     typeNameAndVersion = null;
 
@@ -202,7 +202,7 @@ namespace Cedar.TypeResolution
                     string typeName = strings[0];
                     string serializationType = strings[1];
 
-                    typeNameAndVersion = new TypeNameAndVersion(typeName, version, serializationType);
+                    typeNameAndVersion = new ParsedMediaAndSerializationType(typeName, version, serializationType);
                     return true;
                 };
             }
