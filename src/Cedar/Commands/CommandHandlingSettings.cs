@@ -1,5 +1,7 @@
 namespace Cedar.Commands
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
@@ -13,19 +15,20 @@ namespace Cedar.Commands
         private static readonly IExceptionToModelConverter DefaultExceptionToModelConverter = new ExceptionToModelConverter();
 
         private readonly IHandlerResolver _handlerResolver;
-        private readonly IRequestTypeResolver _requestTypeResolver;
+        private readonly ITypeResolver _typeResolver;
         private ISerializer _serializer;
         private IExceptionToModelConverter _exceptionToModelConverter;
+        private ICollection<TryParseMediaType> _mediaTypeParsers = TypeResolution.MediaTypeParsers.DefaultParsers.ToList();
 
         public CommandHandlingSettings(
             [NotNull] IHandlerResolver handlerResolver,
-            [NotNull] IRequestTypeResolver requestTypeResolver)
+            [NotNull] ITypeResolver typeResolver)
         {
             Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
-            Condition.Requires(requestTypeResolver, "requestTypeResolver").IsNotNull();
+            Condition.Requires(typeResolver, "typeResolver").IsNotNull();
 
             _handlerResolver = handlerResolver;
-            _requestTypeResolver = requestTypeResolver;
+            _typeResolver = typeResolver;
         }
 
         public IExceptionToModelConverter ExceptionToModelConverter
@@ -45,9 +48,22 @@ namespace Cedar.Commands
             set { _serializer = value; }
         }
 
-        public IRequestTypeResolver RequestTypeResolver
+        public ITypeResolver TypeResolver
         {
-            get { return _requestTypeResolver; }
+            get { return _typeResolver; }
+        }
+
+        public ICollection<TryParseMediaType> MediaTypeParsers
+        {
+            get { return _mediaTypeParsers; }
+            set
+            {
+                if(value == null)
+                {
+                    _mediaTypeParsers.Clear();
+                }
+                _mediaTypeParsers = value;
+            }
         }
     }
 }

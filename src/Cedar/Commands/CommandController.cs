@@ -43,7 +43,7 @@ namespace Cedar.Commands
                 })).NotOnCapturedContext();
 
             var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(
-                new HandlerSettings(_settings.HandlerResolver, _settings.RequestTypeResolver, _settings.ExceptionToModelConverter, _settings.Serializer)) 
+                new HandlerSettings(_settings.HandlerResolver, _settings.TypeResolver, _settings.ExceptionToModelConverter, _settings.Serializer)) 
                 ?? new HttpResponseMessage(HttpStatusCode.Accepted);
 
             return response;
@@ -55,7 +55,7 @@ namespace Cedar.Commands
 
             Type commandType;
             if (!contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase)
-               || (commandType = _settings.RequestTypeResolver.ResolveInputType(new CedarRequest(Request.GetOwinEnvironment()))) == null)
+               || (commandType = _settings.TypeResolver.ResolveInputType(new CedarRequest(Request.GetOwinEnvironment()))) == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
