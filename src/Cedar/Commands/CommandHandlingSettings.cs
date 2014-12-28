@@ -1,7 +1,5 @@
 namespace Cedar.Commands
 {
-    using System.Collections.Generic;
-    using System.Linq;
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
     using Cedar.Handlers;
@@ -15,14 +13,14 @@ namespace Cedar.Commands
         private static readonly IExceptionToModelConverter DefaultExceptionToModelConverter = new ExceptionToModelConverter();
 
         private readonly IHandlerResolver _handlerResolver;
-        private readonly ITypeResolver _typeResolver;
+        private readonly TryResolveType _typeResolver;
         private ISerializer _serializer;
         private IExceptionToModelConverter _exceptionToModelConverter;
-        private ICollection<TryParseMediaType> _mediaTypeParsers = TypeResolution.MediaTypeParsers.DefaultParsers.ToList();
+        private TryParseMediaType _mediaTypeParser = MediaTypeParsers.AllCombined;
 
         public CommandHandlingSettings(
             [NotNull] IHandlerResolver handlerResolver,
-            [NotNull] ITypeResolver typeResolver)
+            [NotNull] TryResolveType typeResolver)
         {
             Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
             Condition.Requires(typeResolver, "typeResolver").IsNotNull();
@@ -42,27 +40,28 @@ namespace Cedar.Commands
             get { return _handlerResolver; }
         }
 
-        public ISerializer Serializer
+        public ISerializer Serializer //TODO Needs to be a collection serializers for content negotiation.
         {
             get { return _serializer ?? DefaultSerializer; }
-            set { _serializer = value; }
+            set
+            {
+                Condition.Requires(value, "value").IsNotNull();
+                _serializer = value;
+            }
         }
 
-        public ITypeResolver TypeResolver
+        public TryResolveType TypeResolver
         {
             get { return _typeResolver; }
         }
 
-        public ICollection<TryParseMediaType> MediaTypeParsers
+        public TryParseMediaType MediaTypeParser
         {
-            get { return _mediaTypeParsers; }
+            get { return _mediaTypeParser; }
             set
             {
-                if(value == null)
-                {
-                    _mediaTypeParsers.Clear();
-                }
-                _mediaTypeParsers = value;
+                Condition.Requires(value, "value").IsNotNull();
+                _mediaTypeParser = value;
             }
         }
     }

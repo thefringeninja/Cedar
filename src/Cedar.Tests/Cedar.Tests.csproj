@@ -100,6 +100,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Commands\CommandHandlingSettingsTests.cs" />
     <Compile Include="DefaultGetEventStoreJsonSerializer.cs" />
     <Compile Include="Domain\AggregateTests.cs" />
     <Compile Include="Domain\GetEventStoreClientRepositoryTests.cs" />

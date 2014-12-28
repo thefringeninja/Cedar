@@ -19,7 +19,7 @@ namespace Cedar.Commands.Fixtures
 
             var handlerModule = new TestHandlerModule();
 
-            var typeResolver = new DefaultTypeResolver(handlerModule);
+            var typeResolver = TypeResolvers.FullNameWithVersionSuffix(handlerModule);
            
             var commandHandlingSettings = new CommandHandlingSettings(handlerModule, typeResolver);
 

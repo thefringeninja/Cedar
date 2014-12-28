@@ -51,24 +51,18 @@ namespace Cedar.Commands
         private Type GetCommandType()
         {
             string mediaType = Request.Content.Headers.ContentType.MediaType;
-            IParsedMediaAndSerializationType parsedMediaAndSerializationType = null;
-            foreach(var tryParseMediaType in _settings.MediaTypeParsers)
-            {
-                if(tryParseMediaType(mediaType, out parsedMediaAndSerializationType))
-                {
-                    break;
-                }
-            }
-            if(parsedMediaAndSerializationType == null)
+            IParsedMediaAndSerializationType parsedMediaAndSerializationType;
+            if(!_settings.MediaTypeParser(mediaType, out parsedMediaAndSerializationType))
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
 
-            var commandType = _settings.TypeResolver.Resolve(parsedMediaAndSerializationType);
-            if(commandType == null)
+            Type commandType;
+            if(!_settings.TypeResolver(parsedMediaAndSerializationType, out commandType))
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
+
             return commandType;
         }
 

@@ -28,7 +28,7 @@
             var queryHandlerModule = new QueryHandlerModule();
             queryHandlerModule.For<Query, Query.Response>().HandleQuery((message, ct) => Task.FromResult(new Query.Response()));
 
-            var typeResolver = new DefaultTypeResolver(new[] { typeof(Query) });
+            var typeResolver = TypeResolvers.FullNameWithVersionSuffix(new[] { typeof(Query) });
 
             var requestTypeResolver = new DefaultRequestTypeResolver("cedar", new[] { typeof(Query), typeof(Query.Response) });
 
