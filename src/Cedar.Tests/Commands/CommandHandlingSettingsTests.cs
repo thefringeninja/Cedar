@@ -1,8 +1,6 @@
 ﻿namespace Cedar.Commands
 {
     using System;
-    using Cedar.Handlers;
-    using Cedar.TypeResolution;
     using FakeItEasy;
     using FluentAssertions;
     using Xunit;
@@ -12,7 +10,7 @@
         [Fact]
         public void When_set_serializera_to_null_then_should_throw()
         {
-            var settings = new CommandHandlingSettings(A.Fake<IHandlerResolver>(), A.Fake<TryResolveType>());
+            var settings = new CommandHandlingSettings(A.Fake<ICommandHandlerResolver>(), A.Fake<ResolveCommandType>());
 
             Action act = () => settings.Serializer = null;
 

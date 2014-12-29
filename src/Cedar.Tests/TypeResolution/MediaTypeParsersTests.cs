@@ -12,22 +12,21 @@ namespace Cedar.TypeResolution
             [Fact]
             public void Can_parse_valid_MediaTypeWithoutVersion()
             {
-                IParsedMediaAndSerializationType parsedMediaType;
+                var parsedMediaType = MediaTypeParsers.MediaTypeWithoutVersion("application/vnd.org.foo.bar+json");
 
-                MediaTypeParsers.MediaTypeWithoutVersion("application/vnd.org.foo.bar+json", out parsedMediaType)
-                    .Should().BeTrue();
-
-                parsedMediaType.SerializationType.Should().Be("json");
-                parsedMediaType.TypeName.Should().Be("org.foo.bar");
-                parsedMediaType.Version.Should().Be(null);
+                parsedMediaType.SerializationType
+                    .Should().Be("json");
+                parsedMediaType.TypeName
+                    .Should().Be("org.foo.bar");
+                parsedMediaType.Version
+                    .Should().Be(null);
             }
 
             [Fact]
             public void When_serilization_type_missing_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithoutVersion("application/vnd.org.foo.bar", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithoutVersion("application/vnd.org.foo.bar")
+                    .Should().BeNull();
             }
         }
 
@@ -36,38 +35,35 @@ namespace Cedar.TypeResolution
             [Fact]
             public void Can_parse_valid_MediaTypeWithoutVersion()
             {
-                IParsedMediaAndSerializationType parsedMediaType;
+                var parsedMediaType = MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar.v2+json");
 
-                MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar.v2+json", out parsedMediaType)
-                    .Should().BeTrue();
-
-                parsedMediaType.SerializationType.Should().Be("json");
-                parsedMediaType.TypeName.Should().Be("org.foo.bar");
-                parsedMediaType.Version.Should().Be(2);
+                parsedMediaType.SerializationType
+                    .Should().Be("json");
+                parsedMediaType.TypeName
+                    .Should().Be("org.foo.bar");
+                parsedMediaType.Version
+                    .Should().Be(2);
             }
 
             [Fact]
             public void When_serilization_type_missing_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar.v2", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar.v2")
+                    .Should().BeNull();
             }
 
             [Fact]
             public void When_version_missing_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar+json", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar+json")
+                    .Should().BeNull();
             }
 
             [Fact]
             public void When_version_malformed_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar.vX+json", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithDotVersion("application/vnd.org.foo.bar.vX+json")
+                    .Should().BeNull();
             }
         }
 
@@ -76,38 +72,35 @@ namespace Cedar.TypeResolution
             [Fact]
             public void Can_parse_valid_MediaTypeWithoutVersion()
             {
-                IParsedMediaAndSerializationType parsedMediaType;
+                var parsedMediaType = MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar-v2+json");
 
-                MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar-v2+json", out parsedMediaType)
-                    .Should().BeTrue();
-
-                parsedMediaType.SerializationType.Should().Be("json");
-                parsedMediaType.TypeName.Should().Be("org.foo.bar");
-                parsedMediaType.Version.Should().Be(2);
+                parsedMediaType.SerializationType
+                    .Should().Be("json");
+                parsedMediaType.TypeName
+                    .Should().Be("org.foo.bar");
+                parsedMediaType.Version
+                    .Should().Be(2);
             }
 
             [Fact]
             public void When_serilization_type_missing_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar.-v2", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar.-v2")
+                    .Should().BeNull();
             }
 
             [Fact]
             public void When_version_missing_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar+json", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar+json")
+                    .Should().BeNull();
             }
 
             [Fact]
             public void When_version_malformed_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar-vX+json", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithMinusVersion("application/vnd.org.foo.bar-vX+json")
+                    .Should().BeNull();
             }
         }
 
@@ -116,38 +109,36 @@ namespace Cedar.TypeResolution
             [Fact]
             public void Can_parse_valid_MediaTypeWithoutVersion()
             {
-                IParsedMediaAndSerializationType parsedMediaType;
+                var parsedMediaType = MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar+json;v=2");
 
-                MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar+json;v=2", out parsedMediaType)
-                    .Should().BeTrue();
-
-                parsedMediaType.SerializationType.Should().Be("json");
-                parsedMediaType.TypeName.Should().Be("org.foo.bar");
-                parsedMediaType.Version.Should().Be(2);
+                parsedMediaType.SerializationType
+                    .Should().Be("json");
+                parsedMediaType.TypeName
+                    .Should().Be("org.foo.bar");
+                parsedMediaType.Version
+                    .Should().Be(2);
             }
 
             [Fact]
             public void When_serilization_type_missing_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar;v=2", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar;v=2")
+                    .Should().BeNull();
             }
 
             [Fact]
             public void When_version_missing_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar+json", out _)
-                    .Should().BeFalse();
+                IParsedMediaType _;
+                MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar+json")
+                    .Should().BeNull();
             }
 
             [Fact]
             public void When_version_malformed_then_cant_parse()
             {
-                IParsedMediaAndSerializationType _;
-                MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar+json;v=X", out _)
-                    .Should().BeFalse();
+                MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar+json;v=X")
+                    .Should().BeNull();
             }
         }
     }

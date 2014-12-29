@@ -1,4 +1,4 @@
-namespace Cedar.TypeResolution
+namespace Cedar.Commands
 {
     using System;
     using System.Collections.Generic;
@@ -6,28 +6,29 @@ namespace Cedar.TypeResolution
     using Cedar.Annotations;
     using CuttingEdge.Conditions;
 
-    public static class TypeResolvers
+    public static class CommandTypeResolvers
     {
         /// <summary>
         ///     Resolves a type from a parsed media type in the format {TypeFullName}_v{VersionNumber}.
         /// </summary>
         /// <param name="knownTypes">The known types that can be resolved.</param>
         /// <returns></returns>
-        public static TryResolveType FullNameWithVersionSuffix([NotNull] IEnumerable<Type> knownTypes)
+        public static ResolveCommandType FullNameWithVersionSuffix([NotNull] IEnumerable<Type> knownTypes)
         {
             Condition.Requires(knownTypes, "knownTypes").IsNotNull();
 
             var knownTypeDictionary = knownTypes.
                ToDictionary(t => t.FullName.ToLowerInvariant(), t => t);
 
-            return (IParsedMediaType parsedMediaType, out Type resolvedType) =>
+            return (commandName, version) =>
             {
-                var key = parsedMediaType.TypeName.ToLowerInvariant();
-                if(parsedMediaType.Version.HasValue)
+                var key = commandName.ToLowerInvariant();
+                if (version.HasValue)
                 {
-                    key += "_v" + parsedMediaType.Version.Value;
+                    key += "_v" + version.Value;
                 }
-                return knownTypeDictionary.TryGetValue(key, out resolvedType);
+                Type resolvedType;
+                return knownTypeDictionary.TryGetValue(key, out resolvedType) ? resolvedType : null;
             };
         }
     }

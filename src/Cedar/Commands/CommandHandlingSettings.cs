@@ -1,8 +1,9 @@
 namespace Cedar.Commands
 {
+    using System;
+    using System.Collections.Generic;
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
-    using Cedar.Handlers;
     using Cedar.Serialization;
     using Cedar.TypeResolution;
     using CuttingEdge.Conditions;
@@ -12,21 +13,27 @@ namespace Cedar.Commands
         private static readonly ISerializer DefaultSerializer = new DefaultJsonSerializer();
         private static readonly IExceptionToModelConverter DefaultExceptionToModelConverter = new ExceptionToModelConverter();
 
-        private readonly IHandlerResolver _handlerResolver;
-        private readonly TryResolveType _typeResolver;
+        private readonly ICommandHandlerResolver _handlerResolver;
+        private readonly ResolveCommandType _commandTypeResolver;
         private ISerializer _serializer;
         private IExceptionToModelConverter _exceptionToModelConverter;
-        private TryParseMediaType _mediaTypeParser = MediaTypeParsers.AllCombined;
+        private ParseMediaType _mediaTypeParser = MediaTypeParsers.AllCombined;
 
         public CommandHandlingSettings(
-            [NotNull] IHandlerResolver handlerResolver,
-            [NotNull] TryResolveType typeResolver)
+            [NotNull] ICommandHandlerResolver handlerResolver,
+            [NotNull] IEnumerable<Type> knownCommandTypes) 
+            : this(handlerResolver, CommandTypeResolvers.FullNameWithVersionSuffix(knownCommandTypes))
+        { } 
+
+        public CommandHandlingSettings(
+            [NotNull] ICommandHandlerResolver handlerResolver,
+            [NotNull] ResolveCommandType commandTypeResolver)
         {
             Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
-            Condition.Requires(typeResolver, "typeResolver").IsNotNull();
+            Condition.Requires(commandTypeResolver, "commandTypeResolver").IsNotNull();
 
             _handlerResolver = handlerResolver;
-            _typeResolver = typeResolver;
+            _commandTypeResolver = commandTypeResolver;
         }
 
         public IExceptionToModelConverter ExceptionToModelConverter
@@ -35,7 +42,7 @@ namespace Cedar.Commands
             set { _exceptionToModelConverter = value; }
         }
 
-        public IHandlerResolver HandlerResolver
+        public ICommandHandlerResolver HandlerResolver
         {
             get { return _handlerResolver; }
         }
@@ -50,12 +57,12 @@ namespace Cedar.Commands
             }
         }
 
-        public TryResolveType TypeResolver
+        public ResolveCommandType CommandTypeResolver
         {
-            get { return _typeResolver; }
+            get { return _commandTypeResolver; }
         }
 
-        public TryParseMediaType MediaTypeParser
+        public ParseMediaType MediaTypeParser
         {
             get { return _mediaTypeParser; }
             set

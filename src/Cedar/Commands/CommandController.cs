@@ -1,7 +1,6 @@
 namespace Cedar.Commands
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Net;
     using System.Net.Http;
@@ -12,7 +11,6 @@ namespace Cedar.Commands
     using System.Web.Http;
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
-    using Cedar.Handlers;
     using Cedar.TypeResolution;
 
     internal class CommandController : ApiController
@@ -39,7 +37,7 @@ namespace Cedar.Commands
             Func<Task> act = async () => await ((Task)dispatchCommand.Invoke(null,
                new[]
                 {
-                    new [] { _settings.HandlerResolver }, commandId, user, command, cancellationToken
+                    _settings.HandlerResolver, commandId, user, command, cancellationToken
                 })).NotOnCapturedContext();
 
             var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(_settings.ExceptionToModelConverter, _settings.Serializer) 
@@ -51,14 +49,14 @@ namespace Cedar.Commands
         private Type GetCommandType()
         {
             string mediaType = Request.Content.Headers.ContentType.MediaType;
-            IParsedMediaAndSerializationType parsedMediaAndSerializationType;
-            if(!_settings.MediaTypeParser(mediaType, out parsedMediaAndSerializationType))
+            IParsedMediaType parsedMediaType = _settings.MediaTypeParser(mediaType);
+            if (parsedMediaType == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
 
-            Type commandType;
-            if(!_settings.TypeResolver(parsedMediaAndSerializationType, out commandType))
+            Type commandType = _settings.CommandTypeResolver(parsedMediaType.TypeName, parsedMediaType.Version);
+            if (commandType == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
@@ -75,8 +73,8 @@ namespace Cedar.Commands
         }
 
         [UsedImplicitly]
-        private static Task DispatchCommand<TCommand>(
-            IEnumerable<IHandlerResolver> handlerResolvers,
+        private static async Task DispatchCommand<TCommand>(
+            ICommandHandlerResolver handlerResolver,
             Guid commandId,
             ClaimsPrincipal requstUser,
             TCommand command,
@@ -84,7 +82,7 @@ namespace Cedar.Commands
             where TCommand : class
         {
             var commandMessage = new CommandMessage<TCommand>(commandId, requstUser, command);
-            return handlerResolvers.DispatchSingle(commandMessage, cancellationToken);
+            await handlerResolver.Resolve<CommandMessage<TCommand>>()(commandMessage, cancellationToken);
         }
     }
 }

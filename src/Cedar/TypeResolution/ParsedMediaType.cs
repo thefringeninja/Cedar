@@ -1,12 +1,12 @@
 namespace Cedar.TypeResolution
 {
-    public class ParsedMediaAndSerializationType : IParsedMediaAndSerializationType
+    public class ParsedMediaType : IParsedMediaType
     {
         private readonly string _typeName;
         private readonly int? _version;
         private readonly string _serializationType;
 
-        public ParsedMediaAndSerializationType(string typeName, int? version, string serializationType)
+        public ParsedMediaType(string typeName, int? version, string serializationType)
         {
             _typeName = typeName;
             _version = version;

@@ -3,9 +3,10 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using Cedar.Handlers;
 
-    public class CommandHandlerModule : IHandlerResolver, IEnumerable<Type>
+    public class CommandHandlerModule : ICommandHandlerResolver, IHandlerResolver, IEnumerable<Type>
     {
         private readonly ICollection<Type> _registeredTypes;
         private readonly HandlerModule _inner;
@@ -35,6 +36,12 @@
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public Handler<TCommand> Resolve<TCommand>() where TCommand : class
+        {
+            var x = GetHandlersFor<TCommand>().SingleOrDefault();
+            return x;
         }
     }
 }

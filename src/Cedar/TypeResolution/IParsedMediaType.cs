@@ -1,8 +1,8 @@
 namespace Cedar.TypeResolution
 {
     /// <summary>
-    ///     Represents a parsed media type. Given a media type 'application/vnd.foo.bar.v2+json'
-    ///     then Typename='foo.bar', Version='2'. 
+    ///     Represents a parsed media type. Example, given a media type 'application/vnd.foo.bar.v2+json'
+    ///     an implementation would then result in Typename='foo.bar', Version='2' and SerializationType = 'json'
     /// </summary>
     public interface IParsedMediaType
     {
@@ -22,5 +22,10 @@ namespace Cedar.TypeResolution
         ///     The version of the media type.
         /// </value>
         int? Version { get; }
+
+        /// <summary>
+        ///     Gets the serialization type.
+        /// </summary>
+        string SerializationType { get; }
     }
 }

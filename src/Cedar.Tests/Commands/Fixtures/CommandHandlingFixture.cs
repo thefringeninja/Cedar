@@ -6,7 +6,6 @@ namespace Cedar.Commands.Fixtures
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
     using Cedar.LibOwin;
-    using Cedar.TypeResolution;
 
     public class CommandHandlingFixture
     {
@@ -19,7 +18,7 @@ namespace Cedar.Commands.Fixtures
 
             var handlerModule = new TestHandlerModule();
 
-            var typeResolver = TypeResolvers.FullNameWithVersionSuffix(handlerModule);
+            var typeResolver = CommandTypeResolvers.FullNameWithVersionSuffix(handlerModule);
            
             var commandHandlingSettings = new CommandHandlingSettings(handlerModule, typeResolver);
 
