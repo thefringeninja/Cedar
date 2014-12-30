@@ -19,6 +19,12 @@ namespace Cedar.Commands
         private IExceptionToModelConverter _exceptionToModelConverter;
         private ParseMediaType _mediaTypeParser = MediaTypeParsers.AllCombined;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="CommandHandlingSettings"/> class using
+        ///     <see cref="CommandTypeResolvers.FullNameWithVersionSuffix"/> as the command type resolver.
+        /// </summary>
+        /// <param name="handlerResolver">The handler resolver.</param>
+        /// <param name="knownCommandTypes">The known command types.</param>
         public CommandHandlingSettings(
             [NotNull] ICommandHandlerResolver handlerResolver,
             [NotNull] IEnumerable<Type> knownCommandTypes) 

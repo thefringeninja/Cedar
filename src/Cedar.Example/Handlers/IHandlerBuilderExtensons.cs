@@ -53,7 +53,7 @@ namespace Cedar.Example.Handlers
         {
             return handlerBuilder.Pipe(next => (message, ct) =>
             {
-                if (message.RequestUser.Identity.IsAuthenticated)
+                if (message.User.Identity.IsAuthenticated)
                 {
                     throw new InvalidOperationException("Not authenticated");
                 }

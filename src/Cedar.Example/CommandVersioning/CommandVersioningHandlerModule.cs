@@ -24,7 +24,7 @@ namespace Cedar.Example.CommandVersioning
                     };
                     var upconvertedCommand = new CommandMessage<CreateTShirtV4>(
                         commandMessage.CommandId,
-                        commandMessage.RequestUser, 
+                        commandMessage.User, 
                         command);
                     return this.DispatchSingle(upconvertedCommand, ct);
                 });

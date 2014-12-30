@@ -38,9 +38,9 @@
             return GetEnumerator();
         }
 
-        public Handler<TCommand> Resolve<TCommand>() where TCommand : class
+        public Handler<CommandMessage<TCommand>> Resolve<TCommand>() where TCommand : class
         {
-            var x = GetHandlersFor<TCommand>().SingleOrDefault();
+            var x = GetHandlersFor<CommandMessage<TCommand>>().SingleOrDefault();
             return x;
         }
     }

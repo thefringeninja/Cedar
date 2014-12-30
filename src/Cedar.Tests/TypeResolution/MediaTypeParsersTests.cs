@@ -129,7 +129,6 @@ namespace Cedar.TypeResolution
             [Fact]
             public void When_version_missing_then_cant_parse()
             {
-                IParsedMediaType _;
                 MediaTypeParsers.MediaTypeWithQualifierVersion("application/vnd.org.foo.bar+json")
                     .Should().BeNull();
             }

@@ -4,6 +4,6 @@
 
     public interface ICommandHandlerResolver
     {
-        Handler<TCommand> Resolve<TCommand>() where TCommand : class;
+        Handler<CommandMessage<TCommand>> Resolve<TCommand>() where TCommand : class;
     }
 }

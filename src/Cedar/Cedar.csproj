@@ -84,7 +84,7 @@
     <Compile Include="Commands\CommandHandlerModule.cs" />
     <Compile Include="Commands\CommandHandlingSettings.cs" />
     <Compile Include="Commands\CommandTypeResolvers.cs" />
-    <Compile Include="Commands\IHandlerResolver.cs" />
+    <Compile Include="Commands\ICommandHandlerResolver.cs" />
     <Compile Include="TypeResolution\IParsedMediaType.cs" />
     <Compile Include="TypeResolution\ITypeResolver.cs" />
     <Compile Include="ExceptionModels\ExceptionHandlingExtensionsTempWebApi.cs" />

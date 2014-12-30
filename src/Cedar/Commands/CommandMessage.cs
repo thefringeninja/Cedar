@@ -3,19 +3,19 @@
     using System;
     using System.Security.Claims;
 
-    public class CommandMessage
+    public class CommandMessage<TCommand>
     {
+        private readonly TCommand _command;
         private readonly Guid _commandId;
-        private readonly ClaimsPrincipal _requestUser;
-        private readonly object _command;
+        private readonly ClaimsPrincipal _user;
 
         public CommandMessage(
             Guid commandId,
-            ClaimsPrincipal requestUser,
-            object command)
+            ClaimsPrincipal user,
+            TCommand command)
         {
             _commandId = commandId;
-            _requestUser = requestUser;
+            _user = user;
             _command = command;
         }
 
@@ -24,35 +24,12 @@
             get { return _commandId; }
         }
 
-        public ClaimsPrincipal RequestUser
+        public ClaimsPrincipal User
         {
-            get { return _requestUser; }
+            get { return _user; }
         }
 
-        public object Command
-        {
-            get { return _command; }
-        }
-
-        public override string ToString()
-        {
-            return Command.ToString();
-        }
-    }
-
-    public class CommandMessage<TCommand> : CommandMessage
-    {
-        private readonly TCommand _command;
-
-        public CommandMessage(
-            Guid commandId,
-            ClaimsPrincipal requestUser,
-            TCommand command) : base(commandId, requestUser, command)
-        {
-            _command = command;
-        }
-
-        public new TCommand Command
+        public TCommand Command
         {
             get { return _command; }
         }

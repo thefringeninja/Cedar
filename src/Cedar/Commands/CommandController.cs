@@ -82,7 +82,7 @@ namespace Cedar.Commands
             where TCommand : class
         {
             var commandMessage = new CommandMessage<TCommand>(commandId, requstUser, command);
-            await handlerResolver.Resolve<CommandMessage<TCommand>>()(commandMessage, cancellationToken);
+            await handlerResolver.Resolve<TCommand>()(commandMessage, cancellationToken);
         }
     }
 }
