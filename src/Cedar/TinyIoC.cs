@@ -65,7 +65,7 @@
 #endif
 
 #endregion
-namespace TinyIoC
+namespace Cedar.TinyIoC
 {
     using System;
     using System.Collections.Generic;
@@ -3944,12 +3944,7 @@ namespace TinyIoC
 #if !NETFX_CORE
 namespace System.Reflection
 {
-#if TINYIOC_INTERNAL
-    internal
-#else
-    public
-#endif
-    static class ReverseTypeExtender
+    internal static class ReverseTypeExtender
     {
         public static bool IsClass(this Type type)
         {
