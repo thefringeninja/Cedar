@@ -11,13 +11,13 @@ namespace Cedar.Commands
         /// <summary>
         ///     Resolves a type from a parsed media type in the format {TypeFullName}_v{VersionNumber}.
         /// </summary>
-        /// <param name="knownTypes">The known types that can be resolved.</param>
+        /// <param name="knownCommandTypes">The known types that can be resolved.</param>
         /// <returns></returns>
-        public static ResolveCommandType FullNameWithVersionSuffix([NotNull] IEnumerable<Type> knownTypes)
+        public static ResolveCommandType FullNameWithVersionSuffix([NotNull] IEnumerable<Type> knownCommandTypes)
         {
-            Condition.Requires(knownTypes, "knownTypes").IsNotNull();
+            Condition.Requires(knownCommandTypes, "knownCommandTypes").IsNotNull();
 
-            var knownTypeDictionary = knownTypes.
+            var knownTypeDictionary = knownCommandTypes.
                ToDictionary(t => t.FullName.ToLowerInvariant(), t => t);
 
             return (commandName, version) =>
