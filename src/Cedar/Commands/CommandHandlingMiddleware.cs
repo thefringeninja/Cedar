@@ -67,26 +67,16 @@
 
             public object GetService(Type serviceType)
             {
-                try
-                {
-                    return _container.Resolve(serviceType);
-                }
-                catch
-                {
-                    return null;
-                }
+                return _container.CanResolve(serviceType) 
+                    ? _container.Resolve(serviceType) 
+                    : null;
             }
 
             public IEnumerable<object> GetServices(Type serviceType)
             {
-                try
-                {
-                    return _container.ResolveAll(serviceType, true);
-                }
-                catch
-                {
-                    return Enumerable.Empty<object>();
-                }
+                return _container.CanResolve(serviceType) 
+                    ? _container.ResolveAll(serviceType, true) 
+                    : Enumerable.Empty<object>();
             }
 
             public IDependencyScope BeginScope()
