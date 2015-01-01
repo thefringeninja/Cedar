@@ -103,6 +103,8 @@
     <Compile Include="Commands\CommandHandlerModuleTests.cs" />
     <Compile Include="Commands\CommandHandlerResolverTests.cs" />
     <Compile Include="Commands\CommandHandlingSettingsTests.cs" />
+    <Compile Include="Commands\CommandTypeResolversTests.cs" />
+    <Compile Include="Commands\Fixtures\TestCommand_v2.cs" />
     <Compile Include="DefaultGetEventStoreJsonSerializer.cs" />
     <Compile Include="Domain\AggregateTests.cs" />
     <Compile Include="Domain\GetEventStoreClientRepositoryTests.cs" />
