@@ -69,7 +69,7 @@ task ILMerge -depends Compile {
 
 	$dllDir = "$srcDir\Cedar.Testing.TestRunner\bin\Release"
 	$inputDlls = "$dllDir\Cedar.Testing.TestRunner.exe "
-	@("PowerArgs", "NewtonSoft.Json", "Inflector", "OwinHttpMessageHandler") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+	@("PowerArgs") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:exe /log /out:$mergedDir\Cedar.Testing.TestRunner.exe $inputDlls"
 }
 
