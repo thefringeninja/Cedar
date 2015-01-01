@@ -1,47 +1,64 @@
 ﻿namespace Cedar.Commands
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Linq;
     using Cedar.Handlers;
 
-    public class CommandHandlerModule : ICommandHandlerResolver, IHandlerResolver, IEnumerable<Type>
+    public class CommandHandlerModule
     {
-        private readonly ICollection<Type> _registeredTypes;
-        private readonly HandlerModule _inner;
+        private readonly HashSet<CommandHandlerRegistration> _handlerRegistrations
+            = new HashSet<CommandHandlerRegistration>(CommandHandlerRegistration.MessageTypeComparer);
 
-        public CommandHandlerModule()
+        internal HashSet<CommandHandlerRegistration> HandlerRegistrations
         {
-            _registeredTypes = new HashSet<Type>();
-            _inner = new HandlerModule();
+            get { return _handlerRegistrations; }
         }
 
-        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
+        public IHandlerBuilder<CommandMessage<TCommand>> For<TCommand>()
+            where TCommand : class
         {
-            return _inner.GetHandlersFor<TMessage>();
+            return new HandlerBuilder<TCommand>(handlerRegistration =>
+            {
+                if(!_handlerRegistrations.Add(handlerRegistration))
+                {
+                    throw new InvalidOperationException(
+                        "Attempt to register multiple handlers for command type {0}".FormatWith(typeof(TCommand)));
+                }
+            });
         }
 
-        public IHandlerBuilder<CommandMessage<TMessage>> For<TMessage>()
+        private class HandlerBuilder<TCommand> : IHandlerBuilder<CommandMessage<TCommand>>
+            where TCommand : class
         {
-            _registeredTypes.Add(typeof(TMessage));
-            return _inner.For<CommandMessage<TMessage>>();
-        }
+            private readonly Stack<Pipe<CommandMessage<TCommand>>> _pipes = new Stack<Pipe<CommandMessage<TCommand>>>();
+            private readonly Action<CommandHandlerRegistration> _registerHandler;
 
-        public IEnumerator<Type> GetEnumerator()
-        {
-            return _registeredTypes.GetEnumerator();
-        }
+            internal HandlerBuilder(Action<CommandHandlerRegistration> registerHandler)
+            {
+                _registerHandler = registerHandler;
+            }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+            public IHandlerBuilder<CommandMessage<TCommand>> Pipe(Pipe<CommandMessage<TCommand>> pipe)
+            {
+                _pipes.Push(pipe);
+                return this;
+            }
 
-        public Handler<CommandMessage<TCommand>> Resolve<TCommand>() where TCommand : class
-        {
-            var x = GetHandlersFor<CommandMessage<TCommand>>().SingleOrDefault();
-            return x;
+            public void Handle(Handler<CommandMessage<TCommand>> handler)
+            {
+                while(_pipes.Count > 0)
+                {
+                    var pipe = _pipes.Pop();
+                    handler = pipe(handler);
+                }
+
+                var registrationType = typeof(Handler<CommandMessage<TCommand>>);
+
+                _registerHandler(new CommandHandlerRegistration(
+                    typeof(TCommand),
+                    registrationType,
+                    handler));
+            }
         }
     }
 }

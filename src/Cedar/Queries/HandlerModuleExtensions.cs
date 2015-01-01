@@ -64,10 +64,10 @@
             return await queryMessage.Source.Task;
         }
 
-        public static ICreateHandlerBuilder HandleQuery<TInput, TOutput>(
+        public static void HandleQuery<TInput, TOutput>(
             this IHandlerBuilder<QueryMessage<TInput, TOutput>> handler, Func<TInput, CancellationToken, Task<TOutput>> query)
         {
-            return handler.Handle(async (message, ct) =>
+            handler.Handle(async (message, ct) =>
             {
                 try
                 {

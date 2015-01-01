@@ -10,9 +10,9 @@
         /// <param name="handlerBuilder">The <see cref="IHandlerBuilder{TMessage}"/>instance.</param>
         /// <param name="handler">The handler.</param>
         /// <returns>A <see cref="ICreateHandlerBuilder"/> to allow you to optionally define more pipelines and handlers..</returns>
-        public static ICreateHandlerBuilder Handle<TMessage>(this IHandlerBuilder<TMessage> handlerBuilder, HandlerSync<TMessage> handler) where TMessage : class
+        public static void Handle<TMessage>(this IHandlerBuilder<TMessage> handlerBuilder, HandlerSync<TMessage> handler) where TMessage : class
         {
-            return handlerBuilder.Handle((message, _) =>
+            handlerBuilder.Handle((message, _) =>
             {
                 handler(message);
                 return Task.FromResult(0);

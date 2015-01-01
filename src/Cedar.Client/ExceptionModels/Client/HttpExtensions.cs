@@ -9,7 +9,7 @@ namespace Cedar.ExceptionModels.Client
     using System.Threading.Tasks;
     using Cedar.Serialization;
 
-    public static class HttpExtensions
+    internal static class HttpExtensions
     {
         public static async Task ThrowOnErrorStatus(this HttpResponseMessage response, HttpRequestMessage request, IMessageExecutionSettings options)
         {

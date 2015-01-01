@@ -74,7 +74,8 @@
                 .Handle(message => _commands.Add(message.Command));
 
             ProcessHandler<OrderFulfillment, CompareablePosition> processHandler = ProcessHandler.For<OrderFulfillment, CompareablePosition>(
-                commandHandler,
+                //commandHandler,
+                null, //TODO DH
                 new ClaimsPrincipal(),
                 new EventStoreClientProcessManagerCheckpointRepository(_connection, _serializer))
                 .CorrelateBy<OrderPlaced>(e => e.DomainEvent.OrderId.ToString())

@@ -37,7 +37,7 @@
                 ? _handlersByMessageType[key]
                 : new List<NonGenericHandler>();
 
-            var handlerBuilder = new HandlerBuilder<TMessage>(this);
+            var handlerBuilder = new HandlerBuilder<TMessage>();
             handlers.Add((message, ct) => handlerBuilder.Invoke((TMessage)message, ct));
             _handlersByMessageType[key] = handlers;
 
@@ -61,14 +61,8 @@
 
         private class HandlerBuilder<TMessage> : IHandlerBuilder<TMessage> where TMessage : class
         {
-            private readonly ICreateHandlerBuilder _createHandlerBuilder;
             private readonly Stack<Pipe<TMessage>> _middlewares = new Stack<Pipe<TMessage>>();
             private Handler<TMessage> _handler;
-
-            internal HandlerBuilder(ICreateHandlerBuilder createHandlerBuilder)
-            {
-                _createHandlerBuilder = createHandlerBuilder;
-            }
 
             internal Task Invoke(TMessage message, CancellationToken ct)
             {
@@ -81,7 +75,7 @@
                 return this;
             }
 
-            public ICreateHandlerBuilder Handle(Handler<TMessage> handler)
+            public void Handle(Handler<TMessage> handler)
             {
                 _handler = handler;
 
@@ -90,7 +84,6 @@
                     var handlerMiddleware = _middlewares.Pop();
                     _handler = handlerMiddleware(_handler);
                 }
-                return _createHandlerBuilder;
             }
         }
     }

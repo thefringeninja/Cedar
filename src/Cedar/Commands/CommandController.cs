@@ -29,18 +29,19 @@ namespace Cedar.Commands
         [HttpPut]
         public async Task<HttpResponseMessage> PutCommand(Guid commandId, CancellationToken cancellationToken)
         {
-            var commandType = GetCommandType();
-            var command = await DeserializeCommand(commandType);
+            Type commandType = GetCommandType();
+            object command = await DeserializeCommand(commandType);
             var user = (User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
-            var dispatchCommand = DispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
+            MethodInfo dispatchCommandMethod = DispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
 
-            Func<Task> act = async () => await ((Task)dispatchCommand.Invoke(null,
+            Func<Task> func = async () => await ((Task)dispatchCommandMethod.Invoke(null,
                new[]
                 {
                     _settings.HandlerResolver, commandId, user, command, cancellationToken
                 })).NotOnCapturedContext();
 
-            var response = await act.ExecuteWithExceptionHandling_ThisIsToBeReplaced(_settings.ExceptionToModelConverter, _settings.Serializer) 
+            HttpResponseMessage response = await func
+                .ExecuteWithExceptionHandling_ThisIsToBeReplaced(_settings.ExceptionToModelConverter, _settings.Serializer) 
                 ?? new HttpResponseMessage(HttpStatusCode.Accepted);
 
             return response;

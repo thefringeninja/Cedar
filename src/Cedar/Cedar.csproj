@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;TINYIOC_INTERNAL</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Cedar.xml</DocumentationFile>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;TINYIOC_INTERNAL</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Cedar.xml</DocumentationFile>
@@ -82,8 +82,10 @@
     <Compile Include="App_Packages\LibOwin.1.0\LibOwin.cs" />
     <Compile Include="Commands\CommandController.cs" />
     <Compile Include="Commands\CommandHandlerModule.cs" />
+    <Compile Include="Commands\CommandHandlerResolver.cs" />
     <Compile Include="Commands\CommandHandlingSettings.cs" />
     <Compile Include="Commands\CommandTypeResolvers.cs" />
+    <Compile Include="Commands\CommandHandlerRegistration.cs" />
     <Compile Include="Commands\ICommandHandlerResolver.cs" />
     <Compile Include="TypeResolution\IParsedMediaType.cs" />
     <Compile Include="TypeResolution\ITypeResolver.cs" />

@@ -37,7 +37,9 @@
 
             var settings = new HandlerSettings(queryHandlerModule, requestTypeResolver);
 
-            var commandHandlingSettings = new CommandHandlingSettings(commandHandlerModule, typeResolver);
+            var commandHandlerResolver = new CommandHandlerResolver(commandHandlerModule);
+
+            var commandHandlingSettings = new CommandHandlingSettings(commandHandlerResolver, typeResolver);
 
             var commitDispatcherFailed = new TaskCompletionSource<Exception>();
 
