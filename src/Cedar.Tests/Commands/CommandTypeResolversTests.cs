@@ -1,29 +1,70 @@
-﻿namespace Cedar.Commands
+﻿ // ReSharper disable once CheckNamespace
+namespace Cedar.Commands.CommandTypeResolversTests
 {
-    using Cedar.Commands.Fixtures;
+    using System;
     using FluentAssertions;
-    using Xunit;
+    using Xunit.Extensions;
 
-    public class CommandTypeResolversTests
+    public class FullNameWithUnderscoreVersionSuffixTests
     {
-        [Fact]
-        public void Can_resolve_type_without_version()
+        [Theory]
+        [InlineData(typeof(TestCommand), "cedar.commands.CommandTypeResolversTests.testcommand", null)]
+        [InlineData(typeof(TestCommand), "cedar.commands.commandtyperesolverstests.testcommand", null)]
+        [InlineData(typeof(TestCommand_v2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        [InlineData(typeof(TestCommand_V2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        public void Should_resolve_command(Type commandType, string commandName, int? version)
         {
-            var sut = CommandTypeResolvers.FullNameWithVersionSuffix(new[] { typeof(TestCommand), typeof(TestCommand_v2) });
+            var sut = CommandTypeResolvers.FullNameWithUnderscoreVersionSuffix(new[] { commandType });
 
-            var type = sut("cedar.commands.fixtures.testcommand", null);
+            var type = sut(commandName, version);
 
-            type.Should().Be<TestCommand>();
-        }
-
-        [Fact]
-        public void Can_resolve_type_with_version()
-        {
-            var sut = CommandTypeResolvers.FullNameWithVersionSuffix(new[] { typeof(TestCommand), typeof(TestCommand_v2) });
-
-            var type = sut("cedar.commands.fixtures.testcommand", 2);
-
-            type.Should().Be<TestCommand_v2>();
+            type.Should().Be(commandType);
         }
     }
+
+    public class FullNameWithVersionSuffixTests
+    {
+        [Theory]
+        [InlineData(typeof(TestCommand), "cedar.commands.CommandTypeResolversTests.testcommand", null)]
+        [InlineData(typeof(TestCommand), "cedar.commands.commandtyperesolverstests.testcommand", null)]
+        [InlineData(typeof(TestCommandv2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        [InlineData(typeof(TestCommandV2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        public void Should_resolve_command(Type commandType, string commandName, int? version)
+        {
+            var sut = CommandTypeResolvers.FullNameWithVersionSuffix(new[] { commandType });
+
+            var type = sut(commandName, version);
+
+            type.Should().Be(commandType);
+        }
+    }
+
+    public class AllTests
+    {
+        [Theory]
+        [InlineData(typeof(TestCommand), "cedar.commands.CommandTypeResolversTests.testcommand", null)]
+        [InlineData(typeof(TestCommand), "cedar.commands.commandtyperesolverstests.testcommand", null)]
+        [InlineData(typeof(TestCommand_v2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        [InlineData(typeof(TestCommand_V2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        [InlineData(typeof(TestCommandv2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        [InlineData(typeof(TestCommandV2), "cedar.commands.commandtyperesolverstests.testcommand", 2)]
+        public void Should_resolve_command(Type commandType, string commandName, int? version)
+        {
+            var sut = CommandTypeResolvers.All(new[] { commandType });
+
+            var type = sut(commandName, version);
+
+            type.Should().Be(commandType);
+        }
+    }
+
+    public class TestCommand { }
+
+    public class TestCommand_v2 { }
+
+    public class TestCommand_V2 { }
+
+    public class TestCommandv2 { }
+
+    public class TestCommandV2 { }
 }
