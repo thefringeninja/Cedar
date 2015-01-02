@@ -3,7 +3,7 @@ namespace Cedar.Commands
     using System;
 
     /// <summary>
-    ///     A delegate to try to resolve a <see cref="Type"/> from a command name and optional version.
+    ///     A delegate to resolve a <see cref="Type"/> from a command name and optional version.
     /// </summary>
     /// <param name="commandName">The command name.</param>
     /// <param name="version">The version of the command.</param>

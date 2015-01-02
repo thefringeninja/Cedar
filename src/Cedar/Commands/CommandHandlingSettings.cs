@@ -15,7 +15,7 @@ namespace Cedar.Commands
 
         private readonly ICommandHandlerResolver _handlerResolver;
         private readonly ResolveCommandType _resolveCommandType;
-        private ISerializer _serializer;
+        private ResolveSerializer _resolveSerializer;
         private IExceptionToModelConverter _exceptionToModelConverter;
         private ParseMediaType _parseMediaType = MediaTypeParsers.AllCombined;
 
@@ -25,7 +25,6 @@ namespace Cedar.Commands
         ///     <see cref="CommandTypeResolvers.FullNameWithUnderscoreVersionSuffix"/> as the command type resolver.
         /// </summary>
         /// <param name="handlerResolver">The handler resolver.</param>
-        /// <param name="knownCommandTypes">The known command types.</param>
         public CommandHandlingSettings([NotNull] CommandHandlerResolver handlerResolver)
             : this(handlerResolver, handlerResolver.KnownCommandTypes)
         { } 
@@ -64,13 +63,13 @@ namespace Cedar.Commands
             get { return _handlerResolver; }
         }
 
-        public ISerializer Serializer //TODO Needs to be a collection serializers for content negotiation.
+        public ResolveSerializer ResolveSerializer
         {
-            get { return _serializer ?? DefaultSerializer; }
+            get { return _resolveSerializer ?? SerializationResolvers.Default(); }
             set
             {
                 Condition.Requires(value, "value").IsNotNull();
-                _serializer = value;
+                _resolveSerializer = value;
             }
         }
 

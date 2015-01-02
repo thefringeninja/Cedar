@@ -11,6 +11,7 @@ namespace Cedar.Commands
     using System.Web.Http;
     using Cedar.Annotations;
     using Cedar.ExceptionModels;
+    using Cedar.Serialization;
     using Cedar.TypeResolution;
 
     internal class CommandController : ApiController
@@ -29,8 +30,11 @@ namespace Cedar.Commands
         [HttpPut]
         public async Task<HttpResponseMessage> PutCommand(Guid commandId, CancellationToken cancellationToken)
         {
-            Type commandType = GetCommandType();
-            object command = await DeserializeCommand(commandType);
+            IParsedMediaType parsedMediaType = ParseMediaType();
+            Type commandType = ResolveCommandType(parsedMediaType);
+            ISerializer serializer = ResolveSerializer(parsedMediaType.SerializationType);
+
+            object command = await DeserializeCommand(commandType, serializer);
             var user = (User as ClaimsPrincipal) ?? new ClaimsPrincipal(new ClaimsIdentity());
             MethodInfo dispatchCommandMethod = DispatchCommandMethodInfo.MakeGenericMethod(command.GetType());
 
@@ -41,13 +45,15 @@ namespace Cedar.Commands
                 })).NotOnCapturedContext();
 
             HttpResponseMessage response = await func
-                .ExecuteWithExceptionHandling_ThisIsToBeReplaced(_settings.ExceptionToModelConverter, _settings.Serializer) 
+                .ExecuteWithExceptionHandling_ThisIsToBeReplaced(
+                    _settings.ExceptionToModelConverter,
+                    _settings.ResolveSerializer(parsedMediaType.SerializationType)) 
                 ?? new HttpResponseMessage(HttpStatusCode.Accepted);
 
             return response;
         }
 
-        private Type GetCommandType()
+        private IParsedMediaType ParseMediaType()
         {
             string mediaType = Request.Content.Headers.ContentType.MediaType;
             IParsedMediaType parsedMediaType = _settings.ParseMediaType(mediaType);
@@ -55,21 +61,34 @@ namespace Cedar.Commands
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
+            return parsedMediaType;
+        }
 
+        private ISerializer ResolveSerializer(string serializationType)
+        {
+            var serializer = _settings.ResolveSerializer(serializationType);
+            if(serializer == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
+            }
+            return serializer;
+        }
+
+        private Type ResolveCommandType(IParsedMediaType parsedMediaType)
+        {
             Type commandType = _settings.ResolveCommandType(parsedMediaType.TypeName, parsedMediaType.Version);
             if (commandType == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
-
             return commandType;
         }
 
-        private async Task<object> DeserializeCommand(Type commandType)
+        private async Task<object> DeserializeCommand(Type commandType, ISerializer serializer)
         {
             using (var streamReader = new StreamReader(await Request.Content.ReadAsStreamAsync()))
             {
-                return _settings.Serializer.Deserialize(streamReader, commandType);
+                return serializer.Deserialize(streamReader, commandType);
             }
         }
 
