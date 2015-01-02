@@ -9,6 +9,7 @@
     using Cedar.Commands.Fixtures;
     using FluentAssertions;
     using Xunit;
+    using Xunit.Extensions;
 
     public class CommandHandlingTests : IUseFixture<CommandHandlingFixture>
     {
@@ -52,8 +53,10 @@
             }
         }
 
-        [Fact]
-        public async Task When_request_is_not_json_then_should_get_Unsupported_Media_Type()
+        [Theory]
+        [InlineData("text/html")]
+        [InlineData("text/html+unsupported")]
+        public async Task When_request_MediaType_does_not_have_a_valid_serialization_then_should_get_Unsupported_Media_Type(string mediaType)
         {
             using (var client = _fixture.CreateHttpClient())
             {
@@ -63,7 +66,7 @@
                 {
                     Content = new StringContent("text")
                 };
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
                 var response = await client.SendAsync(request);
 
                 response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
