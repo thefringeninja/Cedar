@@ -1,5 +1,7 @@
 namespace Cedar.Domain
 {
+    using System;
+
     internal static class AggregateExtensions
     {
         public static void ThrowHandlerNotFound(this IAggregate aggregate, object eventMessage)

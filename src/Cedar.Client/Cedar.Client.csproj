@@ -58,7 +58,7 @@
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />
     <Compile Include="IMessageExecutionSettings.cs" />
     <Compile Include="Queries\Client\QueryExecutionSettings.cs" />
-    <Compile Include="StringExtensions.cs" />
+    <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="ExceptionModels\Client\TypeSwitch.cs" />
     <Compile Include="ExceptionModels\Client\ArgumentExceptionModel.cs" />
     <Compile Include="ExceptionModels\Client\ArgumentNullExceptionModel.cs" />
