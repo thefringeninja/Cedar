@@ -75,7 +75,7 @@
                 return this;
             }
 
-            public void Handle(Handler<TMessage> handler)
+            public Handler<TMessage> Handle(Handler<TMessage> handler)
             {
                 _handler = handler;
 
@@ -84,6 +84,7 @@
                     var handlerMiddleware = _middlewares.Pop();
                     _handler = handlerMiddleware(_handler);
                 }
+                return _handler;
             }
         }
     }

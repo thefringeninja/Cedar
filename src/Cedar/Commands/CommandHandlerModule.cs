@@ -44,7 +44,7 @@
                 return this;
             }
 
-            public void Handle(Handler<CommandMessage<TCommand>> handler)
+            public Handler<CommandMessage<TCommand>> Handle(Handler<CommandMessage<TCommand>> handler)
             {
                 while(_pipes.Count > 0)
                 {
@@ -58,6 +58,7 @@
                     typeof(TCommand),
                     registrationType,
                     handler));
+                return handler;
             }
         }
     }

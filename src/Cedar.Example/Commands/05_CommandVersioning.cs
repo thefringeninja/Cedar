@@ -47,7 +47,10 @@ namespace Cedar.Example.Commands.CommandVersioning
             For<CreateTShirtV1>()
                 .Handle((_, __) => { throw new NotSupportedException(); }); // 2. No longer support V1
 
-            For<CreateTShirtV2>()  // 3. Here we upconvert V2 to a V3 
+            var createTShirtV3Handler = For<CreateTShirtV3>() // 3. Here we keep a reference to the V3 handler...
+                .Handle((commandMessage, ct) => Task.FromResult(0));
+
+            For<CreateTShirtV2>() 
                 .Handle((commandMessage, ct) =>
                 {
                     var command = new CreateTShirtV3
@@ -60,16 +63,8 @@ namespace Cedar.Example.Commands.CommandVersioning
                         commandMessage.CommandId,
                         commandMessage.User,
                         command);
-                    return HandleCreateTShirtV3(upconvertedCommand, ct);
+                    return createTShirtV3Handler(upconvertedCommand, ct); // 4. ... and invoke it here
                 });
-
-            For<CreateTShirtV3>()
-                .Handle(HandleCreateTShirtV3);
-        }
-
-        private Task HandleCreateTShirtV3(CommandMessage<CreateTShirtV3> message, CancellationToken ct)
-        {
-            return Task.FromResult(0);
         }
     }
 }

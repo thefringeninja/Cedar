@@ -17,7 +17,7 @@
         /// Handles the message and is the last stage in a handler pipeline.
         /// </summary>
         /// <param name="handler">The handler.</param>
-        /// <returns>A <see cref="ICreateHandlerBuilder"/> to allow you to optionally define more pipelines and handlers.</returns>
-        void Handle(Handler<TMessage> handler);
+        /// <returns>A <see cref="Handler{TMessage}"/>.</returns>
+        Handler<TMessage> Handle(Handler<TMessage> handler);
     }
 }
