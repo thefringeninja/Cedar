@@ -102,7 +102,6 @@
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
     <Compile Include="TinyIoC.cs" />
-    <Compile Include="TypeResolution\CedarRequest.cs" />
     <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="HandlerSettings.cs" />
@@ -159,10 +158,6 @@
     <Compile Include="ProcessManagers\ProcessHandler.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\HandlerModuleExtensions.cs" />
-    <Compile Include="Queries\QueryHandlerModule.cs" />
-    <Compile Include="Queries\QueryHandlingMiddleware.cs" />
-    <Compile Include="Queries\QueryMessage.cs" />
     <Compile Include="TypeResolution\MediaTypeParsers.cs" />
     <Compile Include="TypeResolution\RequestTypeMappingStrategies.cs" />
     <Compile Include="TypeResolution\ParseMediaType.cs" />

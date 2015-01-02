@@ -4,7 +4,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Cedar.Handlers;
-    using Cedar.Queries;
     using Xunit;
 
     public class QueryTests
@@ -12,9 +11,9 @@
         [Fact]
         public async Task a_passing_query_test_should()
         {
-            var result = await Scenario.ForQuery<Query, QueryResponse>(new SomeModule())
+            var result = await Scenario.ForQuery<QueryResponse>(new SomeModule())
                 .Given(new SomethingHappened(), new SomethingHappened())
-                .When(new Query())
+                .When(() => Task.FromResult(new QueryResponse {Value = 2}))
                 .ThenShouldEqual(new QueryResponse {Value = 2});
 
             Assert.True(result.Passed);
@@ -23,44 +22,38 @@
         [Fact]
         public async Task a_failing_query_test_should()
         {
-            var result = await Scenario.ForQuery<Query, QueryResponse>(new SomeModule())
+            var result = await Scenario.ForQuery<QueryResponse>(new SomeModule())
                 .Given(new SomethingHappened())
-                .When(new Query())
+                .When(() => Task.FromResult(new QueryResponse { Value = 1 }))
                 .ThenShouldEqual(new QueryResponse { Value = 2 });
 
             Assert.False(result.Passed);
         }
         
-        class SomeModule : IHandlerResolver
+        private class SomeModule : IHandlerResolver
         {
             private readonly IHandlerResolver[] _inner;
 
             public SomeModule()
             {
-                var queries = new SomeQueryHandler();
+                var queries = new ReadModel();
                 var projections = new SomeProjection(queries);
                 _inner = new IHandlerResolver[]
                 {
-                    queries, projections
+                    projections
                 };
             }
-            class SomeQueryHandler : QueryHandlerModule
+            private class ReadModel
             {
-                public int count;
-
-                public SomeQueryHandler()
-                {
-                    For<Query, QueryResponse>()
-                        .HandleQuery((query, token) => Task.FromResult(new QueryResponse {Value = count}));
-                }
+                public int Count;
             }
 
-            class SomeProjection : HandlerModule
+            private class SomeProjection : HandlerModule
             {
-                public SomeProjection(SomeQueryHandler readModel)
+                public SomeProjection(ReadModel readModel)
                 {
                     For<DomainEventMessage<SomethingHappened>>()
-                        .Handle(_ => readModel.count++);
+                        .Handle(_ => readModel.Count++);
                 }
             }
 
@@ -72,13 +65,13 @@
             }
         }
 
-        class SomethingHappened { }
+        private class SomethingHappened
+        {}
 
-        class Query
-        {
-        }
+        private class Query
+        {}
 
-        class QueryResponse
+        private class QueryResponse
         {
             public int Value { get; set; }
         }

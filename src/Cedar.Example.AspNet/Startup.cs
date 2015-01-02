@@ -20,7 +20,6 @@ namespace Cedar.Example.AspNet
             }
 
             app.Use(App.Instance.CommandingMiddleWare);
-            app.Use(App.Instance.QueryingMiddleWare);
         }
     }
 }

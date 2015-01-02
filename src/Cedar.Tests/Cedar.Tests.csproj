@@ -114,8 +114,6 @@
     <Compile Include="MessageEqualityComparerTests.cs" />
     <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />
     <Compile Include="Commands\CommandHandlingTests.cs" />
-    <Compile Include="Queries\Fixtures\TestQueryWhichReturnsNull.cs" />
-    <Compile Include="Queries\Fixtures\TestQueryWithNoReturnType.cs" />
     <Compile Include="TaskExtensionsTests.cs" />
     <Compile Include="Testing\AggregateTests.cs" />
     <Compile Include="Testing\EnumerableTests.cs" />
@@ -123,7 +121,6 @@
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
     <Compile Include="TypeResolution\MediaTypeParsersTests.cs" />
-    <Compile Include="TypeResolution\TypeResolverTests.cs" />
     <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolverTests.cs" />
     <Compile Include="Commands\ExceptionToModelConverterTests.cs" />
     <Compile Include="Commands\Fixtures\CommandHandlingFixture.cs" />
@@ -135,14 +132,6 @@
     <Compile Include="Handlers\TransientExceptionRetryPolicyTests.cs" />
     <Compile Include="Handlers\DurableCommitDispatcherTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Queries\QueryHandlingTests.cs" />
-    <Compile Include="Queries\Fixtures\QueryHandlingFixture.cs" />
-    <Compile Include="Queries\Fixtures\TestQuery.cs" />
-    <Compile Include="Queries\Fixtures\TestQueryResponse.cs" />
-    <Compile Include="Queries\Fixtures\TestQueryWhoseHandlerThrows.cs" />
-    <Compile Include="Queries\Fixtures\TestQueryWithoutHandler.cs" />
-    <Compile Include="Queries\Fixtures\TestMessageHandlerModule.cs" />
-    <Compile Include="TypeResolution\TypeResolverVersioningTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

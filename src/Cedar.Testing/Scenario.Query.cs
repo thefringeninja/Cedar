@@ -6,29 +6,27 @@
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Handlers;
-    using Cedar.Queries;
 
     public static partial class Scenario
     {
-        public static Query.IGiven<TInput, TOutput> ForQuery<TInput, TOutput>(IHandlerResolver module, [CallerMemberName] string scenarioName = null)
+        public static Query.IGiven<TOutput> ForQuery<TOutput>(IHandlerResolver module, [CallerMemberName] string scenarioName = null)
         {
-            return new Query.ScenarioBuilder<TInput, TOutput>(module, scenarioName);
+            return new Query.ScenarioBuilder<TOutput>(module, scenarioName);
         }
 
         public static class Query
         {
-            public interface IGiven<TInput, TOutput> : IWhen<TInput, TOutput>
+            public interface IGiven<TOutput> : IWhen<TOutput>
             {
-                IWhen<TInput, TOutput> Given(params object[] events);
+                IWhen<TOutput> Given(params object[] events);
             }
 
-            public interface IWhen<TInput, TOutput> : IThen<TOutput>
+            public interface IWhen<TOutput> : IThen<TOutput>
             {
-                IThen<TOutput> When(TInput input);
+                IThen<TOutput> When(Func<Task<TOutput>> performQuery);
             }
 
             public interface IThen<TOutput> : IScenario
@@ -36,7 +34,7 @@
                 IThen<TOutput> ThenShouldEqual(TOutput output);
             }
 
-            internal class ScenarioBuilder<TInput, TOutput> : IGiven<TInput, TOutput>
+            internal class ScenarioBuilder<TOutput> : IGiven<TOutput>
             {
                 private static readonly MethodInfo DispatchDomainEventMethod;
 
@@ -44,7 +42,7 @@
                 private readonly string _name;
                 private bool _passed;
                 private object[] _given;
-                private TInput _when;
+                private Func<Task<TOutput>> _when;
                 private TOutput _expect;
                 private object _results;
                 private readonly Func<Task> _runGiven;
@@ -77,10 +75,7 @@
                     };
                     _runWhen = async () =>
                     {
-                        _results = await module.DispatchQuery<TInput, TOutput>(Guid.NewGuid(),
-                            new ClaimsPrincipal(),
-                            _when,
-                            new CancellationToken());
+                        _results = await _when();
                     };
                     _runThen = () =>
                     {
@@ -100,14 +95,14 @@
                     return this;
                 }
 
-                public IThen<TOutput> When(TInput input)
+                public IThen<TOutput> When(Func<Task<TOutput>> performQuery)
                 {
-                    _when = input;
+                    _when = performQuery;
 
                     return this;
                 }
 
-                public IWhen<TInput, TOutput> Given(params object[] events)
+                public IWhen<TOutput> Given(params object[] events)
                 {
                     _given = events;
 
@@ -173,7 +168,7 @@
                     return scenario.Run().GetAwaiter();
                 }
 
-                public static implicit operator ScenarioResult(ScenarioBuilder<TInput, TOutput> builder)
+                public static implicit operator ScenarioResult(ScenarioBuilder<TOutput> builder)
                 {
                     return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._results, builder._timer.Elapsed);
                 }
