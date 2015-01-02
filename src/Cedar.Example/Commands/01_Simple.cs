@@ -1,7 +1,13 @@
-﻿namespace Cedar.Example.Commands
+﻿/*
+ * Simplest example of wiring up a command, it's handler and the command
+ * handling middleware
+ */
+
+
+// ReSharper disable once CheckNamespace
+namespace Cedar.Example.Commands.Simple
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Cedar.Commands;
 
