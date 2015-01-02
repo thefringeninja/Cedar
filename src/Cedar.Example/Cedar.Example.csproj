@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{FB2353F1-8A9A-4BDF-83C9-D32F15557030}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cedar.Example</RootNamespace>
     <AssemblyName>Cedar.Example</AssemblyName>
@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -57,6 +60,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Commands\01_Simple.cs" />
     <Compile Include="CommandVersioning\CommandVersioningHandlerModule.cs" />
     <Compile Include="CommandVersioning\CreateTShirt.cs" />
     <Compile Include="CommandVersioning\CreateTShirtV2.cs" />
@@ -64,10 +68,9 @@
     <Compile Include="CommandVersioning\CreateTShirtV4.cs" />
     <Compile Include="CommandVersioning\TShirtCreatedV4.cs" />
     <Compile Include="Handlers\DomainCommandHandlerModule.cs" />
-    <Compile Include="Handlers\IHandlerBuilderExtensons.cs" />
+    <Compile Include="Handlers\IHandlerBuilderExtensions.cs" />
     <Compile Include="IEventPublisher.cs" />
     <Compile Include="ObservableMessagePublisher.cs" />
-    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
