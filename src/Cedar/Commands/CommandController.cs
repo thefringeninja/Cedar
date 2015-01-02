@@ -10,9 +10,9 @@ namespace Cedar.Commands
     using System.Threading.Tasks;
     using System.Web.Http;
     using Cedar.Annotations;
+    using Cedar.Commands.TypeResolution;
     using Cedar.ExceptionModels;
     using Cedar.Serialization;
-    using Cedar.TypeResolution;
 
     internal class CommandController : ApiController
     {

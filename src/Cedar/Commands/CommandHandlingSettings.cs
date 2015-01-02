@@ -3,9 +3,9 @@ namespace Cedar.Commands
     using System;
     using System.Collections.Generic;
     using Cedar.Annotations;
+    using Cedar.Commands.TypeResolution;
     using Cedar.ExceptionModels;
     using Cedar.Serialization;
-    using Cedar.TypeResolution;
     using CuttingEdge.Conditions;
 
     public class CommandHandlingSettings
