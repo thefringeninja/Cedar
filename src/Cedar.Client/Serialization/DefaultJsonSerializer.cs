@@ -3,14 +3,20 @@
     using System;
     using System.IO;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Serialization;
 
     internal class DefaultJsonSerializer : ISerializer
     {
+        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            TypeNameHandling = TypeNameHandling.None
+        };
         private readonly JsonSerializer _jsonSerializer;
 
         internal DefaultJsonSerializer()
         {
-            _jsonSerializer = JsonSerializer.Create(DefaultJsonSerializerSettings.Settings);
+            _jsonSerializer = JsonSerializer.Create(Settings);
         }
 
         public object Deserialize(TextReader reader, Type type)

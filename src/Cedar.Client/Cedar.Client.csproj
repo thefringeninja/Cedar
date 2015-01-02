@@ -55,7 +55,6 @@
     <Compile Include="ExceptionModels\Client\IModelToExceptionConverter.cs" />
     <Compile Include="ExceptionModels\Client\ModelToExceptionConverter.cs" />
     <Compile Include="MessageExecutionSettings.cs" />
-    <Compile Include="Serialization\DefaultJsonSerializerSettings.cs" />
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />
     <Compile Include="IMessageExecutionSettings.cs" />
     <Compile Include="Queries\Client\QueryExecutionSettings.cs" />
