@@ -93,7 +93,6 @@
     <Compile Include="ExceptionModels\ExceptionHandlingExtensionsTempWebApi.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
     <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
-    <Compile Include="Handlers\EventHandled.cs" />
     <Compile Include="Handlers\HandlerBuilderExtensions.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
     <Compile Include="ProcessManagers\IProcessManagerCheckpointRepository.cs" />
