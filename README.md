@@ -5,6 +5,6 @@ Cedar
 
 An opinionated suite of components to help build CQRS/Event Sourced/Domain Driven Design applications.
 
-Currently a work in progress. See wiki for more information.
+Currently a work-in-progress. See wiki for more information.
 
 [CI Feed](https://www.myget.org/F/dh/)
