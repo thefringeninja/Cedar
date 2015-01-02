@@ -60,6 +60,9 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Commands\04_CommandTypeResolution.cs" />
+    <Compile Include="Commands\02_Piping.cs" />
+    <Compile Include="Commands\03_PipingExtensions.cs" />
     <Compile Include="Commands\01_Simple.cs" />
     <Compile Include="CommandVersioning\CommandVersioningHandlerModule.cs" />
     <Compile Include="CommandVersioning\CreateTShirt.cs" />

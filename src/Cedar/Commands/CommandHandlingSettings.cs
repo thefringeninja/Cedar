@@ -14,10 +14,10 @@ namespace Cedar.Commands
         private static readonly IExceptionToModelConverter DefaultExceptionToModelConverter = new ExceptionToModelConverter();
 
         private readonly ICommandHandlerResolver _handlerResolver;
-        private readonly ResolveCommandType _commandTypeResolver;
+        private readonly ResolveCommandType _resolveCommandType;
         private ISerializer _serializer;
         private IExceptionToModelConverter _exceptionToModelConverter;
-        private ParseMediaType _mediaTypeParser = MediaTypeParsers.AllCombined;
+        private ParseMediaType _parseMediaType = MediaTypeParsers.AllCombined;
 
 
         /// <summary>
@@ -44,13 +44,13 @@ namespace Cedar.Commands
 
         public CommandHandlingSettings(
             [NotNull] ICommandHandlerResolver handlerResolver,
-            [NotNull] ResolveCommandType commandTypeResolver)
+            [NotNull] ResolveCommandType resolveCommandType)
         {
             Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
-            Condition.Requires(commandTypeResolver, "commandTypeResolver").IsNotNull();
+            Condition.Requires(resolveCommandType, "ResolveCommandType").IsNotNull();
 
             _handlerResolver = handlerResolver;
-            _commandTypeResolver = commandTypeResolver;
+            _resolveCommandType = resolveCommandType;
         }
 
         public IExceptionToModelConverter ExceptionToModelConverter
@@ -74,18 +74,18 @@ namespace Cedar.Commands
             }
         }
 
-        public ResolveCommandType CommandTypeResolver
+        public ResolveCommandType ResolveCommandType
         {
-            get { return _commandTypeResolver; }
+            get { return _resolveCommandType; }
         }
 
-        public ParseMediaType MediaTypeParser
+        public ParseMediaType ParseMediaType
         {
-            get { return _mediaTypeParser; }
+            get { return _parseMediaType; }
             set
             {
                 Condition.Requires(value, "value").IsNotNull();
-                _mediaTypeParser = value;
+                _parseMediaType = value;
             }
         }
     }

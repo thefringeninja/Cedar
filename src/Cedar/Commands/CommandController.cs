@@ -50,13 +50,13 @@ namespace Cedar.Commands
         private Type GetCommandType()
         {
             string mediaType = Request.Content.Headers.ContentType.MediaType;
-            IParsedMediaType parsedMediaType = _settings.MediaTypeParser(mediaType);
+            IParsedMediaType parsedMediaType = _settings.ParseMediaType(mediaType);
             if (parsedMediaType == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);
             }
 
-            Type commandType = _settings.CommandTypeResolver(parsedMediaType.TypeName, parsedMediaType.Version);
+            Type commandType = _settings.ResolveCommandType(parsedMediaType.TypeName, parsedMediaType.Version);
             if (commandType == null)
             {
                 throw new HttpResponseException(HttpStatusCode.UnsupportedMediaType);

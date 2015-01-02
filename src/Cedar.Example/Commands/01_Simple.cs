@@ -3,7 +3,6 @@
  * handling middleware
  */
 
-
 // ReSharper disable once CheckNamespace
 namespace Cedar.Example.Commands.Simple
 {
