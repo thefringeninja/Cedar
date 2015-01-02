@@ -121,7 +121,6 @@
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
     <Compile Include="TypeResolution\MediaTypeParsersTests.cs" />
-    <Compile Include="Commands\DefaultCommandTypeFromContentTypeResolverTests.cs" />
     <Compile Include="Commands\ExceptionToModelConverterTests.cs" />
     <Compile Include="Commands\Fixtures\CommandHandlingFixture.cs" />
     <Compile Include="Commands\Fixtures\TestCommand.cs" />

@@ -1,6 +1,7 @@
 namespace Cedar.TypeResolution
 {
     using Cedar.Annotations;
+    using Cedar.Commands.TypeResolution;
     using FluentAssertions;
     using Xunit;
 

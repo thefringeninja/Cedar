@@ -33,6 +33,7 @@ namespace Cedar.Example.Commands.CommandTypeResolution
     using System.Linq;
     using System.Threading.Tasks;
     using Cedar.Commands;
+    using Cedar.Commands.TypeResolution;
 
     public class MyCommandModule : CommandHandlerModule
     {

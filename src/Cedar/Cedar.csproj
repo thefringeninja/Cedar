@@ -102,9 +102,7 @@
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
     <Compile Include="TinyIoC.cs" />
-    <Compile Include="TypeResolution\IRequest.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
-    <Compile Include="HandlerSettings.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
     <Compile Include="Handlers\HandlerModule.cs" />
@@ -116,8 +114,7 @@
     </Compile>
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
-    <Compile Include="ExceptionModels\ExceptionHandlingExtensions.cs" />
-    <Compile Include="HttpStatusException.cs" />
+    <Compile Include="ExceptionModels\HttpStatusException.cs" />
     <Compile Include="Internal\InterlockedBoolean.cs" />
     <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
@@ -127,9 +124,7 @@
     <Compile Include="ProcessManagers\Messages\ProcessCompleted.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
-    <Compile Include="TypeResolution\DefaultRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\ExceptionToModelConverter.cs" />
-    <Compile Include="TypeResolution\IRequestTypeResolver.cs" />
     <Compile Include="ExceptionModels\IExceptionToModelConverter.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
@@ -159,11 +154,9 @@
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TypeResolution\MediaTypeParsers.cs" />
-    <Compile Include="TypeResolution\RequestTypeMappingStrategies.cs" />
     <Compile Include="TypeResolution\ParseMediaType.cs" />
     <Compile Include="TypeResolution\ParsedMediaType.cs" />
     <Compile Include="Commands\ResolveCommandType.cs" />
-    <Compile Include="TypeResolution\TypeNameAndVersionOld.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -4,6 +4,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Commands;
+    using Cedar.Commands.TypeResolution;
     using Cedar.Handlers;
     using Cedar.NEventStore.Handlers;
     using Cedar.NEventStore.Handlers.TempImportFromNES;

@@ -1,4 +1,4 @@
-﻿namespace Cedar
+﻿namespace Cedar.ExceptionModels
 {
     using System;
     using System.Net;

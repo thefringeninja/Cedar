@@ -1,7 +1,7 @@
 ﻿namespace Cedar.Commands
 {
     using System;
-    using Cedar.TypeResolution;
+    using Cedar.Commands.TypeResolution;
     using FakeItEasy;
     using FluentAssertions;
     using Xunit;

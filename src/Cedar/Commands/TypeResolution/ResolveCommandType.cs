@@ -1,4 +1,4 @@
-namespace Cedar.Commands
+namespace Cedar.Commands.TypeResolution
 {
     using System;
 
