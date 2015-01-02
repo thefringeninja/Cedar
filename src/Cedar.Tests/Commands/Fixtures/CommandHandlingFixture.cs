@@ -4,7 +4,7 @@ namespace Cedar.Commands.Fixtures
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
-    using Cedar.LibOwin;
+    using Microsoft.Owin;
 
     public class CommandHandlingFixture
     {
