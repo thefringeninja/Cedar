@@ -5,8 +5,6 @@
 
     public interface IMessageExecutionSettings
     {
-        string Vendor { get; }
-
         IModelToExceptionConverter ModelToExceptionConverter { get; }
 
         string Path { get; }

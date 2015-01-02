@@ -10,6 +10,8 @@ namespace Cedar.Queries.Client
 
     public static class HttpClientExtensions
     {
+        private const string MediaTypeTemplate = "application/vnd.{0}+json";
+
         public static async Task<TOutput> ExecuteQuery<TInput, TOutput>(this HttpClient client, TInput input, Guid queryId, IMessageExecutionSettings settings, Func<object, Type, Type, IMessageExecutionSettings, HttpRequestMessage> getRequest = null)
         {
             getRequest = getRequest ?? GetRequestFromBody;
@@ -31,8 +33,7 @@ namespace Cedar.Queries.Client
                 string queryJson = settings.Serializer.Serialize(input);
                 var httpContent = new StringContent(queryJson);
                 httpContent.Headers.ContentType =
-                    MediaTypeHeaderValue.Parse(
-                        "application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, inputType.Name).ToLower());
+                    MediaTypeHeaderValue.Parse(MediaTypeTemplate.FormatWith(inputType.Name).ToLower());
 
                 var request = new HttpRequestMessage(HttpMethod.Get,
                     settings.Path + "/{0}".FormatWith(inputType.Name).ToLower())
@@ -40,8 +41,7 @@ namespace Cedar.Queries.Client
                     Content = httpContent,
                 };
 
-                request.Headers.Accept.ParseAdd(
-                    "application/vnd.{0}.{1}+json".FormatWith(settings.Vendor, outputType.Name).ToLower());
+                request.Headers.Accept.ParseAdd(MediaTypeTemplate.FormatWith(outputType.Name).ToLower());
 
                 return request;
             };
@@ -53,7 +53,7 @@ namespace Cedar.Queries.Client
                 var httpContent = new StringContent("");
                 httpContent.Headers.ContentType =
                     MediaTypeHeaderValue.Parse(
-                        string.Format("application/vnd.{0}.{1}+json", settings.Vendor, inputType.Name).ToLower());
+                        string.Format(MediaTypeTemplate, inputType.Name).ToLower());
 
                 var request = new HttpRequestMessage(HttpMethod.Get,
                     settings.Path + string.Format("/{0}?{1}", inputType.Name, queryJson).ToLower())
@@ -61,8 +61,7 @@ namespace Cedar.Queries.Client
                     Content = httpContent
                 };
 
-                request.Headers.Accept.ParseAdd(
-                    string.Format("application/vnd.{0}.{1}+json", settings.Vendor, outputType.Name).ToLower());
+                request.Headers.Accept.ParseAdd(MediaTypeTemplate.FormatWith(outputType.Name));
 
                 return request;
             };

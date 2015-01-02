@@ -6,11 +6,10 @@
     public class QueryExecutionSettings : MessageExecutionSettings
     {
         public QueryExecutionSettings(
-            string vendor,
             IModelToExceptionConverter modelToExceptionConverter = null,
             ISerializer serializer = null,
             string path = "query")
-            : base(vendor, modelToExceptionConverter, serializer, path)
+            : base(modelToExceptionConverter, serializer, path)
         { }
     }
 }

@@ -31,7 +31,8 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                Func<Task<TestQueryResponse>> act = () => client.ExecuteQuery<TestQueryWhoseHandlerThrows, TestQueryResponse>(new TestQueryWhoseHandlerThrows(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
+                Func<Task<TestQueryResponse>> act = () => client
+                    .ExecuteQuery<TestQueryWhoseHandlerThrows, TestQueryResponse>(new TestQueryWhoseHandlerThrows(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
 
                 act.ShouldThrow<InvalidOperationException>();
             }
@@ -43,11 +44,11 @@
             using (var client = _fixture.CreateHttpClient())
             {
                 var settings = new QueryExecutionSettings(
-                    _fixture.MessageExecutionSettings.Vendor,
                     _fixture.MessageExecutionSettings.ModelToExceptionConverter,
                     path: "notfoundpath");
 
-                Func<Task<TestQueryResponse>> act = () => client.ExecuteQuery<TestQuery, TestQueryResponse>(new TestQuery(), Guid.NewGuid(), settings);
+                Func<Task<TestQueryResponse>> act = () => client
+                    .ExecuteQuery<TestQuery, TestQueryResponse>(new TestQuery(), Guid.NewGuid(), settings);
 
                 act.ShouldThrow<InvalidOperationException>();
             }

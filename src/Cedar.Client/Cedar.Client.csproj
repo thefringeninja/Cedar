@@ -48,7 +48,6 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="App_Packages\LibLog.1.4\LibLog.cs" />
-    <Compile Include="Commands\Client\CommandExecutionSettings.cs" />
     <Compile Include="Serialization\DefaultJsonSerializer.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\SerializerExtensions.cs" />

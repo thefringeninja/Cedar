@@ -42,8 +42,7 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                var settings = new CommandExecutionSettings(
-                    _fixture.MessageExecutionSettings.Vendor,
+                var settings = new MessageExecutionSettings(
                     _fixture.MessageExecutionSettings.ModelToExceptionConverter,
                     path: "notfoundpath");
 

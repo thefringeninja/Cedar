@@ -24,7 +24,7 @@ namespace Cedar.Queries.Fixtures
                 handlerModule);
             var options = new HandlerSettings(handlerModule, queryTypeFromContentTypeResolver);
             _midFunc = QueryHandlingMiddleware.HandleQueries(options);
-            _messageExecutionSettings = new QueryExecutionSettings(vendor);
+            _messageExecutionSettings = new QueryExecutionSettings();
         }
 
         public MessageExecutionSettings MessageExecutionSettings

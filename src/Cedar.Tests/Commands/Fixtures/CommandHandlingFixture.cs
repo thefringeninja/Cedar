@@ -4,7 +4,6 @@ namespace Cedar.Commands.Fixtures
     using System.Collections.Generic;
     using System.Net.Http;
     using System.Threading.Tasks;
-    using Cedar.Commands.Client;
     using Cedar.LibOwin;
 
     public class CommandHandlingFixture
@@ -14,8 +13,6 @@ namespace Cedar.Commands.Fixtures
 
         public CommandHandlingFixture()
         {
-            const string vendor = "vendor";
-
             var handlerModule = new TestHandlerModule();
 
             var handlerResolver = new CommandHandlerResolver(handlerModule);
@@ -23,7 +20,7 @@ namespace Cedar.Commands.Fixtures
             var commandHandlingSettings = new CommandHandlingSettings(handlerResolver);
 
             _midFunc = CommandHandlingMiddleware.HandleCommands(commandHandlingSettings);
-            _messageExecutionSettings = new CommandExecutionSettings(vendor);
+            _messageExecutionSettings = new MessageExecutionSettings();
         }
 
         public MessageExecutionSettings MessageExecutionSettings
