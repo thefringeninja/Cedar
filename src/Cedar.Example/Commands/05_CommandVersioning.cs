@@ -11,7 +11,6 @@
 namespace Cedar.Example.Commands.CommandVersioning
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Commands;
 
