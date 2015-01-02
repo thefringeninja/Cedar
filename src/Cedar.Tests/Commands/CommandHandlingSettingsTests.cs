@@ -36,5 +36,16 @@
 
             sut.ParseMediaType.Should().Be(parseMediaType);
         }
+
+        [Fact]
+        public void Can_set_ResolveSerializer()
+        {
+            var sut = new CommandHandlingSettings(A.Fake<ICommandHandlerResolver>(), A.Fake<ResolveCommandType>());
+            var resolveSerializer = A.Fake<ResolveSerializer>();
+
+            sut.ResolveSerializer = resolveSerializer;
+
+            sut.ResolveSerializer.Should().Be(resolveSerializer);
+        }
     }
 }

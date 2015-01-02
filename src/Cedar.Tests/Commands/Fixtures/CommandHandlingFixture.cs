@@ -20,9 +20,7 @@ namespace Cedar.Commands.Fixtures
 
             var handlerResolver = new CommandHandlerResolver(handlerModule);
 
-            var typeResolver = CommandTypeResolvers.FullNameWithUnderscoreVersionSuffix(handlerResolver.KnownCommandTypes);
-
-            var commandHandlingSettings = new CommandHandlingSettings(handlerResolver, typeResolver);
+            var commandHandlingSettings = new CommandHandlingSettings(handlerResolver);
 
             _midFunc = CommandHandlingMiddleware.HandleCommands(commandHandlingSettings);
             _messageExecutionSettings = new CommandExecutionSettings(vendor);
