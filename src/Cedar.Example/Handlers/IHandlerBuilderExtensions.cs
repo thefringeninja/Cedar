@@ -6,7 +6,7 @@ namespace Cedar.Example.Handlers
     using Cedar.Commands;
     using Cedar.Handlers;
 
-    internal static class IHandlerBuilderExtensons
+    internal static class IHandlerBuilderExtensions
     {
         internal static IHandlerBuilder<TMessage> LogExceptions<TMessage>(this IHandlerBuilder<TMessage> handleBuilder) where TMessage : class
         {
