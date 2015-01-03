@@ -20,7 +20,7 @@ namespace Cedar.ProcessManagers
     public static class ProcessHandler
     {
         public static ProcessHandler<TProcess, TCheckpoint> For<TProcess, TCheckpoint>(
-            ICommandHandlerResolver commandDispatcher,
+            ICommandHandlerResolver commandDispatcher, //TODO Process manager should use HttpClient to invoke commands like a user
             ClaimsPrincipal principal,
             IProcessManagerCheckpointRepository<TCheckpoint> checkpointRepository,
             IProcessManagerFactory processManagerFactory = null,
