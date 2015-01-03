@@ -20,7 +20,7 @@ namespace Cedar.ProcessManagers
     public static class ProcessHandler
     {
         public static ProcessHandler<TProcess, TCheckpoint> For<TProcess, TCheckpoint>(
-            IHandlerResolver commandDispatcher,
+            ICommandHandlerResolver commandDispatcher,
             ClaimsPrincipal principal,
             IProcessManagerCheckpointRepository<TCheckpoint> checkpointRepository,
             IProcessManagerFactory processManagerFactory = null,
@@ -42,7 +42,7 @@ namespace Cedar.ProcessManagers
         private readonly ProcessManagerDispatcher _dispatcher;
 
         internal ProcessHandler(
-            IHandlerResolver commandDispatcher,
+            ICommandHandlerResolver commandDispatcher,
             ClaimsPrincipal principal,
             IProcessManagerCheckpointRepository<TCheckpoint> checkpointRepository,
             IProcessManagerFactory processManagerFactory = null,
@@ -117,7 +117,7 @@ namespace Cedar.ProcessManagers
 
         class ProcessManagerDispatcher : IHandlerResolver, IEnumerable<Type>
         {
-            private readonly IHandlerResolver _commandDispatcher;
+            private readonly ICommandHandlerResolver _commandDispatcher;
             private readonly ClaimsPrincipal _principal;
             private readonly IProcessManagerCheckpointRepository<TCheckpoint> _checkpointRepository;
             private readonly IProcessManagerFactory _processManagerFactory;
@@ -126,7 +126,7 @@ namespace Cedar.ProcessManagers
             private readonly ConcurrentDictionary<string, CheckpointedProcess> _activeProcesses;
 
             public ProcessManagerDispatcher(
-                IHandlerResolver commandDispatcher,
+                ICommandHandlerResolver commandDispatcher,
                 ClaimsPrincipal principal,
                 IProcessManagerCheckpointRepository<TCheckpoint> checkpointRepository,
                 IProcessManagerFactory processManagerFactory = null,
@@ -233,7 +233,7 @@ namespace Cedar.ProcessManagers
                 await (Task)CommandController.DispatchCommandMethodInfo.MakeGenericMethod(command.GetType())
                     .Invoke(null, new[]
                 {
-                    new[]{_commandDispatcher},
+                    _commandDispatcher,
                     Guid.NewGuid(),
                     _principal,
                     command,
