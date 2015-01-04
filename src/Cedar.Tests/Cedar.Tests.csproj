@@ -110,7 +110,7 @@
     <Compile Include="Commands\CommandHandlerResolverTests.cs" />
     <Compile Include="Commands\CommandHandlingSettingsTests.cs" />
     <Compile Include="Commands\CommandTypeResolversTests.cs" />
-    <Compile Include="Commands\Fixtures\TestCommand_v2.cs" />
+    <Compile Include="Commands\ProblemDetailsTests.cs" />
     <Compile Include="DefaultGetEventStoreJsonSerializer.cs" />
     <Compile Include="Domain\AggregateTests.cs" />
     <Compile Include="Domain\GetEventStoreClientRepositoryTests.cs" />
@@ -118,7 +118,6 @@
     <Compile Include="Handlers\ProcessManagerHandlerTests.cs" />
     <Compile Include="Handlers\ResolvedEventDispatcherTests.cs" />
     <Compile Include="MessageEqualityComparerTests.cs" />
-    <Compile Include="Commands\Client\ModelToExceptionConverterTests.cs" />
     <Compile Include="Commands\CommandHandlingTests.cs" />
     <Compile Include="TaskExtensionsTests.cs" />
     <Compile Include="Testing\AggregateTests.cs" />
@@ -127,12 +126,7 @@
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
     <Compile Include="TypeResolution\MediaTypeParsersTests.cs" />
-    <Compile Include="Commands\ExceptionToModelConverterTests.cs" />
-    <Compile Include="Commands\Fixtures\CommandHandlingFixture.cs" />
-    <Compile Include="Commands\Fixtures\TestCommand.cs" />
-    <Compile Include="Commands\Fixtures\TestCommandWhoseHandlerThrows.cs" />
-    <Compile Include="Commands\Fixtures\TestCommandWithoutHandler.cs" />
-    <Compile Include="Commands\Fixtures\TestMessageHandlerModule.cs" />
+    <Compile Include="Commands\CommandHandlingFixture.cs" />
     <Compile Include="Handlers\MessageHandlerModuleTests.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicyTests.cs" />
     <Compile Include="Handlers\DurableCommitDispatcherTests.cs" />

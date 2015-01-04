@@ -48,22 +48,13 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="App_Packages\LibLog.1.4\LibLog.cs" />
+    <Compile Include="Commands\HttpProblemDetailsException.cs" />
+    <Compile Include="Commands\HttpProblemDetails.cs" />
     <Compile Include="Serialization\DefaultJsonSerializer.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\SerializerExtensions.cs" />
-    <Compile Include="ExceptionModels\Client\HttpExtensions.cs" />
-    <Compile Include="ExceptionModels\Client\IModelToExceptionConverter.cs" />
-    <Compile Include="ExceptionModels\Client\ModelToExceptionConverter.cs" />
-    <Compile Include="MessageExecutionSettings.cs" />
     <Compile Include="Commands\Client\HttpClientExtensions.cs" />
-    <Compile Include="IMessageExecutionSettings.cs" />
     <Compile Include="Internal\StringExtensions.cs" />
-    <Compile Include="ExceptionModels\Client\TypeSwitch.cs" />
-    <Compile Include="ExceptionModels\Client\ArgumentExceptionModel.cs" />
-    <Compile Include="ExceptionModels\Client\ArgumentNullExceptionModel.cs" />
-    <Compile Include="ExceptionModels\Client\ExceptionModel.cs" />
-    <Compile Include="ExceptionModels\Client\InvalidOperationExceptionModel.cs" />
-    <Compile Include="ExceptionModels\Client\NotSupportedExceptionModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

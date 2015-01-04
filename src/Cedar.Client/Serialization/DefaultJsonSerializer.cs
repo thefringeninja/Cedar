@@ -7,12 +7,19 @@
 
     internal class DefaultJsonSerializer : ISerializer
     {
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+        internal static readonly ISerializer Instance;
+        internal static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
             TypeNameHandling = TypeNameHandling.None
         };
+
         private readonly JsonSerializer _jsonSerializer;
+
+        static DefaultJsonSerializer()
+        {
+            Instance = new DefaultJsonSerializer();
+        }
 
         internal DefaultJsonSerializer()
         {

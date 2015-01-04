@@ -6,7 +6,6 @@
     using System.Net.Http.Headers;
     using System.Threading.Tasks;
     using Cedar.Commands.Client;
-    using Cedar.Commands.Fixtures;
     using FluentAssertions;
     using Xunit;
     using Xunit.Extensions;
@@ -20,20 +19,31 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
+                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), string.Empty);
 
                 act.ShouldNotThrow();
             }
         }
 
         [Fact]
-        public void When_execute_command_whose_handler_throws_then_should_throw()
+        public void When_execute_command_whose_handler_throws_standard_exception_then_should_throw()
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrows(), Guid.NewGuid(), _fixture.MessageExecutionSettings);
+                Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrowsStandardException(), Guid.NewGuid(), string.Empty);
 
-                act.ShouldThrow<InvalidOperationException>();
+                act.ShouldThrow<HttpRequestException>();
+            }
+        }
+
+        [Fact]
+        public void When_execute_command_whose_handler_throws_http_problem_details_exception_then_should_throw()
+        {
+            using (var client = _fixture.CreateHttpClient())
+            {
+                Func<Task> act = () => client.ExecuteCommand(new TestCommandWhoseHandlerThrowProblemDetailsException(), Guid.NewGuid(), string.Empty);
+
+                act.ShouldThrow<HttpProblemDetailsException>();
             }
         }
 
@@ -42,13 +52,9 @@
         {
             using (var client = _fixture.CreateHttpClient())
             {
-                var settings = new MessageExecutionSettings(
-                    _fixture.MessageExecutionSettings.ModelToExceptionConverter,
-                    path: "notfoundpath");
+                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), "notfoundpath");
 
-                Func<Task> act = () => client.ExecuteCommand(new TestCommand(), Guid.NewGuid(), settings);
-
-                act.ShouldThrow<InvalidOperationException>();
+                act.ShouldThrow<HttpRequestException>();
             }
         }
 

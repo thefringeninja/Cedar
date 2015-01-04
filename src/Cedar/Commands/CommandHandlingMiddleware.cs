@@ -3,9 +3,11 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net.Http.Headers;
     using System.Web.Http;
     using System.Web.Http.Dependencies;
     using System.Web.Http.Dispatcher;
+    using Cedar.Serialization;
     using CuttingEdge.Conditions;
     using Microsoft.Owin.Builder;
     using Owin;
@@ -48,7 +50,11 @@
                 DependencyResolver = new TinyIoCDependencyResolver(container)
             };
             config.Services.Replace(typeof(IHttpControllerTypeResolver), new CommandHandlingHttpControllerTypeResolver());
+            config.Filters.Add(new HttpProblemDetailsExceptionFilterAttribute(settings.CreateProblemDetails));
+            config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Never;
             config.MapHttpAttributeRoutes();
+            config.Formatters.JsonFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/problem+json"));
+            config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = DefaultJsonSerializer.Settings.ContractResolver;
 
             return config;
         }

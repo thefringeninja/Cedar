@@ -4,21 +4,14 @@ namespace Cedar.Commands
     using System.Collections.Generic;
     using Cedar.Annotations;
     using Cedar.Commands.TypeResolution;
-    using Cedar.ExceptionModels;
-    using Cedar.Serialization;
     using CuttingEdge.Conditions;
 
     public class CommandHandlingSettings
     {
-        private static readonly ISerializer DefaultSerializer = new DefaultJsonSerializer();
-        private static readonly IExceptionToModelConverter DefaultExceptionToModelConverter = new ExceptionToModelConverter();
-
         private readonly ICommandHandlerResolver _handlerResolver;
         private readonly ResolveCommandType _resolveCommandType;
-        private ResolveSerializer _resolveSerializer;
-        private IExceptionToModelConverter _exceptionToModelConverter;
         private ParseMediaType _parseMediaType = MediaTypeParsers.AllCombined;
-
+        private CreateProblemDetails _createProblemDetails;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="CommandHandlingSettings"/> class using
@@ -52,25 +45,22 @@ namespace Cedar.Commands
             _resolveCommandType = resolveCommandType;
         }
 
-        public IExceptionToModelConverter ExceptionToModelConverter
+        public CreateProblemDetails CreateProblemDetails
         {
-            get { return _exceptionToModelConverter ?? DefaultExceptionToModelConverter; }
-            set { _exceptionToModelConverter = value; }
+            get
+            {
+                if(_createProblemDetails == null)
+                {
+                    return _ => null;
+                }
+                return _createProblemDetails;
+            }
+            set { _createProblemDetails = value; }
         }
 
         public ICommandHandlerResolver HandlerResolver
         {
             get { return _handlerResolver; }
-        }
-
-        public ResolveSerializer ResolveSerializer
-        {
-            get { return _resolveSerializer ?? SerializationResolvers.Default(); }
-            set
-            {
-                Condition.Requires(value, "value").IsNotNull();
-                _resolveSerializer = value;
-            }
         }
 
         public ResolveCommandType ResolveCommandType

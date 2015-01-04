@@ -83,14 +83,13 @@
     <Compile Include="Commands\CommandHandlerModule.cs" />
     <Compile Include="Commands\CommandHandlerResolver.cs" />
     <Compile Include="Commands\CommandHandlingSettings.cs" />
+    <Compile Include="Commands\CreateProblemDetails.cs" />
+    <Compile Include="Commands\HttpProblemDetailsExceptionFilterAttribute.cs" />
     <Compile Include="Commands\TypeResolution\CommandTypeResolvers.cs" />
     <Compile Include="Commands\CommandHandlerRegistration.cs" />
     <Compile Include="Commands\ICommandHandlerResolver.cs" />
-    <Compile Include="Commands\ResolveSerializer.cs" />
-    <Compile Include="Commands\SerializationResolvers.cs" />
     <Compile Include="Commands\TypeResolution\IParsedMediaType.cs" />
     <Compile Include="Commands\TypeResolution\ITypeResolver.cs" />
-    <Compile Include="ExceptionModels\ExceptionHandlingExtensionsTempWebApi.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
     <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
     <Compile Include="Handlers\HandlerBuilderExtensions.cs" />
@@ -112,7 +111,6 @@
     </Compile>
     <Compile Include="Handlers\TransientException.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicy.cs" />
-    <Compile Include="ExceptionModels\HttpStatusException.cs" />
     <Compile Include="Internal\InterlockedBoolean.cs" />
     <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
@@ -122,8 +120,6 @@
     <Compile Include="ProcessManagers\Messages\ProcessCompleted.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />
     <Compile Include="Commands\CommandMessage.cs" />
-    <Compile Include="ExceptionModels\ExceptionToModelConverter.cs" />
-    <Compile Include="ExceptionModels\IExceptionToModelConverter.cs" />
     <Compile Include="Domain\AggregateBase.cs" />
     <Compile Include="Domain\DefaultConflictDetector.cs" />
     <Compile Include="Domain\ConventionEventRouter.cs" />
