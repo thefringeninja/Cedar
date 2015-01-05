@@ -93,6 +93,8 @@
         [Fact]
         public async Task When_handler_throws_Then_invoke_exception_callback()
         {
+            await _nodeStarted;
+
             var serializer = new DefaultGetEventStoreJsonSerializer();
             var handlerModule = new TestHandlerModule(new List<DomainEventMessage<TestEvent>>());
 
