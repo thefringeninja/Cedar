@@ -73,7 +73,8 @@
 
                     Task<ResolvedEvent> commitProjected = projectedEvents
                         .Take(1)
-                        .ToTask();
+                        .ToTask()
+                        .WithTimeout(TimeSpan.FromSeconds(5));
 
                     await
                         _connection.AppendToStreamAsync("events".FormatStreamNameWithBucket(),
@@ -110,10 +111,10 @@
                 {
                     await host.Start();
 
-                    Task<ResolvedEvent> commitProjected = host
-                        .ProjectedEvents
+                    Task<ResolvedEvent> commitProjected = projectedEvents
                         .Take(1)
-                        .ToTask();
+                        .ToTask()
+                        .WithTimeout(TimeSpan.FromSeconds(5));
 
                     await
                         _connection.AppendToStreamAsync("events",
