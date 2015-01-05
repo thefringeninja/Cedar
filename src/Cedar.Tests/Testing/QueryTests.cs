@@ -1,20 +1,37 @@
 ﻿namespace Cedar.Testing
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
+    using System.Net.Http;
+    using System.Text;
     using System.Threading.Tasks;
     using Cedar.Handlers;
+    using Microsoft.Owin;
     using Xunit;
+    using MidFunc = System.Func<System.Func<System.Collections.Generic.IDictionary<string, object>,
+            System.Threading.Tasks.Task
+        >, System.Func<System.Collections.Generic.IDictionary<string, object>,
+            System.Threading.Tasks.Task
+        >
+    >;
 
     public class QueryTests
     {
+        private readonly SomeModule _handlerResolver;
+
+        public QueryTests()
+        {
+            _handlerResolver = new SomeModule();
+        }
+
         [Fact]
         public async Task a_passing_query_test_should()
         {
-            var result = await Scenario.ForQuery<QueryResponse>(new SomeModule())
+            var result = await Scenario.ForQuery(_handlerResolver, _handlerResolver.HttpApplication)
                 .Given(new SomethingHappened(), new SomethingHappened())
-                .When(() => Task.FromResult(new QueryResponse {Value = 2}))
-                .ThenShouldEqual(new QueryResponse {Value = 2});
+                .When(new HttpRequestMessage(HttpMethod.Get, "/query-response"))
+                .ThenShould(response => response.Content.Headers.ContentType.MediaType == "application/json");
 
             Assert.True(result.Passed);
         }
@@ -22,46 +39,50 @@
         [Fact]
         public async Task a_failing_query_test_should()
         {
-            var result = await Scenario.ForQuery<QueryResponse>(new SomeModule())
+            var result = await Scenario.ForQuery(_handlerResolver, _handlerResolver.HttpApplication)
                 .Given(new SomethingHappened())
-                .When(() => Task.FromResult(new QueryResponse { Value = 1 }))
-                .ThenShouldEqual(new QueryResponse { Value = 2 });
+                .When(new HttpRequestMessage(HttpMethod.Get, "/query-response"))
+                .ThenShould(response => response.Content.Headers.ContentType.MediaType != "application/json");
 
             Assert.False(result.Passed);
         }
         
-        private class SomeModule : IHandlerResolver
+        private class SomeModule : HandlerModule
         {
-            private readonly IHandlerResolver[] _inner;
+            private readonly ReadModel _readModel;
 
             public SomeModule()
             {
-                var queries = new ReadModel();
-                var projections = new SomeProjection(queries);
-                _inner = new IHandlerResolver[]
-                {
-                    projections
-                };
+                _readModel = new ReadModel();
+
+                For<DomainEventMessage<SomethingHappened>>()
+                    .Handle(_ => _readModel.Count++);
+
             }
             private class ReadModel
             {
                 public int Count;
             }
-
-            private class SomeProjection : HandlerModule
+            
+            public MidFunc HttpApplication
             {
-                public SomeProjection(ReadModel readModel)
+                get
                 {
-                    For<DomainEventMessage<SomethingHappened>>()
-                        .Handle(_ => readModel.Count++);
-                }
-            }
+                    return next => async env =>
+                    {
+                        var context = new OwinContext(env);
 
-            public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
-            {
-                return (from module in _inner
-                    from handler in module.GetHandlersFor<TMessage>()
-                    select handler);
+                        if(false == context.Request.Path.StartsWithSegments(new PathString("/query-response")))
+                        {
+                            await next(env);
+                            return;
+                        }
+
+                        var stream = new MemoryStream(Encoding.UTF8.GetBytes("{\"Count\": " + _readModel.Count + "}"));
+                        context.Response.Body = stream;
+                        context.Response.ContentType = "application/json";
+                    };
+                }
             }
         }
 

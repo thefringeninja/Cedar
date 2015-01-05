@@ -4,37 +4,52 @@
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
+    using System.Linq.Expressions;
+    using System.Net.Http;
     using System.Reflection;
     using System.Runtime.CompilerServices;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Handlers;
+    using Cedar.Testing.LibOwin;
+    using PowerAssert;
+    using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>,
+        System.Threading.Tasks.Task
+    >;
+    using MidFunc = System.Func<System.Func<System.Collections.Generic.IDictionary<string, object>,
+            System.Threading.Tasks.Task
+        >, System.Func<System.Collections.Generic.IDictionary<string, object>,
+            System.Threading.Tasks.Task
+        >
+    >;
 
     public static partial class Scenario
     {
-        public static Query.IGiven<TOutput> ForQuery<TOutput>(IHandlerResolver handlerResolver, [CallerMemberName] string scenarioName = null)
+        public static Query.IGiven ForQuery(IHandlerResolver handlerResolver, MidFunc middleware, [CallerMemberName] string scenarioName = null)
         {
-            return new Query.ScenarioBuilder<TOutput>(handlerResolver, scenarioName);
+            return new Query.ScenarioBuilder(handlerResolver, middleware, scenarioName);
         }
 
         public static class Query
         {
-            public interface IGiven<TOutput> : IWhen<TOutput>
+            public interface IGiven : IWhen
             {
-                IWhen<TOutput> Given(params object[] events);
+                IWhen Given(params object[] events);
             }
 
-            public interface IWhen<TOutput> : IThen<TOutput>
+            public interface IWhen : IThen
             {
-                IThen<TOutput> When(Func<Task<TOutput>> performQuery);
+                IThen When(HttpRequestMessage request);
+                IThen When(Task<HttpRequestMessage> request);
             }
 
-            public interface IThen<TOutput> : IScenario
+            public interface IThen : IScenario
             {
-                IThen<TOutput> ThenShouldEqual(TOutput output);
+                IThen ThenShould(Expression<Func<HttpResponseMessage, bool>> assertion);
             }
 
-            internal class ScenarioBuilder<TOutput> : IGiven<TOutput>
+            internal class ScenarioBuilder : IGiven
             {
                 private static readonly MethodInfo DispatchDomainEventMethod;
 
@@ -42,13 +57,14 @@
                 private readonly string _name;
                 private bool _passed;
                 private object[] _given;
-                private Func<Task<TOutput>> _when;
-                private TOutput _expect;
+                private HttpRequestMessage _when;
                 private object _results;
                 private readonly Func<Task> _runGiven;
                 private readonly Func<Task> _runWhen;
                 private readonly Action _runThen;
                 private readonly Stopwatch _timer;
+                private readonly IList<Expression<Func<HttpResponseMessage, bool>>> _assertions;
+                private Task<HttpRequestMessage> _request;
 
                 static ScenarioBuilder()
                 {
@@ -57,7 +73,7 @@
                         .Single(method => method.Name == "Dispatch" && method.GetParameters().First().ParameterType == typeof(IHandlerResolver));
                 }
 
-                public ScenarioBuilder(IHandlerResolver module, string name)
+                public ScenarioBuilder(IHandlerResolver module, MidFunc middleware, string name)
                 {
                     _module = module;
                     _name = name;
@@ -75,34 +91,66 @@
                     };
                     _runWhen = async () =>
                     {
-                        _results = await _when();
+                        var client = new HttpClient(new OwinHttpMessageHandler(middleware(env =>
+                        {
+                            var context = new OwinContext(env)
+                            {
+                                Response = { StatusCode = 404, ReasonPhrase = "Not Found" }
+                            };
+
+                            return Task.FromResult(0);
+                        })))
+                        {
+                            BaseAddress = new Uri("http://localhost/")
+                        };
+                        
+                        _when = await _request;
+                        
+                        _results = await client.SendAsync(_when);
                     };
                     _runThen = () =>
                     {
-                        if(false == MessageEqualityComparer.Instance.Equals(_results, _expect))
+                        var response = (HttpResponseMessage)_results;
+                        
+                        var failed = (from assertion in _assertions
+                            let result = assertion.Compile()(response)
+                            where false == result
+                            select assertion).ToList();
+
+                        if(failed.Any())
                         {
-                            throw new ScenarioException(string.Format("Expected {0}; got {1} instead.", _expect, _results));
+                            throw new ScenarioException("The following assertions failed:" + Environment.NewLine + failed.Aggregate(
+                                new StringBuilder(),
+                                (builder, assertion) =>
+                                    builder.Append('\t').Append(PAssertFormatter.CreateSimpleFormatFor(assertion)).AppendLine()));
                         }
                     };
-
+                    _assertions = new List<Expression<Func<HttpResponseMessage, bool>>>();
                     _timer = new Stopwatch();
                 }
 
-                public IThen<TOutput> ThenShouldEqual(TOutput output)
+                public IThen ThenShould(Expression<Func<HttpResponseMessage, bool>> assertion)
                 {
-                    _expect = output;
+                    _assertions.Add(assertion);
 
                     return this;
                 }
 
-                public IThen<TOutput> When(Func<Task<TOutput>> performQuery)
+                public IThen When(HttpRequestMessage request)
                 {
-                    _when = performQuery;
+                    _request = Task.FromResult(request);
 
                     return this;
                 }
 
-                public IWhen<TOutput> Given(params object[] events)
+                public IThen When(Task<HttpRequestMessage> request)
+                {
+                    _request = request;
+
+                    return this;
+                }
+
+                public IWhen Given(params object[] events)
                 {
                     _given = events;
 
@@ -168,9 +216,9 @@
                     return scenario.Run().GetAwaiter();
                 }
 
-                public static implicit operator ScenarioResult(ScenarioBuilder<TOutput> builder)
+                public static implicit operator ScenarioResult(ScenarioBuilder builder)
                 {
-                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._expect, builder._results, builder._timer.Elapsed);
+                    return new ScenarioResult(builder._name, builder._passed, builder._given, builder._when, builder._assertions, builder._results, builder._timer.Elapsed);
                 }
 
                 private static DomainEventMessage WrapInEnvelopeIfNecessary(object @event)
