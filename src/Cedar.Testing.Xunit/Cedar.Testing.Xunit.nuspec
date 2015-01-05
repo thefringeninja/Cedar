@@ -15,7 +15,7 @@
     <frameworkAssemblies />
     <releaseNotes/>
     <dependencies>
-      <dependency id="Cedar.Testing" version="[0.0.1,0.2)"/>
+      <dependency id="Cedar.Testing" version="[0.2,0.3)"/>
       <dependency id="xunit" version="[1.9.2]"/>
     </dependencies>
   </metadata>
