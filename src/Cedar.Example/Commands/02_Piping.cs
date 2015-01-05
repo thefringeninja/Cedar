@@ -9,15 +9,15 @@ namespace Cedar.Example.Commands.Piping
     using System.Threading.Tasks;
     using Cedar.Commands;
 
-    public class MyCommand
+    public class Command
     {}
 
-    public class MyCommandModule : CommandHandlerModule
+    public class CommandModule : CommandHandlerModule
     {
-        public MyCommandModule()
+        public CommandModule()
         {
             // 1. Here we use a pipe to perform a command validation operation
-            For<MyCommand>()
+            For<Command>()
                 .Pipe(next => (commandMessage, ct) =>
                 {
                     Validate(commandMessage.Command);

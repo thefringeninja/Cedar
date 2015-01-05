@@ -11,7 +11,7 @@ namespace Cedar.Example.Commands.Simple
     using Cedar.Commands;
 
     // 1. Simple command.
-    public class MyCommand
+    public class Command
     {}
 
 
@@ -22,13 +22,13 @@ namespace Cedar.Example.Commands.Simple
     }
 
     // 3. Define your handlers.
-    public class MyCommandModule : CommandHandlerModule
+    public class CommandModule : CommandHandlerModule
     {
         // Modules and handlers are singletons. Services that need to activated per request
         // should be injected as factory methods / funcs.
-        public MyCommandModule(Func<IFoo> getFoo)
+        public CommandModule(Func<IFoo> getFoo)
         {
-            For<MyCommand>()
+            For<Command>()
                 .Handle(async (commandMessage, ct) =>
                 {
                     var foo = getFoo();
@@ -42,9 +42,9 @@ namespace Cedar.Example.Commands.Simple
     {
         static void Main()
         {
-            Func<IFoo> getFoo = () => new MyFoo();
+            Func<IFoo> getFoo = () => new DummyFoo();
 
-            var resolver = new CommandHandlerResolver(new MyCommandModule(getFoo));
+            var resolver = new CommandHandlerResolver(new CommandModule(getFoo));
             var settings = new CommandHandlingSettings(resolver);
 
             var midFunc = CommandHandlingMiddleware.HandleCommands(settings);
@@ -52,7 +52,7 @@ namespace Cedar.Example.Commands.Simple
             // 5. Add the midFunc to your owin pipeline
         }
 
-        private class MyFoo : IFoo 
+        private class DummyFoo : IFoo 
         {
             public Task Bar()
             {

@@ -10,7 +10,7 @@
 namespace Cedar.Example.Commands.CommandVersioning.V1
 {
     // 1. Version 1 of a command.
-    public class MyCommand
+    public class Command
     {
         public string Name { get; set; }
     }
@@ -20,7 +20,7 @@ namespace Cedar.Example.Commands.CommandVersioning.V1
 namespace Cedar.Example.Commands.CommandVersioning.V2
 {
     // 2. Version 2 of a command where Name has changed to Title
-    public class MyCommand
+    public class Command
     {
         public string Title { get; set; }
     }
@@ -35,14 +35,14 @@ namespace Cedar.Example.Commands.CommandTypeResolution
     using Cedar.Commands;
     using Cedar.Commands.TypeResolution;
 
-    public class MyCommandModule : CommandHandlerModule
+    public class CommandModule : CommandHandlerModule
     {
-        public MyCommandModule()
+        public CommandModule()
         {
-            For<CommandVersioning.V1.MyCommand>()
+            For<CommandVersioning.V1.Command>()
                 .Handle((commandMessage, ct) => Task.FromResult(0));
 
-            For<CommandVersioning.V2.MyCommand>()
+            For<CommandVersioning.V2.Command>()
                 .Handle((commandMessage, ct) => Task.FromResult(0));
         }
     }
@@ -51,21 +51,21 @@ namespace Cedar.Example.Commands.CommandTypeResolution
     {
         static void Main()
         {
-            var resolver = new CommandHandlerResolver(new MyCommandModule());
+            var resolver = new CommandHandlerResolver(new CommandModule());
 
-            // 1. Create a map to resolve types from a key. Again, this is just an example
+            // 1. Create a map to resolve types from a key.
             // This could of course be done with reflection + conventions.
             // For the sake of example, we're going to be explict.
             var commandMap = new[]
             {
-                typeof(CommandVersioning.V1.MyCommand),
-                typeof(CommandVersioning.V2.MyCommand),
+                typeof(CommandVersioning.V1.Command),
+                typeof(CommandVersioning.V2.Command),
             }.ToDictionary(t => t.Name.ToLowerInvariant(), t => t);
 
             var resolveCommandType = new ResolveCommandType((typeName, version) =>
             {
                 // 2. In this example, we're not handling unversioned commands. You 
-                // may of course handle them 
+                // may of course handle them. 
                 if(version == null)
                 {
                     return null; // 3. Return null if the command type can't be resolved.

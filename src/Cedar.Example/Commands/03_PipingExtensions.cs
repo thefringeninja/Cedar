@@ -11,11 +11,11 @@ namespace Cedar.Example.Commands.PipingExtensions
     using Cedar.Commands;
     using Cedar.Handlers;
 
-    public class MyCommand1
+    public class Command1
     {}
 
     // 1. Second command that will share a pipe
-    public class MyCommand2
+    public class Command2
     {}
 
     // 2. Define an extensions class to define reusable pipes
@@ -42,11 +42,11 @@ namespace Cedar.Example.Commands.PipingExtensions
     {
         public MyCommandModule()
         {
-            For<MyCommand1>()
+            For<Command1>()
                 .RequireRole("admin") // 4. Use the extension
                 .Handle((commandMessage, ct) => Task.FromResult(0));
 
-            For<MyCommand2>()
+            For<Command2>()
                 .RequireRole("user")
                 .Handle((commandMessage, ct) => Task.FromResult(0));
         }

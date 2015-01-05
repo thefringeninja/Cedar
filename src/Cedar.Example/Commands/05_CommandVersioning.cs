@@ -39,9 +39,9 @@ namespace Cedar.Example.Commands.CommandVersioning
         public string[] Colors { get; set; }
     }
 
-    public class MyCommandModule : CommandHandlerModule
+    public class CommandModule : CommandHandlerModule
     {
-        public MyCommandModule()
+        public CommandModule()
         {
             For<CreateTShirtV1>()
                 .Handle((_, __) => { throw new NotSupportedException(); }); // 2. No longer support V1
