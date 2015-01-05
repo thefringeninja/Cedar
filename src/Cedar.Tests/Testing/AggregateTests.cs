@@ -7,7 +7,7 @@
 
     public class AggregateTests
     {
-        class SomethingHappened
+        private class SomethingHappened
         {
             public override string ToString()
             {
@@ -15,7 +15,7 @@
             }
         }
 
-        class Aggregate : AggregateBase
+        private class Aggregate : AggregateBase
         {
             private int _something = 0;
 
@@ -36,7 +36,7 @@
 
         }
 
-        class BuggyAggregate : AggregateBase
+        private class BuggyAggregate : AggregateBase
         {
             public BuggyAggregate(string id) : base(id)
             {}
@@ -47,7 +47,7 @@
             }
         }
 
-        class ReallyBuggyAggregate : AggregateBase
+        private class ReallyBuggyAggregate : AggregateBase
         {
             public ReallyBuggyAggregate(string id)
                 : base(id)
@@ -60,7 +60,7 @@
             }
         }
 
-        class ConstructorBehaviorAggregate : AggregateBase
+        private class ConstructorBehaviorAggregate : AggregateBase
         {
             public ConstructorBehaviorAggregate(Guid id)
                 : base(id.ToString())
@@ -72,6 +72,7 @@
 
             void Apply(SomethingHappened e) { }
         }
+
         [Fact]
         public async Task a_passing_aggregate_scenario_should()
         {
@@ -137,6 +138,5 @@
             Assert.True(result.Passed);
             Assert.IsType<InvalidOperationException>(result.Results);
         }
-
     }
 }
