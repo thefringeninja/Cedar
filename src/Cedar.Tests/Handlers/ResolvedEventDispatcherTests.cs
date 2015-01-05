@@ -64,21 +64,29 @@
                 new InMemoryCheckpointRepository(),
                 handlerModule, () => { }))
             {
-                await host.Start();
+                var projectedEvents = host
+                    .ProjectedEvents.Replay();
 
-                Task<ResolvedEvent> commitProjected = host
-                    .ProjectedEvents
-                    .Take(1)
-                    .ToTask();
+                using(projectedEvents.Connect())
+                {
+                    await host.Start();
 
-                await _connection.AppendToStreamAsync("events".FormatStreamNameWithBucket(), ExpectedVersion.Any, serializer.SerializeEventData(new TestEvent(), "events", 1));
+                    Task<ResolvedEvent> commitProjected = projectedEvents
+                        .Take(1)
+                        .ToTask();
 
-                await commitProjected;
+                    await
+                        _connection.AppendToStreamAsync("events".FormatStreamNameWithBucket(),
+                            ExpectedVersion.Any,
+                            serializer.SerializeEventData(new TestEvent(), "events", 1));
 
-                dispatchedEvents.Count.Should().Be(1);
-                dispatchedEvents[0].Headers.Should().NotBeNull();
-                dispatchedEvents[0].Version.Should().Be(0);
-                dispatchedEvents[0].DomainEvent.Should().BeOfType<TestEvent>();
+                    await commitProjected;
+
+                    dispatchedEvents.Count.Should().Be(1);
+                    dispatchedEvents[0].Headers.Should().NotBeNull();
+                    dispatchedEvents[0].Version.Should().Be(0);
+                    dispatchedEvents[0].DomainEvent.Should().BeOfType<TestEvent>();
+                }
             }
         }
 
@@ -86,29 +94,34 @@
         public async Task When_handler_throws_Then_invoke_exception_callback()
         {
             var serializer = new DefaultGetEventStoreJsonSerializer();
-            var projectedEvents = new List<DomainEventMessage<TestEvent>>();
-            var handlerModule = new TestHandlerModule(projectedEvents);
+            var handlerModule = new TestHandlerModule(new List<DomainEventMessage<TestEvent>>());
 
             using(var host = new ResolvedEventDispatcher(
                 _connection, serializer,
                 new InMemoryCheckpointRepository(),
                 handlerModule, () => { }))
             {
-                await host.Start();
+                var projectedEvents = host
+                    .ProjectedEvents.Replay();
 
-                Task<ResolvedEvent> commitProjected = host
-                    .ProjectedEvents
-                    .Take(1)
-                    .ToTask();
+                using(projectedEvents.Connect())
+                {
+                    await host.Start();
 
-                await
-                    _connection.AppendToStreamAsync("events", ExpectedVersion.Any,
-                        serializer.SerializeEventData(new TestEventThatThrows(), "events", 1));
+                    Task<ResolvedEvent> commitProjected = host
+                        .ProjectedEvents
+                        .Take(1)
+                        .ToTask();
 
-                Func<Task> act = async () => await commitProjected;
+                    await
+                        _connection.AppendToStreamAsync("events",
+                            ExpectedVersion.Any,
+                            serializer.SerializeEventData(new TestEventThatThrows(), "events", 1));
 
-                act.ShouldThrow<Exception>();
+                    Func<Task> act = async () => await commitProjected;
 
+                    act.ShouldThrow<Exception>();
+                }
             }
         }
 
