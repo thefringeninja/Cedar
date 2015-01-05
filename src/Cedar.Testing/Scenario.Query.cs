@@ -12,9 +12,9 @@
 
     public static partial class Scenario
     {
-        public static Query.IGiven<TOutput> ForQuery<TOutput>(IHandlerResolver module, [CallerMemberName] string scenarioName = null)
+        public static Query.IGiven<TOutput> ForQuery<TOutput>(IHandlerResolver handlerResolver, [CallerMemberName] string scenarioName = null)
         {
-            return new Query.ScenarioBuilder<TOutput>(module, scenarioName);
+            return new Query.ScenarioBuilder<TOutput>(handlerResolver, scenarioName);
         }
 
         public static class Query

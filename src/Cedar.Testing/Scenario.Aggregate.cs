@@ -31,7 +31,9 @@
             public interface IWhen<T> : IThen where T : IAggregate
             {
                 IThen When(Expression<Func<T, Task>> when);
+
                 IThen When(Expression<Action<T>> when);
+
                 IThen When(Expression<Func<T>> when);
             }
 
