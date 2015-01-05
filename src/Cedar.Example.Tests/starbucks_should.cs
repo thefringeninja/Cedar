@@ -7,6 +7,8 @@
     using Cedar.Testing;
     using Cedar.Testing.Xunit;
 
+    //TODO move to Cedar.Example
+
     public class starbucks_should
     {
         private readonly Guid _customerId = Guid.NewGuid();
