@@ -23,7 +23,7 @@ namespace System.Threading
     /// <summary>
     /// Interlocked support for boolean values
     /// </summary>
-    public class InterlockedBoolean
+    internal class InterlockedBoolean
     {
         private int _value;
 
