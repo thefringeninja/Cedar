@@ -22,32 +22,41 @@
                 var dispatchedEvents = new List<DomainEventMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(dispatchedEvents);
 
-                using (var host = new DurableCommitDispatcher(
+                using(var host = new DurableCommitDispatcher(
                     new EventStoreClient(eventStore.Advanced),
                     new InMemoryCheckpointRepository(),
                     handlerModule))
                 {
-                    await host.Start();
-                    var streamId = Guid.NewGuid().ToString().FormatStreamNameWithBucket();
-                    Guid commitId = Guid.NewGuid();
-                    Task<ICommit> commitProjected = host
+                    var projectedCommits = host
                         .ProjectedCommits
-                        .Take(1)
-                        .ToTask();
+                        .Replay();
 
-                    using (IEventStream stream = eventStore.CreateStream(streamId))
+                    using(projectedCommits.Connect())
                     {
-                        stream.Add(new EventMessage {Body = new TestEvent()});
-                        stream.CommitChanges(commitId);
-                    }
-                    host.PollNow();
-                    await commitProjected;
+                        await host.Start();
 
-                    dispatchedEvents.Count.Should().Be(1);
-                    dispatchedEvents[0].Commit().Should().NotBeNull();
-                    dispatchedEvents[0].Headers.Should().NotBeNull();
-                    dispatchedEvents[0].Version.Should().Be(1);
-                    dispatchedEvents[0].DomainEvent.Should().BeOfType<TestEvent>();
+                        var streamId = Guid.NewGuid().ToString().FormatStreamNameWithBucket();
+
+                        Guid commitId = Guid.NewGuid();
+
+                        Task<ICommit> commitProjected = projectedCommits
+                            .Take(1)
+                            .ToTask();
+
+                        using(IEventStream stream = eventStore.CreateStream(streamId))
+                        {
+                            stream.Add(new EventMessage { Body = new TestEvent() });
+                            stream.CommitChanges(commitId);
+                        }
+                        host.PollNow();
+                        await commitProjected;
+
+                        dispatchedEvents.Count.Should().Be(1);
+                        dispatchedEvents[0].Commit().Should().NotBeNull();
+                        dispatchedEvents[0].Headers.Should().NotBeNull();
+                        dispatchedEvents[0].Version.Should().Be(1);
+                        dispatchedEvents[0].DomainEvent.Should().BeOfType<TestEvent>();
+                    }
                 }
             }
         }
@@ -65,25 +74,33 @@
                     new InMemoryCheckpointRepository(),
                     handlerModule.DispatchCommit))
                 {
-                    await host.Start();
-                    var streamId = Guid.NewGuid().ToString().FormatStreamNameWithBucket();
-                    Guid commitId = Guid.NewGuid();
-                    Task<ICommit> commitProjected = host
+                    var projectedCommits = host
                         .ProjectedCommits
-                        .Take(1)
-                        .ToTask();
+                        .Replay();
 
-                    using (IEventStream stream = eventStore.CreateStream(streamId))
+                    using(projectedCommits.Connect())
                     {
-                        stream.Add(new EventMessage { Body = new TestEventThatThrows() });
-                        stream.CommitChanges(commitId);
+                        await host.Start();
+
+                        var streamId = Guid.NewGuid().ToString().FormatStreamNameWithBucket();
+
+                        Guid commitId = Guid.NewGuid();
+
+                        Task<ICommit> commitProjected = projectedCommits
+                            .Take(1)
+                            .ToTask();
+
+                        using(IEventStream stream = eventStore.CreateStream(streamId))
+                        {
+                            stream.Add(new EventMessage { Body = new TestEventThatThrows() });
+                            stream.CommitChanges(commitId);
+                        }
+                        host.PollNow();
+
+                        Func<Task> act = async () => await commitProjected;
+
+                        act.ShouldThrow<Exception>();
                     }
-                    host.PollNow();
-
-                    Func<Task> act = async () => await commitProjected;
-
-                    act.ShouldThrow<Exception>();
-
                 }
             }
         }

@@ -115,7 +115,6 @@
     <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
     <Compile Include="ProcessManagers\IProcessManager.cs" />
-    <Compile Include="ProcessManagers\Persistence\IProcessManagerRepository.cs" />
     <Compile Include="ProcessManagers\ObservableProcessManager.cs" />
     <Compile Include="ProcessManagers\Messages\ProcessCompleted.cs" />
     <Compile Include="Commands\CommandHandlingMiddleware.cs" />

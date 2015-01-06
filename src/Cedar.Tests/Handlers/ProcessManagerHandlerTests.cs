@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
+    using System.Reactive.Concurrency;
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
     using System.Security.Claims;
@@ -104,33 +105,43 @@
         [Fact]
         public async Task should_send_commands_and_notify_checkpoint_reached()
         {
-            await StartDispatcher();
+            var projectedEvents = _dispatcher.ProjectedEvents.Replay();
 
-            await PlaceOrder();
+            using(projectedEvents.Connect())
+            {
+                await StartDispatcher();
 
-            var checkpointReached = await _dispatcher.ProjectedEvents.Take(2).ToTask().WithTimeout(TimeSpan.FromSeconds(5));
+                await PlaceOrder();
 
-            _commands.Count.Should().Be(1);
-            _commands.Single().Should().BeOfType<BillCustomer>();
+                var checkpointReached = await projectedEvents.Take(2).ToTask().WithTimeout(TimeSpan.FromSeconds(5));
 
-            checkpointReached.Event.EventType.Should().Be("CheckpointReached");
+                _commands.Count.Should().Be(1);
+                _commands.Single().Should().BeOfType<BillCustomer>();
+
+                checkpointReached.Event.EventType.Should().Be("CheckpointReached");
+            }
         }
 
         [Fact]
         public async Task should_discard_commands_after_checkpoint_reached()
         {
-            var result = await PlaceOrder();
+            var projectedEvents = _dispatcher.ProjectedEvents.Replay();
 
-            await WriteCheckpoint(result.LogPosition);
+            using(projectedEvents.Connect())
+            {
+                var result = await PlaceOrder();
 
-            await StartDispatcher();
+                await WriteCheckpoint(result.LogPosition);
 
-            await SucceedBilling();
+                await StartDispatcher();
 
-            await _dispatcher.ProjectedEvents.Take(4).ToTask().WithTimeout(TimeSpan.FromSeconds(5));
+                await SucceedBilling();
 
-            _commands.Count.Should().Be(2);
-            _commands.Last().Should().BeOfType<ShipOrder>();
+                await projectedEvents.Take(4).ToTask().WithTimeout(TimeSpan.FromSeconds(5));
+
+                _commands.Count.Should().Be(2);
+                _commands.Last().Should().BeOfType<ShipOrder>();
+            }
         }
 
         public void Dispose()
