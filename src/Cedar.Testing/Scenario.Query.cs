@@ -40,13 +40,96 @@
 
             public interface IWhen : IThen
             {
-                IThen When(HttpRequestMessage request);
                 IThen When(Task<HttpRequestMessage> request);
+                IThen When(HttpRequest request);
+                IThen When(Task<HttpRequest> request);
             }
 
             public interface IThen : IScenario
             {
                 IThen ThenShould(Expression<Func<HttpResponseMessage, bool>> assertion);
+            }
+
+            public class HttpRequest
+            {
+                private readonly HttpRequestMessage _request;
+
+                internal HttpRequest(HttpRequestMessage request)
+                {
+                    _request = request;
+                }
+
+                public static implicit operator HttpRequestMessage(HttpRequest request)
+                {
+                    return request._request;
+                }
+                public static implicit operator HttpRequest(HttpRequestMessage request)
+                {
+                    return new HttpRequest(request);
+                }
+
+                public override string ToString()
+                {
+                    var flattenedHeaders = (from headers in _request.Headers.Union((_request.Content ?? new StringContent(String.Empty)).Headers)
+                        let values = headers.Value
+                        from value in values
+                        select new { key = headers.Key, value });
+
+                    var builder = new StringBuilder();
+
+                    builder.Append(_request.Method.ToString().ToUpper())
+                        .Append(' ')
+                        .Append(_request.RequestUri.PathAndQuery)
+                        .Append(' ')
+                        .Append("HTTP/").Append(_request.Version.ToString(2))
+                        .AppendLine();
+
+                    flattenedHeaders.Aggregate(builder,
+                        (sb, header) => sb.Append(header.key).Append(':').Append(' ').Append(header.value).AppendLine());
+                    
+                    return builder.ToString();
+                }
+            }
+
+            public class HttpResponse
+            {
+                private readonly HttpResponseMessage _response;
+
+                internal HttpResponse(HttpResponseMessage response)
+                {
+                    _response = response;
+                }
+
+                public static implicit operator HttpResponseMessage(HttpResponse response)
+                {
+                    return response._response;
+                }
+                public static implicit operator HttpResponse(HttpResponseMessage response)
+                {
+                    return new HttpResponse(response);
+                }
+
+                public override string ToString()
+                {
+                    var flattenedHeaders = (from headers in _response.Headers.Union((_response.Content ?? new StringContent(String.Empty)).Headers)
+                                            let values = headers.Value
+                                            from value in values
+                                            select new { key = headers.Key, value });
+
+                    var builder = new StringBuilder();
+
+                    builder
+                        .Append("HTTP/").Append(_response.Version.ToString(2)).Append(' ')
+                        .Append((int) _response.StatusCode).Append(' ')
+                        .Append(_response.ReasonPhrase)
+                        .AppendLine();
+
+                    flattenedHeaders.Aggregate(builder,
+                        (sb, header) => sb.Append(header.key).Append(':').Append(' ').Append(header.value).AppendLine());
+
+                    return builder.ToString();
+
+                }
             }
 
             internal class ScenarioBuilder : IGiven
@@ -57,14 +140,14 @@
                 private readonly string _name;
                 private bool _passed;
                 private object[] _given;
-                private HttpRequestMessage _when;
+                private HttpRequest _when;
                 private object _results;
                 private readonly Func<Task> _runGiven;
                 private readonly Func<Task> _runWhen;
                 private readonly Action _runThen;
                 private readonly Stopwatch _timer;
                 private readonly IList<Expression<Func<HttpResponseMessage, bool>>> _assertions;
-                private Task<HttpRequestMessage> _request;
+                private Task<HttpRequest> _request;
 
                 static ScenarioBuilder()
                 {
@@ -106,11 +189,11 @@
                         
                         _when = await _request;
                         
-                        _results = await client.SendAsync(_when);
+                        _results = (HttpResponse)await client.SendAsync(_when);
                     };
                     _runThen = () =>
                     {
-                        var response = (HttpResponseMessage)_results;
+                        var response = (HttpResponse)_results;
                         
                         var failed = (from assertion in _assertions
                             let result = assertion.Compile()(response)
@@ -136,16 +219,23 @@
                     return this;
                 }
 
-                public IThen When(HttpRequestMessage request)
+                public IThen When(HttpRequest request)
                 {
                     _request = Task.FromResult(request);
 
                     return this;
                 }
 
-                public IThen When(Task<HttpRequestMessage> request)
+                public IThen When(Task<HttpRequest> request)
                 {
                     _request = request;
+
+                    return this;
+                }
+
+                public IThen When(Task<HttpRequestMessage> request)
+                {
+                    _request = request.ContinueWith(task => (HttpRequest)task.Result);
 
                     return this;
                 }
