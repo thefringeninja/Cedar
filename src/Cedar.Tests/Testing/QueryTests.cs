@@ -31,7 +31,7 @@
             var result = await Scenario.ForQuery(_handlerResolver, _handlerResolver.HttpApplication)
                 .Given(new SomethingHappened(), new SomethingHappened())
                 .When(new HttpRequestMessage(HttpMethod.Get, "/query-response"))
-                .ThenShould(response => response.Content.Headers.ContentType.MediaType == "application/json");
+                .ThenShould(response => response.Headers.ContentType.MediaType == "application/json");
 
             Assert.True(result.Passed);
         }
@@ -42,7 +42,7 @@
             var result = await Scenario.ForQuery(_handlerResolver, _handlerResolver.HttpApplication)
                 .Given(new SomethingHappened())
                 .When(new HttpRequestMessage(HttpMethod.Get, "/query-response"))
-                .ThenShould(response => response.Content.Headers.ContentType.MediaType != "application/json");
+                .ThenShould(response => response.Headers.ContentType.MediaType != "application/json");
 
             Assert.False(result.Passed);
         }
