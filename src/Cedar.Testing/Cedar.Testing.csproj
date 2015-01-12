@@ -121,7 +121,6 @@
     <Compile Include="Execution\FindScenarios.cs" />
     <Compile Include="Execution\IScenarioRunner.cs" />
     <Compile Include="Execution\ScenarioRunner.cs" />
-    <Compile Include="FatalScenarioException.cs" />
     <Compile Include="MessageEqualityComparer.cs" />
     <Compile Include="Printing\Bootstrap\BootstrapPrinter.cs" />
     <Compile Include="Printing\Console\ConsolePrinter.cs" />
