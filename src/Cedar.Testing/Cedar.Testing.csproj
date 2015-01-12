@@ -145,6 +145,7 @@
     <None Include="Cedar.Testing.nuspec" />
     <None Include="packages.config" />
     <Compile Include="Scenario.Any.cs" />
+    <Compile Include="Scenario.Http.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
