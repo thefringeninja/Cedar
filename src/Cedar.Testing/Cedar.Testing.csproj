@@ -122,6 +122,7 @@
     <Compile Include="Execution\IScenarioRunner.cs" />
     <Compile Include="Execution\ScenarioRunner.cs" />
     <Compile Include="MessageEqualityComparer.cs" />
+    <Compile Include="OwinExtensions.cs" />
     <Compile Include="Printing\Bootstrap\BootstrapPrinter.cs" />
     <Compile Include="Printing\Console\ConsolePrinter.cs" />
     <Compile Include="Printing\PrintingExtensions.cs" />

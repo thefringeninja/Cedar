@@ -93,15 +93,7 @@
                     };
                     _runWhen = async () =>
                     {
-                        var client = new HttpClient(new OwinHttpMessageHandler(middleware(env =>
-                        {
-                            var context = new OwinContext(env)
-                            {
-                                Response = { StatusCode = 404, ReasonPhrase = "Not Found" }
-                            };
-
-                            return Task.FromResult(0);
-                        })))
+                        var client = new HttpClient(new OwinHttpMessageHandler(middleware.Terminate()))
                         {
                             BaseAddress = new Uri("http://localhost/")
                         };
