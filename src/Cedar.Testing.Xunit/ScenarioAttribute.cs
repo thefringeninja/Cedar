@@ -2,9 +2,14 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using System.Xml;
+    using Cedar.Testing;
+    using Cedar.Testing.Printing.PlainText;
     using global::Xunit;
     using global::Xunit.Sdk;
 
@@ -27,23 +32,26 @@
                 var methodInfo = testClass.GetType()
                     .GetMethod(_inner.MethodName);
 
-                var task = (Task<ScenarioResult>) methodInfo.Invoke(testClass, null);
+                var task = (Task<ScenarioResult>)methodInfo.Invoke(testClass, null);
 
                 var scenarioResult = task.Result;
 
-                if(scenarioResult.Passed)
-                {
-                    return new PassedResult(_inner.MethodName, _inner.TypeName, _inner.DisplayName,
-                        new MultiValueDictionary<string, string>());
-                }
+                var methodResult = scenarioResult.Passed
+                    ? HandleSuccess(scenarioResult)
+                    : HandleFailure(scenarioResult);
+                
+                Trace.Write(methodResult.Output);
+                
+                return methodResult;
+            }
 
-                FailedResult xunitResult;
-                if(false == TryHandleException(scenarioResult, out xunitResult))
+            private MethodResult HandleSuccess(ScenarioResult scenarioResult)
+            {
+                return new PassedResult(_inner.MethodName, _inner.TypeName, _inner.DisplayName,
+                    new MultiValueDictionary<string, string>())
                 {
-                    xunitResult = new FailedResult(_method, new Exception(), DisplayName);
-                }
-
-                return xunitResult;
+                    Output = PrintResult(scenarioResult)
+                };
             }
 
             public XmlNode ToStartXml()
@@ -66,20 +74,27 @@
                 get { return _inner.Timeout; }
             }
 
-            private bool TryHandleException(ScenarioResult scenarioResult, out FailedResult xunitResult)
+            private static string PrintResult(ScenarioResult scenarioResult)
             {
-                xunitResult = null;
+                var builder = new StringBuilder();
 
-                var ex = scenarioResult.Results as Exception;
-
-                if(ex == null)
+                using (var printer = new PlainTextPrinter(_ => new StringWriter(builder)))
                 {
-                    return false;
+                    printer.PrintResult(scenarioResult).Wait();
                 }
 
-                xunitResult = new FailedResult(_method, ex, DisplayName);
+                return builder.ToString();
+            }
 
-                return true;
+            private MethodResult HandleFailure(ScenarioResult scenarioResult)
+            {
+                var exception = scenarioResult.Results as Exception
+                    ?? new Exception();
+
+                return new FailedResult(_method, exception, DisplayName)
+                {
+                    Output = PrintResult(scenarioResult)
+                };
             }
         }
 
