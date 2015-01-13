@@ -17,7 +17,7 @@
         {
             if (string.IsNullOrWhiteSpace(argument))
             {
-                throw new ArgumentException("{0} is null ow whitespace".FormatWith(argumentName));
+                throw new ArgumentException("{0} is null or whitespace".FormatWith(argumentName));
             }
         }
     }
