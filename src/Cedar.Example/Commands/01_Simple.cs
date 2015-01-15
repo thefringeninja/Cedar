@@ -37,6 +37,11 @@ namespace Cedar.Example.Commands.Simple
         }
     }
 
+    public class Startup
+    {
+        
+    }
+
     // 4. Wire it up
     public class Program
     {
@@ -51,6 +56,8 @@ namespace Cedar.Example.Commands.Simple
 
             // 5. Add the midFunc to your owin pipeline
         }
+
+        
 
         private class DummyFoo : IFoo 
         {

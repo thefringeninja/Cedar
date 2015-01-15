@@ -7,11 +7,9 @@ namespace Cedar.ProcessManagers
     using System.Linq;
     using System.Reactive.Linq;
     using System.Reflection;
-    using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Commands;
     using Cedar.Handlers;
     using Cedar.ProcessManagers.Messages;
     using Cedar.ProcessManagers.Persistence;
@@ -20,21 +18,25 @@ namespace Cedar.ProcessManagers
     public static class ProcessHandler
     {
         public static ProcessHandler<TProcess, TCheckpoint> For<TProcess, TCheckpoint>(
-            ICommandHandlerResolver commandDispatcher, //TODO Process manager should use HttpClient to invoke commands like a user
-            ClaimsPrincipal principal,
+            DispatchCommand dispatchCommand,
             IProcessManagerCheckpointRepository<TCheckpoint> checkpointRepository,
             IProcessManagerFactory processManagerFactory = null,
             ProcessHandler<TProcess, TCheckpoint>.BuildProcessManagerId buildProcessId = null) 
             where TProcess : IProcessManager 
             where TCheckpoint : IComparable<string>
         {
-            return new ProcessHandler<TProcess, TCheckpoint>(commandDispatcher, principal, checkpointRepository, processManagerFactory, buildProcessId);
+            return new ProcessHandler<TProcess, TCheckpoint>(
+                dispatchCommand,
+                checkpointRepository,
+                processManagerFactory,
+                buildProcessId);
         }
     }
 
     public class ProcessHandler<TProcess,TCheckpoint> : IHandlerResolver where TProcess : IProcessManager where TCheckpoint : IComparable<string>
     {
-        public static BuildProcessManagerId DefaultBuildProcessManagerId = correlationId => typeof(TProcess).Name + "-" + correlationId;
+        public static readonly BuildProcessManagerId DefaultBuildProcessManagerId =
+            correlationId => typeof(TProcess).Name + "-" + correlationId;
 
         public delegate string BuildProcessManagerId(string correlationId);
 
@@ -42,18 +44,16 @@ namespace Cedar.ProcessManagers
         private readonly ProcessManagerDispatcher _dispatcher;
 
         internal ProcessHandler(
-            ICommandHandlerResolver commandDispatcher,
-            ClaimsPrincipal principal,
+            DispatchCommand dispatchCommand,
             IProcessManagerCheckpointRepository<TCheckpoint> checkpointRepository,
             IProcessManagerFactory processManagerFactory = null,
             BuildProcessManagerId buildProcessId = null)
         {
-            Condition.Requires(commandDispatcher, "commandDispatcher").IsNotNull();
-            Condition.Requires(principal, "principal").IsNotNull();
+            Condition.Requires(dispatchCommand, "dispatchCommand").IsNotNull();
             Condition.Requires(checkpointRepository, "checkpointRepository").IsNotNull();
 
             _pipes = new List<Pipe<object>>();
-            _dispatcher = new ProcessManagerDispatcher(commandDispatcher, principal, checkpointRepository, processManagerFactory, buildProcessId);
+            _dispatcher = new ProcessManagerDispatcher(dispatchCommand, checkpointRepository, processManagerFactory, buildProcessId);
             CorrelateBy<ProcessCompleted>(message => message.DomainEvent.CorrelationId)
                 .CorrelateBy<CheckpointReached>(message => message.DomainEvent.CorrelationId);
         }
@@ -103,7 +103,7 @@ namespace Cedar.ProcessManagers
             return _dispatcher.GetHandlersFor<TMessage>();
         }
 
-        class CheckpointedProcess
+        private class CheckpointedProcess
         {
             public readonly TCheckpoint Checkpoint;
             public readonly TProcess Process;
@@ -115,26 +115,23 @@ namespace Cedar.ProcessManagers
             }
         }
 
-        class ProcessManagerDispatcher : IHandlerResolver, IEnumerable<Type>
+        private class ProcessManagerDispatcher : IHandlerResolver, IEnumerable<Type>
         {
-            private readonly ICommandHandlerResolver _commandDispatcher;
-            private readonly ClaimsPrincipal _principal;
             private readonly IProcessManagerCheckpointRepository<TCheckpoint> _checkpointRepository;
+            private readonly DispatchCommand _dispatchCommand;
             private readonly IProcessManagerFactory _processManagerFactory;
             private readonly BuildProcessManagerId _buildProcessId;
             private readonly IDictionary<Type, Func<object, string>> _byCorrelationId;
             private readonly ConcurrentDictionary<string, CheckpointedProcess> _activeProcesses;
 
             public ProcessManagerDispatcher(
-                ICommandHandlerResolver commandDispatcher,
-                ClaimsPrincipal principal,
+                DispatchCommand dispatchCommand,
                 IProcessManagerCheckpointRepository<TCheckpoint> checkpointRepository,
                 IProcessManagerFactory processManagerFactory = null,
                 BuildProcessManagerId buildProcessId = null)
             {
-                _commandDispatcher = commandDispatcher;
-                _principal = principal;
                 _checkpointRepository = checkpointRepository;
+                _dispatchCommand = dispatchCommand;
                 _processManagerFactory = processManagerFactory ?? new DefaultProcessManagerFactory();
                 _buildProcessId = buildProcessId ?? DefaultBuildProcessManagerId;
                 _byCorrelationId = new Dictionary<Type, Func<object, string>>();
@@ -144,7 +141,7 @@ namespace Cedar.ProcessManagers
             public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
             {
                 if(false == typeof(DomainEventMessage).IsAssignableFrom(typeof(TMessage))
-                    || false == _byCorrelationId.ContainsKey(typeof(TMessage)))
+                   || false == _byCorrelationId.ContainsKey(typeof(TMessage)))
                 {
                     yield break;
                 }
@@ -167,7 +164,7 @@ namespace Cedar.ProcessManagers
 
                     process.Inbox.OnNext(domainEventMessage);
 
-                    if (checkpoint.CompareTo(domainEventMessage.CheckpointToken) >= 0)
+                    if(checkpoint.CompareTo(domainEventMessage.CheckpointToken) >= 0)
                     {
                         return;
                     }
@@ -179,7 +176,7 @@ namespace Cedar.ProcessManagers
                         return;
                     }
 
-                    await Task.WhenAll(commands.Select(command => DispatchCommand(process, command, ct)));
+                    await Task.WhenAll(commands.Select(command => _dispatchCommand(command, ct)));
 
                     await _checkpointRepository.SaveCheckpointToken(process, domainEventMessage.CheckpointToken, ct);
                 };
@@ -224,21 +221,8 @@ namespace Cedar.ProcessManagers
             public void CorrelateBy<TMessage>(
                 Func<DomainEventMessage<TMessage>, string> getCorrelationId) where TMessage : class
             {
-                _byCorrelationId.Add(typeof(DomainEventMessage<TMessage>), message => getCorrelationId((DomainEventMessage<TMessage>)message));
-            }
-
-            [UsedImplicitly]
-            private async Task DispatchCommand(TProcess process, object command, CancellationToken ct)
-            {
-                await (Task)CommandController.DispatchCommandMethodInfo.MakeGenericMethod(command.GetType())
-                    .Invoke(null, new[]
-                {
-                    _commandDispatcher,
-                    Guid.NewGuid(),
-                    _principal,
-                    command,
-                    ct
-                });
+                _byCorrelationId.Add(typeof(DomainEventMessage<TMessage>),
+                    message => getCorrelationId((DomainEventMessage<TMessage>) message));
             }
         }
     }

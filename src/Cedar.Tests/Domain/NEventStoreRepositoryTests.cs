@@ -3,7 +3,6 @@
     using System;
     using System.Threading;
     using System.Threading.Tasks;
-    using Cedar.Annotations;
     using Cedar.NEventStore.Domain.Persistence;
     using FluentAssertions;
     using global::NEventStore;
@@ -33,7 +32,6 @@
                 RaiseEvent(new SomethingHappened());
             }
 
-            [UsedImplicitly]
             void Apply(SomethingHappened e)
             {
                 

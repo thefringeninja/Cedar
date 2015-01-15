@@ -32,6 +32,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Cedar.HttpCommandHandling, Version=0.4.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Cedar.HttpCommandHandling.0.4.2-build00018\lib\net45\Cedar.HttpCommandHandling.dll</HintPath>
+    </Reference>
+    <Reference Include="Cedar.HttpCommandHandling.Client, Version=0.4.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Cedar.HttpCommandHandling.Client.0.4.2-build00018\lib\net45\Cedar.HttpCommandHandling.Client.dll</HintPath>
+    </Reference>
     <Reference Include="EventStore.ClientAPI">
       <HintPath>..\packages\EventStore.Client.3.0.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
       <Private>True</Private>
@@ -60,17 +68,19 @@
       <HintPath>..\packages\NEventStore.5.1.0\lib\net40\NEventStore.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.3.2.0.0\lib\net45\NLog.dll</HintPath>
     </Reference>
     <Reference Include="Owin">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="OwinHttpMessageHandler">
-      <HintPath>..\packages\OwinHttpMessageHandler.1.0.2\lib\net45\OwinHttpMessageHandler.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\OwinHttpMessageHandler.1.1.0\lib\net45\OwinHttpMessageHandler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -116,11 +126,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Commands\CommandHandlerModuleTests.cs" />
-    <Compile Include="Commands\CommandHandlerResolverTests.cs" />
-    <Compile Include="Commands\CommandHandlingSettingsTests.cs" />
-    <Compile Include="Commands\CommandTypeResolversTests.cs" />
-    <Compile Include="Commands\ProblemDetailsTests.cs" />
+    <Compile Include="Logging.cs" />
     <Compile Include="DefaultGetEventStoreJsonSerializer.cs" />
     <Compile Include="Domain\AggregateTests.cs" />
     <Compile Include="Domain\GetEventStoreClientRepositoryTests.cs" />
@@ -128,15 +134,12 @@
     <Compile Include="Handlers\ProcessManagerHandlerTests.cs" />
     <Compile Include="Handlers\ResolvedEventDispatcherTests.cs" />
     <Compile Include="MessageEqualityComparerTests.cs" />
-    <Compile Include="Commands\CommandHandlingTests.cs" />
     <Compile Include="TaskExtensionsTests.cs" />
     <Compile Include="Testing\AggregateTests.cs" />
     <Compile Include="Testing\EnumerableTests.cs" />
     <Compile Include="Testing\QueryTests.cs" />
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
-    <Compile Include="TypeResolution\MediaTypeParsersTests.cs" />
-    <Compile Include="Commands\CommandHandlingFixture.cs" />
     <Compile Include="Handlers\MessageHandlerModuleTests.cs" />
     <Compile Include="Handlers\TransientExceptionRetryPolicyTests.cs" />
     <Compile Include="Handlers\DurableCommitDispatcherTests.cs" />

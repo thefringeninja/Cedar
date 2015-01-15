@@ -6,13 +6,13 @@
     using System.Net;
     using System.Reactive.Linq;
     using System.Reactive.Threading.Tasks;
-    using System.Security.Claims;
     using System.Threading.Tasks;
-    using Cedar.Commands;
     using Cedar.GetEventStore;
     using Cedar.GetEventStore.Handlers;
     using Cedar.GetEventStore.ProcessManagers;
     using Cedar.GetEventStore.Serialization;
+    using Cedar.HttpCommandHandling;
+    using Cedar.HttpCommandHandling.Client;
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Messages;
     using Cedar.Serialization;
@@ -26,18 +26,20 @@
 
     public class ProcessManagerHandlerTests : IDisposable
     {
-        private readonly ClusterVNode _node;
-        private readonly Task _nodeStarted;
-        private readonly IEventStoreConnection _connection;
         private readonly IList<object> _commands;
-        private readonly ISerializer _serializer;
-        private readonly Guid _orderId;
-        private readonly string _streamName;
+        private readonly IEventStoreConnection _connection;
         private readonly string _correlationId;
         private readonly ResolvedEventDispatcher _dispatcher;
+        private readonly ClusterVNode _node;
+        private readonly Task _nodeStarted;
+        private readonly Guid _orderId;
+        private readonly ISerializer _serializer;
+        private readonly string _streamName;
 
         public ProcessManagerHandlerTests()
         {
+            Logging.Configure();
+
             var source = new TaskCompletionSource<bool>();
             _nodeStarted = source.Task;
 
@@ -67,15 +69,27 @@
 
             _serializer = new DefaultGetEventStoreJsonSerializer();
 
-            var commandHandler = new CommandHandlerModule();
-            commandHandler.For<ShipOrder>()
-                .Handle(message => _commands.Add(message.Command));
-            commandHandler.For<BillCustomer>()
-                .Handle(message => _commands.Add(message.Command));
+            var commandHandlerModule = new CommandHandlerModule();
+            commandHandlerModule.For<ShipOrder>()
+                .Handle((message, _) =>
+                {
+                    _commands.Add(message.Command);
+                    return Task.FromResult(0);
+                });
+            commandHandlerModule.For<BillCustomer>()
+                .Handle((message, _) =>
+                {
+                    _commands.Add(message.Command);
+                    return Task.FromResult(0);
+                });
 
-            ProcessHandler<OrderFulfillment, CompareablePosition> processHandler = ProcessHandler.For<OrderFulfillment, CompareablePosition>(
-                new CommandHandlerResolver(commandHandler),
-                new ClaimsPrincipal(),
+            var resolver = new CommandHandlerResolver(commandHandlerModule);
+            var commandHandlingMiddleware =
+                CommandHandlingMiddleware.HandleCommands(new CommandHandlingSettings(resolver));
+            var embeddedClient = commandHandlingMiddleware.CreateEmbeddedClient();
+
+            var processHandler = ProcessHandler.For<OrderFulfillment, CompareablePosition>(
+                (command, token) => embeddedClient.PutCommand(command, Guid.NewGuid()),
                 new EventStoreClientProcessManagerCheckpointRepository(_connection, _serializer))
                 .CorrelateBy<OrderPlaced>(e => e.DomainEvent.OrderId.ToString())
                 .CorrelateBy<OrderShipped>(e => e.DomainEvent.OrderId.ToString())
@@ -94,7 +108,13 @@
             _correlationId = _orderId.ToString();
         }
 
-        protected async Task StartDispatcher()
+        public void Dispose()
+        {
+            _dispatcher.Dispose();
+            _node.Stop();
+        }
+
+        private async Task StartDispatcher()
         {
             await _nodeStarted;
 
@@ -143,12 +163,6 @@
             }
         }
 
-        public void Dispose()
-        {
-            _dispatcher.Dispose();
-            _node.Stop();
-        }
-
         private async Task<WriteResult> PlaceOrder()
         {
             await _nodeStarted;
@@ -181,7 +195,9 @@
                 {
                     CheckpointToken = checkpoint.ToCheckpointToken(),
                     CorrelationId = _correlationId,
-                    ProcessId = ProcessHandler<OrderFulfillment, CompareablePosition>.DefaultBuildProcessManagerId(_correlationId)
+                    ProcessId =
+                        ProcessHandler<OrderFulfillment, CompareablePosition>.DefaultBuildProcessManagerId(
+                            _correlationId)
                 });
         }
 
@@ -241,14 +257,6 @@
             public decimal Total { get; set; }
         }
 
-        private class BillCustomer
-        {
-            public Guid BillingId { get; set; }
-            public Guid OrderId { get; set; }
-            public Guid CustomerId { get; set; }
-            public decimal Total { get; set; }
-        }
-
         private class BillingSucceeded
         {
             public Guid BillingId { get; set; }
@@ -264,18 +272,26 @@
             public Guid CustomerId { get; set; }
         }
 
-        private class ShipOrder
-        {
-            public Guid OrderId { get; set; }
-            public Guid CustomerId { get; set; }
-            public Guid ShipmentId { get; set; }
-        }
-
         private class OrderShipped
         {
             public Guid OrderId { get; set; }
             public Guid CustomerId { get; set; }
             public Guid ShipmentId { get; set; }
         }
+    }
+
+    internal class ShipOrder
+    {
+        public Guid OrderId { get; set; }
+        public Guid CustomerId { get; set; }
+        public Guid ShipmentId { get; set; }
+    }
+
+    internal class BillCustomer
+    {
+        public Guid BillingId { get; set; }
+        public Guid OrderId { get; set; }
+        public Guid CustomerId { get; set; }
+        public decimal Total { get; set; }
     }
 }
