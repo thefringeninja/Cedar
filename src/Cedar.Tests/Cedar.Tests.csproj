@@ -32,13 +32,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Cedar.HttpCommandHandling, Version=0.4.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cedar.HttpCommandHandling.0.4.2-build00018\lib\net45\Cedar.HttpCommandHandling.dll</HintPath>
+    <Reference Include="Cedar.HttpCommandHandling">
+      <HintPath>..\packages\Cedar.HttpCommandHandling.0.4.2\lib\net45\Cedar.HttpCommandHandling.dll</HintPath>
     </Reference>
-    <Reference Include="Cedar.HttpCommandHandling.Client, Version=0.4.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cedar.HttpCommandHandling.Client.0.4.2-build00018\lib\net45\Cedar.HttpCommandHandling.Client.dll</HintPath>
+    <Reference Include="Cedar.HttpCommandHandling.Client">
+      <HintPath>..\packages\Cedar.HttpCommandHandling.Client.0.4.0\lib\net45\Cedar.HttpCommandHandling.Client.dll</HintPath>
     </Reference>
     <Reference Include="EventStore.ClientAPI">
       <HintPath>..\packages\EventStore.Client.3.0.1\lib\net40\EventStore.ClientAPI.dll</HintPath>
