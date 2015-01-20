@@ -12,10 +12,12 @@
     <title>Cedar.Testing.Xunit</title>
     <description>An opinionated library to assist in building CQRS and Event Sourced applications on NEventStore</description>
     <tags>cqrs event-sourcing domain-driven-design</tags>
-    <frameworkAssemblies />
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Xml"/>
+    </frameworkAssemblies>
     <releaseNotes/>
     <dependencies>
-      <dependency id="Cedar.Testing" version="[0.2,0.3)"/>
+      <dependency id="Cedar.Testing" version="(0.1,0.3)"/>
       <dependency id="xunit" version="[1.9.2]"/>
     </dependencies>
   </metadata>
