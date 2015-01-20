@@ -12,8 +12,8 @@
         <description>An opinionated library to assist in building CQRS and Event Sourced applications on NEventStore. This is the client library to assist in invoking commands and other operations remotely and embedded.</description>
         <tags>cqrs event-sourcing domain-driven-design</tags>
         <frameworkAssemblies>
-			<frameworkAssembly assemblyName="System.Net.Http"/>
-		</frameworkAssemblies>
+    			<frameworkAssembly assemblyName="System.Net.Http"/>
+		    </frameworkAssemblies>
         <releaseNotes/>
 		<dependencies/>
     </metadata>
