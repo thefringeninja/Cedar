@@ -3,7 +3,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    public static class Extensions
+    internal static class Extensions
     {
         public static string CleanupName(this string name)
         {

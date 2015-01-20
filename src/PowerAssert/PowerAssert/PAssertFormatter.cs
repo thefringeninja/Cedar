@@ -5,7 +5,7 @@
     using PowerAssert.Infrastructure;
     using PowerAssert.Infrastructure.Nodes;
 
-    public static class PAssertFormatter
+    internal static class PAssertFormatter
     {
         public static string CreateSimpleFormatFor(LambdaExpression expression)
         {
