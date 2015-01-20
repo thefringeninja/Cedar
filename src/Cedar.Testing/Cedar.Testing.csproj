@@ -121,8 +121,8 @@
     <Compile Include="Execution\FindScenarios.cs" />
     <Compile Include="Execution\IScenarioRunner.cs" />
     <Compile Include="Execution\ScenarioRunner.cs" />
-    <Compile Include="FatalScenarioException.cs" />
     <Compile Include="MessageEqualityComparer.cs" />
+    <Compile Include="OwinExtensions.cs" />
     <Compile Include="Printing\Bootstrap\BootstrapPrinter.cs" />
     <Compile Include="Printing\Console\ConsolePrinter.cs" />
     <Compile Include="Printing\PrintingExtensions.cs" />
@@ -145,6 +145,7 @@
     <None Include="Cedar.Testing.nuspec" />
     <None Include="packages.config" />
     <Compile Include="Scenario.Any.cs" />
+    <Compile Include="Scenario.Http.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
