@@ -7,7 +7,6 @@
     using Cedar.Annotations;
     using Cedar.GetEventStore.Serialization;
     using Cedar.Handlers;
-    using Cedar.Serialization;
     using CuttingEdge.Conditions;
     using EventStore.ClientAPI;
 

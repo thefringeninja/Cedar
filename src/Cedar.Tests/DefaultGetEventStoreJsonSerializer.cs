@@ -2,7 +2,7 @@
 {
     using System;
     using System.IO;
-    using Cedar.Serialization;
+    using Cedar.GetEventStore.Serialization;
     using Newtonsoft.Json;
 
     internal class DefaultGetEventStoreJsonSerializer : ISerializer

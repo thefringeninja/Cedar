@@ -91,7 +91,11 @@
                     };
                     _runWhen = async () =>
                     {
-                        var client = new HttpClient(new OwinHttpMessageHandler(middleware.Terminate()))
+                        var handler = new OwinHttpMessageHandler(middleware)
+                        {
+                            UseCookies = true
+                        };
+                        var client = new HttpClient(handler)
                         {
                             BaseAddress = new Uri("http://localhost/")
                         };

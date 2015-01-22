@@ -8,8 +8,8 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using Cedar.GetEventStore.Serialization;
     using Cedar.Handlers;
-    using Cedar.Serialization;
     using EventStore.ClientAPI;
     using EventStore.ClientAPI.SystemData;
 

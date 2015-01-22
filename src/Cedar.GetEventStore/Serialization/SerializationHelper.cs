@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Text;
     using Cedar.Handlers;
-    using Cedar.Serialization;
     using CuttingEdge.Conditions;
     using EventStore.ClientAPI;
 

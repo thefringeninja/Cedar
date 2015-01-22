@@ -6,7 +6,6 @@
     using Cedar.GetEventStore.Serialization;
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Messages;
-    using Cedar.Serialization;
     using CuttingEdge.Conditions;
     using EventStore.ClientAPI;
 
