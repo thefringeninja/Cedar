@@ -70,7 +70,6 @@
     <Compile Include="ProcessManagers\Messages\CheckpointReached.cs" />
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
-    <Compile Include="TinyIoC.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
     <Compile Include="Handlers\HandlerModule.cs" />
