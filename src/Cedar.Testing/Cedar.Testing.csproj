@@ -112,7 +112,6 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Any.cs" />
-    <Compile Include="App_Packages\LibOwin.1.0\LibOwin.cs" />
     <Compile Include="Authorization.cs" />
     <Compile Include="EnumerableExtensions.cs" />
     <Compile Include="Execution\FindScenarios.cs" />
