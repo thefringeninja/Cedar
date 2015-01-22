@@ -6,14 +6,12 @@
     using System.Linq;
     using System.Linq.Expressions;
     using System.Net.Http;
-    using System.Net.Http.Headers;
     using System.Reflection;
     using System.Runtime.CompilerServices;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Handlers;
-    using Cedar.Testing.LibOwin;
     using PowerAssert;
     using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>,
         System.Threading.Tasks.Task
