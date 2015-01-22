@@ -52,10 +52,6 @@
     <None Include="ScenarioAttribute.cs.pp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
-      <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
-      <Name>Cedar.Client</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Cedar.Testing\Cedar.Testing.csproj">
       <Project>{DE625B35-8644-4F57-8AA0-2792F19EC435}</Project>
       <Name>Cedar.Testing</Name>

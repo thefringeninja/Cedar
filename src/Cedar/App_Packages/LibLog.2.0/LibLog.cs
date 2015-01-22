@@ -1,4 +1,4 @@
-﻿//===============================================================================
+//===============================================================================
 // LibLog
 //
 // https://github.com/damianh/LibLog
@@ -24,13 +24,15 @@
 // SOFTWARE.
 //===============================================================================
 
+#pragma warning disable 1591
+
 namespace Cedar.Logging
 {
-    using System;
     using System.Collections.Generic;
+    using Cedar.Logging.LogProviders;
+    using System;
     using System.Diagnostics;
     using System.Globalization;
-    using Cedar.Logging.LogProviders;
 
     /// <summary>
     /// Simple interface that represent a logger.
@@ -42,24 +44,15 @@ namespace Cedar.Logging
         /// </summary>
         /// <param name="logLevel">The log level.</param>
         /// <param name="messageFunc">The message function.</param>
+        /// <param name="exception">An optional exception.</param>
+        /// <returns>true if the message was logged. Otherwise false.</returns>
         /// <remarks>
-        /// Note to implementors: the message func should not be called if the loglevel is not enabled
-        /// so as not to incur perfomance penalties.
+        /// Note to implementers: the message func should not be called if the loglevel is not enabled
+        /// so as not to incur performance penalties.
+        /// 
+        /// To check IsEnabled call Log with only LogLevel and check the return value, no event will be written
         /// </remarks>
-        bool Log(LogLevel logLevel, Func<string> messageFunc);
-
-        /// <summary>
-        /// Log a message and exception at the specified log level.
-        /// </summary>
-        /// <typeparam name="TException">The type of the exception.</typeparam>
-        /// <param name="logLevel">The log level.</param>
-        /// <param name="messageFunc">The message function.</param>
-        /// <param name="exception">The exception.</param>
-        /// <remarks>
-        /// Note to implementors: the message func should not be called if the loglevel is not enabled
-        /// so as not to incur perfomance penalties.
-        /// </remarks>
-        void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception;
+        bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null);
     }
 
     /// <summary>
@@ -421,14 +414,10 @@ namespace Cedar.Logging
 
         public class NoOpLogger : ILog
         {
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 return false;
             }
-
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
-                where TException : Exception
-            { }
         }
     }
 
@@ -447,7 +436,7 @@ namespace Cedar.Logging
             _logger = logger;
         }
 
-        public bool Log(LogLevel logLevel, Func<string> messageFunc)
+        public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception = null)
         {
             if (messageFunc == null)
             {
@@ -466,24 +455,7 @@ namespace Cedar.Logging
                 }
                 return null;
             };
-            return _logger.Log(logLevel, wrappedMessageFunc);
-        }
-
-        public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
-        {
-            Func<string> wrappedMessageFunc = () =>
-            {
-                try
-                {
-                    return messageFunc();
-                }
-                catch (Exception ex)
-                {
-                    Log(LogLevel.Error, () => FailedToGenerateLogMessage, ex);
-                }
-                return null;
-            };
-            _logger.Log(logLevel, wrappedMessageFunc, exception);
+            return _logger.Log(logLevel, wrappedMessageFunc, exception);
         }
     }
 }
@@ -497,7 +469,6 @@ namespace Cedar.Logging.LogProviders
     using System.Linq.Expressions;
     using System.Reflection;
     using System.Text;
-
     public class NLogLogProvider : ILogProvider
     {
         private readonly Func<string, object> _getLoggerByNameDelegate;
@@ -530,7 +501,7 @@ namespace Cedar.Logging.LogProviders
 
         private static Type GetLogManagerType()
         {
-            return Type.GetType("NLog.LogManager, nlog");
+            return Type.GetType("NLog.LogManager, NLog");
         }
 
         private static Func<string, object> GetGetLoggerMethodCall()
@@ -551,11 +522,15 @@ namespace Cedar.Logging.LogProviders
                 _logger = logger;
             }
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 if (messageFunc == null)
                 {
                     return IsLogLevelEnable(logLevel);
+                }
+                if(exception != null)
+                {
+                    return LogException(logLevel, messageFunc, exception);
                 }
                 switch (logLevel)
                 {
@@ -605,8 +580,7 @@ namespace Cedar.Logging.LogProviders
                 return false;
             }
 
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
-                where TException : Exception
+            private bool LogException(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 switch (logLevel)
                 {
@@ -614,39 +588,46 @@ namespace Cedar.Logging.LogProviders
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.DebugException(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     case LogLevel.Info:
                         if (_logger.IsInfoEnabled)
                         {
                             _logger.InfoException(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (_logger.IsWarnEnabled)
                         {
                             _logger.WarnException(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (_logger.IsErrorEnabled)
                         {
                             _logger.ErrorException(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (_logger.IsFatalEnabled)
                         {
                             _logger.FatalException(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     default:
                         if (_logger.IsTraceEnabled)
                         {
                             _logger.TraceException(messageFunc(), exception);
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             private bool IsLogLevelEnable(LogLevel logLevel)
@@ -723,11 +704,15 @@ namespace Cedar.Logging.LogProviders
                 _logger = logger;
             }
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 if (messageFunc == null)
                 {
                     return IsLogLevelEnable(logLevel);
+                }
+                if (exception != null)
+                {
+                    return LogException(logLevel, messageFunc, exception);
                 }
                 switch (logLevel)
                 {
@@ -770,8 +755,7 @@ namespace Cedar.Logging.LogProviders
                 return false;
             }
 
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
-                where TException : Exception
+            private bool LogException(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 switch (logLevel)
                 {
@@ -779,33 +763,39 @@ namespace Cedar.Logging.LogProviders
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.Info(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (_logger.IsWarnEnabled)
                         {
                             _logger.Warn(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (_logger.IsErrorEnabled)
                         {
                             _logger.Error(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (_logger.IsFatalEnabled)
                         {
                             _logger.Fatal(messageFunc(), exception);
+                            return true;
                         }
                         break;
                     default:
                         if (_logger.IsDebugEnabled)
                         {
                             _logger.Debug(messageFunc(), exception);
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
 
             private bool IsLogLevelEnable(LogLevel logLevel)
@@ -944,23 +934,27 @@ namespace Cedar.Logging.LogProviders
                 _shouldLog = shouldLog;
             }
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 var severity = MapSeverity(logLevel);
                 if (messageFunc == null)
                 {
                     return _shouldLog(_loggerName, severity);
                 }
+                if (exception != null)
+                {
+                    return LogException(logLevel, messageFunc, exception);
+                }
                 _writeLog(_loggerName, messageFunc(), severity);
                 return true;
             }
 
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
-                where TException : Exception
+            public bool LogException(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 var severity = MapSeverity(logLevel);
                 var message = messageFunc() + Environment.NewLine + exception;
                 _writeLog(_loggerName, message, severity);
+                return true;
             }
 
             private static TraceEventType MapSeverity(LogLevel logLevel)
@@ -1120,11 +1114,15 @@ namespace Cedar.Logging.LogProviders
                 _logger = logger;
             }
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 if (messageFunc == null)
                 {
                     return IsEnabled(_logger, logLevel);
+                }
+                if (exception != null)
+                {
+                    return LogException(logLevel, messageFunc, exception);
                 }
 
                 switch (logLevel)
@@ -1175,8 +1173,7 @@ namespace Cedar.Logging.LogProviders
                 return false;
             }
 
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
-                where TException : Exception
+            private bool LogException(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 switch (logLevel)
                 {
@@ -1184,39 +1181,46 @@ namespace Cedar.Logging.LogProviders
                         if (IsEnabled(_logger, DebugLevel))
                         {
                             WriteException(_logger, DebugLevel, exception, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Info:
                         if (IsEnabled(_logger, InformationLevel))
                         {
                             WriteException(_logger, InformationLevel, exception, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Warn:
                         if (IsEnabled(_logger, WarningLevel))
                         {
                             WriteException(_logger, WarningLevel, exception, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Error:
                         if (IsEnabled(_logger, ErrorLevel))
                         {
                             WriteException(_logger, ErrorLevel, exception, messageFunc());
+                            return true;
                         }
                         break;
                     case LogLevel.Fatal:
                         if (IsEnabled(_logger, FatalLevel))
                         {
                             WriteException(_logger, FatalLevel, exception, messageFunc());
+                            return true;
                         }
                         break;
                     default:
                         if (IsEnabled(_logger, VerboseLevel))
                         {
                             WriteException(_logger, VerboseLevel, exception, messageFunc());
+                            return true;
                         }
                         break;
                 }
+                return false;
             }
         }
     }
@@ -1294,7 +1298,7 @@ namespace Cedar.Logging.LogProviders
                 _skipLevel = 1;
             }
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 if (messageFunc == null)
                 {
@@ -1302,23 +1306,10 @@ namespace Cedar.Logging.LogProviders
                     return true;
                 }
 
-                _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, null, false, 0, null,
+                _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, exception, true, 0, null,
                     _category, null, messageFunc.Invoke());
 
                 return true;
-            }
-
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception)
-                where TException : Exception
-            {
-                if (messageFunc == null)
-                {
-                    //nothing to log..
-                    return;
-                }
-
-                _logWriteDelegate((int)ToLogMessageSeverity(logLevel), LogSystem, _skipLevel, exception, true, 0, null,
-                    _category, null, messageFunc.Invoke());
             }
 
             public TraceEventType ToLogMessageSeverity(LogLevel logLevel)
@@ -1435,20 +1426,15 @@ namespace Cedar.Logging.LogProviders
                 _name = name;
             }
 
-            public bool Log(LogLevel logLevel, Func<string> messageFunc)
+            public bool Log(LogLevel logLevel, Func<string> messageFunc, Exception exception)
             {
                 if (messageFunc == null)
                 {
                     return true;
                 }
 
-                this.Write(logLevel, messageFunc());
+                Write(logLevel, messageFunc(), exception);
                 return true;
-            }
-
-            public void Log<TException>(LogLevel logLevel, Func<string> messageFunc, TException exception) where TException : Exception
-            {
-                this.Write(logLevel, messageFunc(), exception);
             }
 
             protected void Write(LogLevel logLevel, string message, Exception e = null)

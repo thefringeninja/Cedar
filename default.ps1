@@ -38,11 +38,6 @@ task RunTests -depends Compile {
 task ILMerge -depends Compile {
 	New-Item $mergedDir -Type Directory -ErrorAction SilentlyContinue
 
-	$dllDir = "$srcDir\Cedar.Client\bin\Release"
-	$inputDlls = "$dllDir\Cedar.Client.dll "
-	@("Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
-	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.Client.dll $inputDlls"
-
 	$dllDir = "$srcDir\Cedar\bin\Release"
 	$inputDlls = "$dllDir\Cedar.dll"
 	@("CuttingEdge.Conditions", "Microsoft.Owin", "Newtonsoft.Json", "Owin", "System.Net.Http.Formatting", "System.Reactive.Core",`

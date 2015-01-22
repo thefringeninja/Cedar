@@ -67,10 +67,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
-      <Project>{772D0367-FF5A-430C-BC63-A40F5E48F247}</Project>
-      <Name>Cedar.Client</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Cedar.NEventStore\Cedar.NEventStore.csproj">
       <Project>{14571633-73BE-40E4-993B-0FF82648CBEC}</Project>
       <Name>Cedar.NEventStore</Name>

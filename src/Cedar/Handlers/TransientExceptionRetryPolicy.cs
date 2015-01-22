@@ -5,6 +5,7 @@ namespace Cedar.Handlers
     using System.Runtime.ExceptionServices;
     using System.Threading;
     using System.Threading.Tasks;
+    using Cedar.Internal;
     using Cedar.Logging;
 
     /// <summary>

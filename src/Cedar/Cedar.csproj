@@ -79,17 +79,22 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="App_Packages\LibLog.2.0\LibLog.cs" />
     <Compile Include="Handlers\DomainEventMessage.cs" />
     <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
     <Compile Include="Handlers\HandlerBuilderExtensions.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
+    <Compile Include="Internal\EnumerableExtensions.cs" />
+    <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="ProcessManagers\DispatchCommand.cs" />
     <Compile Include="ProcessManagers\IProcessManagerCheckpointRepository.cs" />
     <Compile Include="ProcessManagers\Messages\CheckpointReached.cs" />
     <Compile Include="ProcessManagers\Persistence\DefaultProcessManagerFactory.cs" />
     <Compile Include="ProcessManagers\Persistence\IProcessManagerFactory.cs" />
+    <Compile Include="Serialization\DefaultJsonSerializer.cs" />
+    <Compile Include="Serialization\ISerializer.cs" />
+    <Compile Include="Serialization\SerializerExtensions.cs" />
     <Compile Include="TinyIoC.cs" />
-    <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Handlers\ICreateHandlerBuilder.cs" />
     <Compile Include="Handlers\IHandlerBuilder.cs" />
     <Compile Include="Handlers\HandlerModule.cs" />
@@ -139,12 +144,6 @@
     <None Include="app.config" />
     <None Include="Cedar.nuspec" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Cedar.Client\Cedar.Client.csproj">
-      <Project>{772d0367-ff5a-430c-bc63-a40f5e48f247}</Project>
-      <Name>Cedar.Client</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Domain\Persistence\ExceptionMessages.resx">

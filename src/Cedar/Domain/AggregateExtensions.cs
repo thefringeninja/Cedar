@@ -1,6 +1,6 @@
 namespace Cedar.Domain
 {
-    using System;
+    using Cedar.Internal;
 
     internal static class AggregateExtensions
     {
