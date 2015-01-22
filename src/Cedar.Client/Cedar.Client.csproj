@@ -48,12 +48,9 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="App_Packages\LibLog.1.4\LibLog.cs" />
-    <Compile Include="Commands\HttpProblemDetailsException.cs" />
-    <Compile Include="Commands\HttpProblemDetails.cs" />
     <Compile Include="Serialization\DefaultJsonSerializer.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\SerializerExtensions.cs" />
-    <Compile Include="Commands\Client\HttpClientExtensions.cs" />
     <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
