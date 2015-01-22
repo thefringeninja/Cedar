@@ -5,13 +5,12 @@ namespace Cedar.Domain
 
     public class RegistrationEventRouter : IEventRouter
     {
-        private readonly IDictionary<Type, Action<object>> handlers = new Dictionary<Type, Action<object>>();
-
-        private IAggregate regsitered;
+        private readonly IDictionary<Type, Action<object>> _handlers = new Dictionary<Type, Action<object>>();
+        private IAggregate _regsitered;
 
         public virtual void Register<T>(Action<T> handler)
         {
-            handlers[typeof (T)] = @event => handler((T) @event);
+            _handlers[typeof (T)] = @event => handler((T) @event);
         }
 
         public virtual void Register(IAggregate aggregate)
@@ -21,16 +20,16 @@ namespace Cedar.Domain
                 throw new ArgumentNullException("aggregate");
             }
 
-            regsitered = aggregate;
+            _regsitered = aggregate;
         }
 
         public virtual void Dispatch(object eventMessage)
         {
             Action<object> handler;
 
-            if (!handlers.TryGetValue(eventMessage.GetType(), out handler))
+            if (!_handlers.TryGetValue(eventMessage.GetType(), out handler))
             {
-                regsitered.ThrowHandlerNotFound(eventMessage);
+                _regsitered.ThrowHandlerNotFound(eventMessage);
             }
 
             handler(eventMessage);
