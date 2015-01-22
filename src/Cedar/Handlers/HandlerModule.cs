@@ -13,7 +13,7 @@
         where TMessage : class;
 
     public delegate Handler<TMessage> Pipe<TMessage>(Handler<TMessage> next) 
-    where TMessage : class;
+        where TMessage : class;
 
     /// <summary>
     /// Represents a collection of handlers pipelines.
@@ -61,7 +61,7 @@
 
         private class HandlerBuilder<TMessage> : IHandlerBuilder<TMessage> where TMessage : class
         {
-            private readonly Stack<Pipe<TMessage>> _middlewares = new Stack<Pipe<TMessage>>();
+            private readonly Stack<Pipe<TMessage>> _pipes = new Stack<Pipe<TMessage>>();
             private Handler<TMessage> _handler;
 
             internal Task Invoke(TMessage message, CancellationToken ct)
@@ -71,7 +71,7 @@
 
             public IHandlerBuilder<TMessage> Pipe(Pipe<TMessage> pipe)
             {
-                _middlewares.Push(pipe);
+                _pipes.Push(pipe);
                 return this;
             }
 
@@ -79,9 +79,9 @@
             {
                 _handler = handler;
 
-                while (_middlewares.Count > 0)
+                while (_pipes.Count > 0)
                 {
-                    var handlerMiddleware = _middlewares.Pop();
+                    var handlerMiddleware = _pipes.Pop();
                     _handler = handlerMiddleware(_handler);
                 }
                 return _handler;
