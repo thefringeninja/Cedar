@@ -12,7 +12,6 @@
     using Cedar.GetEventStore.ProcessManagers;
     using Cedar.GetEventStore.Serialization;
     using Cedar.HttpCommandHandling;
-    using Cedar.HttpCommandHandling.Client;
     using Cedar.ProcessManagers;
     using Cedar.ProcessManagers.Messages;
     using EventStore.ClientAPI;
