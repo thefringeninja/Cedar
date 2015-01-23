@@ -1,9 +1,8 @@
-﻿ // ReSharper disable once CheckNamespace
-namespace System.Threading
+﻿namespace Cedar.Internal
 {
-    internal static class InterlockedBooleanExtensions
+    public static class InterlockedBooleanExtensions
     {
-        internal static bool EnsureCalledOnce(this InterlockedBoolean interlockedBoolean)
+        public static bool EnsureCalledOnce(this InterlockedBoolean interlockedBoolean)
         {
             return interlockedBoolean.CompareExchange(true, false);
         }

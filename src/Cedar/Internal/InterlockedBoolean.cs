@@ -17,13 +17,14 @@
 // 
 
 
-// ReSharper disable once CheckNamespace
-namespace System.Threading
+namespace Cedar.Internal
 {
+    using System.Threading;
+
     /// <summary>
     /// Interlocked support for boolean values
     /// </summary>
-    internal class InterlockedBoolean
+    public class InterlockedBoolean
     {
         private int _value;
 

@@ -1,21 +1,23 @@
-﻿// ReSharper disable once CheckNamespace
-namespace System.Threading.Tasks
+﻿namespace Cedar.Internal
 {
+    using System;
     using System.Runtime.CompilerServices;
+    using System.Threading;
+    using System.Threading.Tasks;
 
-    internal static class TaskExtensions
+    public static class TaskExtensions
     {
-        internal static ConfiguredTaskAwaitable<T> NotOnCapturedContext<T>(this Task<T> task)
+        public static ConfiguredTaskAwaitable<T> NotOnCapturedContext<T>(this Task<T> task)
         {
             return task.ConfigureAwait(false);
         }
 
-        internal static ConfiguredTaskAwaitable NotOnCapturedContext(this Task task)
+        public static ConfiguredTaskAwaitable NotOnCapturedContext(this Task task)
         {
             return task.ConfigureAwait(false);
         }
 
-        internal static async Task<TResult> WithTimeout<TResult>(this Task<TResult> task, TimeSpan delay)
+        public static async Task<TResult> WithTimeout<TResult>(this Task<TResult> task, TimeSpan delay)
         {
             var cts = new CancellationTokenSource();
             Task completedTask = await Task.WhenAny(task, Task.Delay(delay, cts.Token));
@@ -27,7 +29,7 @@ namespace System.Threading.Tasks
             return await task.NotOnCapturedContext();
         }
 
-        internal static async Task WithTimeout(this Task task, TimeSpan delay)
+        public static async Task WithTimeout(this Task task, TimeSpan delay)
         {
             var cts = new CancellationTokenSource();
             Task completedTask = await Task.WhenAny(task, Task.Delay(delay, cts.Token));

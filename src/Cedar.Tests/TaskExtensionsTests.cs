@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Cedar.Internal;
     using FluentAssertions;
     using Xunit;
 

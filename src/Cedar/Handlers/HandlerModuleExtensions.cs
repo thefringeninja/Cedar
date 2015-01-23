@@ -5,6 +5,7 @@ namespace Cedar.Handlers
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using Cedar.Internal;
     using CuttingEdge.Conditions;
 
     /// <summary>

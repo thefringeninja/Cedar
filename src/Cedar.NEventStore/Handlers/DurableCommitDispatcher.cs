@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using Cedar.Annotations;
     using Cedar.Handlers;
+    using Cedar.Internal;
     using Cedar.Logging;
     using global::NEventStore;
 
@@ -126,7 +127,7 @@
                 catch (Exception ex)
                 {
                     Logger.ErrorException(
-                        Messages.ExceptionHasOccuredWhenDispatchingACommit.FormatWith(commit.ToString()),
+                        ExtensionMethods.FormatWith(Messages.ExceptionHasOccuredWhenDispatchingACommit, new[] { commit.ToString() }),
                         ex);
                     _projectedCommits.OnError(ex);
                     throw;

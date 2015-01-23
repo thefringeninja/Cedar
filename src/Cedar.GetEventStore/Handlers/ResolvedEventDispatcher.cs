@@ -10,6 +10,7 @@
     using Cedar.Annotations;
     using Cedar.GetEventStore.Serialization;
     using Cedar.Handlers;
+    using Cedar.Internal;
     using EventStore.ClientAPI;
     using EventStore.ClientAPI.SystemData;
 
