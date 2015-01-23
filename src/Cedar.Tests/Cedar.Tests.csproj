@@ -125,7 +125,6 @@
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
     <Compile Include="Handlers\MessageHandlerModuleTests.cs" />
-    <Compile Include="Handlers\TransientExceptionRetryPolicyTests.cs" />
     <Compile Include="Handlers\DurableCommitDispatcherTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

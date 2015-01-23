@@ -22,7 +22,6 @@
         private readonly Action _onCaughtUp;
         private readonly string _streamId;
         private readonly UserCredentials _userCredentials;
-        private readonly TransientExceptionRetryPolicy _retryPolicy;
         private readonly Subject<ResolvedEvent> _projectedEvents;
         private readonly InterlockedBoolean _isStarted;
         private readonly InterlockedBoolean _isDisposed;
@@ -41,7 +40,6 @@
             ICheckpointRepository checkpoints,
             Func<ISerializer, ResolvedEvent, bool, CancellationToken, Task> dispatchResolvedEvent,
             Action onCaughtUp = null,
-            TransientExceptionRetryPolicy retryPolicy = null,
             string streamId = null,
             UserCredentials userCredentials = null)
         {
@@ -56,13 +54,12 @@
             _streamId = streamId;
             _userCredentials = userCredentials;
             _projectedEvents = new Subject<ResolvedEvent>();
-            _retryPolicy = retryPolicy ?? TransientExceptionRetryPolicy.None();
 
             _queue = new SimpleQueue(async (resolvedEvent, token) =>
             {
                 try
                 {
-                    await _retryPolicy.Retry(() => _dispatchResolvedEvent(_serializer, resolvedEvent, _subscription.IsSubscribedToAll, _disposed.Token), token);
+                    await _dispatchResolvedEvent(_serializer, resolvedEvent, _subscription.IsSubscribedToAll, _disposed.Token);
                 }
                 catch(Exception ex)
                 {
@@ -86,10 +83,9 @@
             ICheckpointRepository checkpoints,
             [NotNull] IEnumerable<IHandlerResolver> handlerModules,
             Action onCaughtUp = null,
-            TransientExceptionRetryPolicy retryPolicy = null,
             string streamId = null,
             UserCredentials userCredentials = null)
-            : this(eventStore, serializer, checkpoints, handlerModules.DispatchResolvedEvent, onCaughtUp, retryPolicy, streamId, userCredentials)
+            : this(eventStore, serializer, checkpoints, handlerModules.DispatchResolvedEvent, onCaughtUp, streamId, userCredentials)
         {}
 
         public ResolvedEventDispatcher(
@@ -98,10 +94,9 @@
             ICheckpointRepository checkpoints,
             [NotNull] IHandlerResolver handlerModule,
             Action onCaughtUp = null,
-            TransientExceptionRetryPolicy retryPolicy = null,
             string streamId = null,
             UserCredentials userCredentials = null)
-            : this(eventStore, serializer, checkpoints, new[] {handlerModule}, onCaughtUp, retryPolicy, streamId, userCredentials)
+            : this(eventStore, serializer, checkpoints, new[] {handlerModule}, onCaughtUp, streamId, userCredentials)
         {}
 
         public IObservable<ResolvedEvent> ProjectedEvents
@@ -177,7 +172,7 @@
             _queue.Enqueue(resolvedEvent);
         }
 
-        class SimpleQueue
+        private class SimpleQueue
         {
             private readonly Func<ResolvedEvent, CancellationToken, Task> _onResolvedEvent;
             private readonly CancellationToken _token;

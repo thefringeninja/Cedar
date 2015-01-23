@@ -24,7 +24,6 @@
         private readonly Subject<ICommit> _projectedCommits = new Subject<ICommit>();
         private readonly InterlockedBoolean _isStarted = new InterlockedBoolean();
         private int _isDisposed;
-        private readonly TransientExceptionRetryPolicy _retryPolicy;
         private readonly CancellationTokenSource _disposed = new CancellationTokenSource();
         private IDisposable _subscription;
 
@@ -35,8 +34,6 @@
         /// <param name="checkpointRepository">A checkpoint repository. Each instane of a <see cref="DurableCommitDispatcher"/>
         /// should have their own instance of a <see cref="ICheckpointRepository"/>.</param>
         /// <param name="handlerModule">A handler module to dispatch the commit to.</param>
-        /// <param name="retryPolicy">A retry policy when a <see cref="TransientException"/> occurs.
-        /// If none specified TransientException.None is used.</param>
         /// <exception cref="System.ArgumentNullException">
         /// eventStoreClient
         /// or
@@ -47,9 +44,8 @@
         public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] IHandlerResolver handlerModule,
-            TransientExceptionRetryPolicy retryPolicy = null) :
-            this(eventStoreClient, checkpointRepository, new[] { handlerModule }, retryPolicy)
+            [NotNull] IHandlerResolver handlerModule) :
+            this(eventStoreClient, checkpointRepository, new[] { handlerModule })
         {
             Guard.EnsureNotNull(handlerModule, "handlerModule");
         }
@@ -61,8 +57,6 @@
         /// <param name="checkpointRepository">A checkpoint repository. Each instane of a <see cref="DurableCommitDispatcher"/>
         /// should have their own instance of a <see cref="ICheckpointRepository"/>.</param>
         /// <param name="handlerModules">A collection of handler modules to dispatch the commit to.</param>
-        /// <param name="retryPolicy">A retry policy when a <see cref="TransientException"/> occurs.
-        /// If none specified TransientException.None is used.</param>
         /// <exception cref="System.ArgumentNullException">
         /// eventStoreClient
         /// or
@@ -73,9 +67,8 @@
         public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] IEnumerable<IHandlerResolver> handlerModules,
-            TransientExceptionRetryPolicy retryPolicy = null):
-            this(eventStoreClient, checkpointRepository, handlerModules.DispatchCommit, retryPolicy )
+            [NotNull] IEnumerable<IHandlerResolver> handlerModules):
+            this(eventStoreClient, checkpointRepository, handlerModules.DispatchCommit)
         {
             Guard.EnsureNotNull(handlerModules, "handlerModule");
         }
@@ -99,8 +92,7 @@
         public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] Func<ICommit, CancellationToken, Task> dispatchCommit,
-            TransientExceptionRetryPolicy retryPolicy = null)
+            [NotNull] Func<ICommit, CancellationToken, Task> dispatchCommit)
         {
             Guard.EnsureNotNull(eventStoreClient, "eventStoreClient");
             Guard.EnsureNotNull(checkpointRepository, "checkpointRepository");
@@ -109,7 +101,6 @@
             _eventStoreClient = eventStoreClient;
             _checkpointRepository = checkpointRepository;
             _dispatchCommit = dispatchCommit;
-            _retryPolicy = retryPolicy ?? TransientExceptionRetryPolicy.None();
         }
 
         /// <summary>
@@ -125,25 +116,23 @@
 
             string checkpointToken = await _checkpointRepository.Get();
 
-           /* string checkpointToken = null;
-            await _retryPolicy.Retry(async () => checkpointToken = await _checkpointRepository.Get(), _disposed.Token); //TODO should have different retry policy? */
             _subscription = _eventStoreClient.Subscribe(checkpointToken, async commit =>
+            {
+                try
                 {
-                    try
-                    {
-                        await _retryPolicy.Retry(() => _dispatchCommit(commit, _disposed.Token), _disposed.Token);
-                        await _retryPolicy.Retry(() => _checkpointRepository.Put(commit.CheckpointToken), _disposed.Token);
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.ErrorException(
-                            Messages.ExceptionHasOccuredWhenDispatchingACommit.FormatWith(commit.ToString()),
-                            ex);
-                        _projectedCommits.OnError(ex);
-                        throw;
-                    }
-                    _projectedCommits.OnNext(commit);
-                });
+                    await _dispatchCommit(commit, _disposed.Token);
+                    await _checkpointRepository.Put(commit.CheckpointToken);
+                }
+                catch (Exception ex)
+                {
+                    Logger.ErrorException(
+                        Messages.ExceptionHasOccuredWhenDispatchingACommit.FormatWith(commit.ToString()),
+                        ex);
+                    _projectedCommits.OnError(ex);
+                    throw;
+                }
+                _projectedCommits.OnNext(commit);
+            });
         }
 
         /// <summary>
