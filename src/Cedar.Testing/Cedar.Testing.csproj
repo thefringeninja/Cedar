@@ -38,6 +38,9 @@
     <Reference Include="KellermanSoftware.Compare-NET-Objects">
       <HintPath>..\packages\CompareNETObjects.3.01.0.0\lib\net45\KellermanSoftware.Compare-NET-Objects.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Owin">
+      <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
     <Reference Include="OwinHttpMessageHandler">
       <HintPath>..\packages\OwinHttpMessageHandler.1.1.0\lib\net45\OwinHttpMessageHandler.dll</HintPath>
       <Private>True</Private>
@@ -118,6 +121,7 @@
     <Compile Include="Execution\IScenarioRunner.cs" />
     <Compile Include="Execution\ScenarioRunner.cs" />
     <Compile Include="MessageEqualityComparer.cs" />
+    <Compile Include="OwinExtensions.cs" />
     <Compile Include="Printing\Bootstrap\BootstrapPrinter.cs" />
     <Compile Include="Printing\Console\ConsolePrinter.cs" />
     <Compile Include="Printing\PrintingExtensions.cs" />
@@ -133,6 +137,7 @@
     <Compile Include="Scenario.Aggregate.cs" />
     <Compile Include="Scenario.ProcessManager.cs" />
     <Compile Include="ScenarioException.cs" />
+    <Compile Include="ScenarioExtensions.cs" />
     <Compile Include="ScenarioResult.cs" />
   </ItemGroup>
   <ItemGroup>

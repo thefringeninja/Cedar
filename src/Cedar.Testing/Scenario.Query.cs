@@ -8,11 +8,9 @@
     using System.Net.Http;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Handlers;
-    using PowerAssert;
     using AppFunc = System.Func<System.Collections.Generic.IDictionary<string, object>,
         System.Threading.Tasks.Task
     >;
@@ -39,9 +37,7 @@
 
             public interface IWhen : IThen
             {
-                IThen When(Task<HttpRequestMessage> request);
-                IThen When(HttpRequest request);
-                IThen When(Task<HttpRequest> request);
+                IThen When(Func<Task<HttpRequestMessage>> request);
             }
 
             public interface IThen : IScenario
@@ -64,7 +60,7 @@
                 private readonly Action _runThen;
                 private readonly Stopwatch _timer;
                 private readonly IList<Expression<Func<HttpResponse, bool>>> _assertions;
-                private Task<HttpRequest> _request;
+                private Func<Task<HttpRequestMessage>> _request;
 
                 static ScenarioBuilder()
                 {
@@ -91,18 +87,12 @@
                     };
                     _runWhen = async () =>
                     {
-                        var handler = new OwinHttpMessageHandler(middleware)
+                        using(var client = middleware.Terminate().CreateClient())
                         {
-                            UseCookies = true
-                        };
-                        var client = new HttpClient(handler)
-                        {
-                            BaseAddress = new Uri("http://localhost/")
-                        };
-                        
-                        _when = await _request;
-                        
-                        _results = (HttpResponse)await client.SendAsync(_when);
+                            _when = await _request();
+
+                            _results = (HttpResponse) await client.SendAsync(_when);
+                        }
                     };
                     _runThen = () =>
                     {
@@ -132,27 +122,13 @@
                     return this;
                 }
 
-                public IThen When(HttpRequest request)
-                {
-                    _request = Task.FromResult(request);
-
-                    return this;
-                }
-
-                public IThen When(Task<HttpRequest> request)
+                public IThen When(Func<Task<HttpRequestMessage>> request)
                 {
                     _request = request;
 
                     return this;
                 }
-
-                public IThen When(Task<HttpRequestMessage> request)
-                {
-                    _request = request.ContinueWith(task => (HttpRequest)task.Result);
-
-                    return this;
-                }
-
+                
                 public IWhen Given(params object[] events)
                 {
                     _given = events;

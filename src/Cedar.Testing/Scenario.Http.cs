@@ -12,7 +12,7 @@
 
     static partial class Scenario
     {
-        public class HttpRequest
+        internal class HttpRequest
         {
             private readonly HttpRequestMessage _request;
 
@@ -46,7 +46,7 @@
 
             public static implicit operator HttpRequestMessage(HttpRequest request)
             {
-                return request._request;
+                return request == null ? null : request._request;
             }
 
             public static implicit operator HttpRequest(HttpRequestMessage request)
@@ -346,7 +346,7 @@
 
             public static implicit operator HttpResponseMessage(HttpResponse response)
             {
-                return response._response;
+                return response == null ? null : response._response;
             }
 
             public static implicit operator HttpResponse(HttpResponseMessage response)
