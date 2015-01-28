@@ -129,6 +129,7 @@
     <Compile Include="Printing\Markdown\MarkdownPrinter.cs" />
     <Compile Include="Printing\PlainText\PlainTextPrinter.cs" />
     <Compile Include="Printing\TeamCity\TeamCityPrinter.cs" />
+    <Compile Include="Scenario.Middleware.cs" />
     <Compile Include="Scenario.Query.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="IAuthorization.cs" />

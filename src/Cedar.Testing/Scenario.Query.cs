@@ -98,18 +98,12 @@
                     {
                         var response = (HttpResponse)_results;
                         
-                        var failed = (from assertion in _assertions
+                        var didNotPass = from assertion in _assertions
                             let result = assertion.Compile()(response)
                             where false == result
-                            select assertion).ToList();
+                            select assertion;
 
-                        if(failed.Any())
-                        {
-                            throw new ScenarioException("The following assertions failed:" + Environment.NewLine + failed.Aggregate(
-                                new StringBuilder(),
-                                (builder, assertion) =>
-                                    builder.Append('\t').Append(PAssertFormatter.CreateSimpleFormatFor(assertion)).AppendLine()));
-                        }
+                        didNotPass.ScenarioFailedIfAny();
                     };
                     _assertions = new List<Expression<Func<HttpResponse, bool>>>();
                     _timer = new Stopwatch();
