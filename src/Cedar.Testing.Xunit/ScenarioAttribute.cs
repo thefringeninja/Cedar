@@ -32,26 +32,17 @@
                 var methodInfo = testClass.GetType()
                     .GetMethod(_inner.MethodName);
 
-                var task = (Task<ScenarioResult>)methodInfo.Invoke(testClass, null);
+                var testRunResults = methodInfo.Invoke(testClass, null);
 
-                var scenarioResult = task.Result;
+                var scenarioResults = GetScenarioResults(testRunResults).ToArray();
 
-                var methodResult = scenarioResult.Passed
-                    ? HandleSuccess(scenarioResult)
-                    : HandleFailure(scenarioResult);
-                
+                var methodResult = scenarioResults.All(result => result.Passed)
+                    ? HandleSuccess(scenarioResults)
+                    : HandleFailure(scenarioResults);
+
                 Trace.Write(methodResult.Output);
-                
-                return methodResult;
-            }
 
-            private MethodResult HandleSuccess(ScenarioResult scenarioResult)
-            {
-                return new PassedResult(_inner.MethodName, _inner.TypeName, _inner.DisplayName,
-                    new MultiValueDictionary<string, string>())
-                {
-                    Output = PrintResult(scenarioResult)
-                };
+                return methodResult;
             }
 
             public XmlNode ToStartXml()
@@ -74,27 +65,75 @@
                 get { return _inner.Timeout; }
             }
 
-            private static string PrintResult(ScenarioResult scenarioResult)
+            private IEnumerable<ScenarioResult> GetScenarioResults(object testRunResult)
             {
-                var builder = new StringBuilder();
-
-                using (var printer = new PlainTextPrinter(_ => new StringWriter(builder)))
+                if(testRunResult == null)
                 {
-                    printer.PrintResult(scenarioResult).Wait();
+                    throw new ArgumentNullException("testRunResult");
                 }
 
-                return builder.ToString();
+                var single = testRunResult as Task<ScenarioResult>;
+
+                if(single != null)
+                {
+                    yield return single.Result;
+                    yield break;
+                }
+
+                var multiple = testRunResult as IEnumerable<Task<ScenarioResult>>;
+
+                if(multiple != null)
+                {
+                    var results = Task.WhenAll(multiple);
+
+                    foreach(var result in results.Result)
+                    {
+                        yield return result;
+                    }
+                    yield break;
+                }
+
+                throw new InvalidOperationException(
+                    string.Format("Expected the result of the test run to be {0} or {1}. Received {2} instead.",
+                        typeof(Task<ScenarioResult>).FullName,
+                        typeof(IEnumerable<Task<ScenarioResult>>).FullName,
+                        testRunResult.GetType().FullName));
             }
 
-            private MethodResult HandleFailure(ScenarioResult scenarioResult)
+            private MethodResult HandleSuccess(params ScenarioResult[] scenarioResults)
             {
-                var exception = scenarioResult.Results as Exception
-                    ?? new Exception();
+                return new PassedResult(_inner.MethodName,
+                    _inner.TypeName,
+                    _inner.DisplayName,
+                    new MultiValueDictionary<string, string>())
+                {
+                    Output = PrintResults(scenarioResults)
+                };
+            }
+
+            private MethodResult HandleFailure(params ScenarioResult[] scenarioResults)
+            {
+                var exception = new AggregateException(from result in scenarioResults
+                    let ex = result.Results as Exception
+                    where ex != null
+                    select ex);
 
                 return new FailedResult(_method, exception, DisplayName)
                 {
-                    Output = PrintResult(scenarioResult)
+                    Output = PrintResults(scenarioResults)
                 };
+            }
+
+            private static string PrintResults(params ScenarioResult[] scenarioResult)
+            {
+                var builder = new StringBuilder();
+
+                using(var printer = new PlainTextPrinter(_ => new StringWriter(builder)))
+                {
+                    Task.WhenAll(scenarioResult.Select(printer.PrintResult)).Wait();
+                }
+
+                return builder.ToString();
             }
         }
 
