@@ -8,6 +8,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
+    using Cedar.GetEventStore.Logging;
     using Cedar.GetEventStore.Serialization;
     using Cedar.Handlers;
     using Cedar.Internal;
@@ -179,6 +180,12 @@
             private readonly CancellationToken _token;
             private readonly ConcurrentQueue<ResolvedEvent> _events;
             private readonly InterlockedBoolean _isPushing;
+            private static readonly ILog Logger;
+
+            static SimpleQueue()
+            {
+                Logger = LogProvider.For<SimpleQueue>();
+            }
 
             public SimpleQueue(Func<ResolvedEvent, CancellationToken, Task> onResolvedEvent, CancellationToken token)
             {
@@ -211,7 +218,7 @@
                         }
                         catch(Exception ex)
                         {
-                            Console.WriteLine(ex.ToString());
+                            Logger.ErrorException(ex.Message, ex);
                         }
                     }
                     _isPushing.Set(false);
