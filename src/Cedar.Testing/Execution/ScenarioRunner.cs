@@ -17,6 +17,13 @@ namespace Cedar.Testing.Execution
         private readonly string _output;
         private readonly string[] _formatters;
         private readonly TaskCompletionSource<Assembly> _loadAssembly;
+
+        private bool IsRunningUnderTeamCity
+        {
+            get { return _isRunningUnderTeamCity; }
+        }
+
+
         public ScenarioRunner(
             string assembly, 
             bool isRunningUnderTeamCity, 
@@ -44,13 +51,37 @@ namespace Cedar.Testing.Execution
 
         public void Run()
         {
-            RunInternal().Wait();
+            try
+            {
+                RunInternal().Wait();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
         }
 
         private async Task RunInternal()
         {
             var results = await RunTests();
-            await PrintResults(results.GroupBy(x => x.Key, x => x.Value));
+
+            await PrintResults(results);
+        }
+
+        public async Task<ILookup<Type, ScenarioResult>> RunTests()
+        {
+            var assembly = await _loadAssembly.Task;
+
+            var scenarios = FindScenarios.InAssemblies(assembly);
+
+            var results = await Task.WhenAll(scenarios.Select(async scenario => new
+            {
+                scenario.Category,
+                result = await scenario.Run
+            }));
+
+            return results.ToLookup(x => x.Category, x => x.result);
         }
 
         private static async Task<Assembly> LoadTestAssembly(string assembly)
@@ -68,11 +99,6 @@ namespace Cedar.Testing.Execution
 
                 return Assembly.Load(buffer);
             }
-        }
-
-        private bool IsRunningUnderTeamCity
-        {
-            get { return _isRunningUnderTeamCity; }
         }
 
         private TextWriter OutputFactory(string fileExtension)
@@ -114,47 +140,8 @@ namespace Cedar.Testing.Execution
             }
         }
 
-        private static IDictionary<string,Func<Func<string, TextWriter>, IScenarioResultPrinter>> GetAllPrinterFactories()
+        private async Task PrintResults(ILookup<Type, ScenarioResult> results)
         {
-            return (from assembly in AppDomain.CurrentDomain.GetAssemblies()
-                from type in assembly.GetTypes()
-                where type.IsClass && false == type.IsAbstract && typeof (IScenarioResultPrinter).IsAssignableFrom(type)
-                let constructor = type.GetConstructor(new[] {typeof (Func<string, TextWriter>)})
-                where constructor != null
-                select new
-                {
-                    type,
-                    constructor
-                }).ToDictionary(
-                    x => x.type.AssemblyQualifiedName,
-                    x => new Func<Func<string, TextWriter>, IScenarioResultPrinter>(
-                        factory => (IScenarioResultPrinter) x.constructor.Invoke(new object[] {factory})), PrinterTypeNameEqualityComparer.Instance
-                );
-        }
-
-        public async Task<KeyValuePair<Type, ScenarioResult>[]> RunTests()
-        {
-            var assembly = await _loadAssembly.Task;
-
-            var scenarios = FindScenarios.InAssemblies(assembly);
-
-            var results = await Task.WhenAll(scenarios.Select(RunScenario));
-
-            return results;
-        }
-
-        private static async Task<KeyValuePair<Type, ScenarioResult>> RunScenario(Func<KeyValuePair<Type, Task<ScenarioResult>>> runScenario)
-        {
-            var groupedScenarioResult = runScenario();
-
-            return new KeyValuePair<Type, ScenarioResult>(groupedScenarioResult.Key,
-                await groupedScenarioResult.Value);
-        }
-
-        private async Task PrintResults(IEnumerable<IGrouping<Type, ScenarioResult>> results)
-        {
-            results = results.ToList();
-
             foreach (var printer in GetPrinters())
             {
                 foreach (var category in results)
@@ -171,6 +158,24 @@ namespace Cedar.Testing.Execution
 
                 await printer.Flush();
             }
+        }
+
+        private static IDictionary<string, Func<Func<string, TextWriter>, IScenarioResultPrinter>> GetAllPrinterFactories()
+        {
+            return (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                    from type in assembly.GetTypes()
+                    where type.IsClass && false == type.IsAbstract && typeof(IScenarioResultPrinter).IsAssignableFrom(type)
+                    let constructor = type.GetConstructor(new[] { typeof(Func<string, TextWriter>) })
+                    where constructor != null
+                    select new
+                    {
+                        type,
+                        constructor
+                    }).ToDictionary(
+                    x => x.type.AssemblyQualifiedName,
+                    x => new Func<Func<string, TextWriter>, IScenarioResultPrinter>(
+                        factory => (IScenarioResultPrinter)x.constructor.Invoke(new object[] { factory })), PrinterTypeNameEqualityComparer.Instance
+                );
         }
 
         internal class PrinterTypeNameEqualityComparer : IEqualityComparer<string>

@@ -4,65 +4,83 @@ namespace Cedar.Testing.Execution
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public static class FindScenarios
     {
-        public static IEnumerable<Func<KeyValuePair<Type, Task<ScenarioResult>>>> InAssemblies(params Assembly[] assemblies)
+        public static IEnumerable<CategorizedScenario> InAssemblies(params Assembly[] assemblies)
         {
-            return from assembly in assemblies
+            return (from assembly in assemblies
                 from type in assembly.GetTypes()
                 from result in InType(type)
-                select result;
+                select new CategorizedScenario(type, result));
         }
 
-        private static IEnumerable<Func<KeyValuePair<Type, Task<ScenarioResult>>>> InType(Type type)
+        private static IEnumerable<Task<ScenarioResult>> InType(Type type)
         {
             var constructor = type.GetConstructor(Type.EmptyTypes);
-            
+
             if(constructor == null)
             {
-                return Enumerable.Empty<Func<KeyValuePair<Type, Task<ScenarioResult>>>>();
+                return Enumerable.Empty<Task<ScenarioResult>>();
             }
 
             var singles = from method in type.GetMethods()
                 where method.ReturnType == typeof(Task<ScenarioResult>)
-                select FromMethodInfo(method, constructor);
+                from task in FromMethodInfo(method, constructor)
+                select task;
 
             var enumerables = from method in type.GetMethods()
                 where typeof(IEnumerable<Task<ScenarioResult>>).IsAssignableFrom(method.ReturnType)
-                from result in FromEnumerableMethodInfo(method, constructor)
-                select result;
+                from task in FromEnumerableMethodInfo(method, constructor)
+                select task;
 
             return singles.Concat(enumerables);
         }
 
-        private static Func<KeyValuePair<Type, Task<ScenarioResult>>> FromMethodInfo(MethodInfo method, ConstructorInfo constructor)
+        private static IEnumerable<Task<ScenarioResult>> FromMethodInfo(
+            MethodInfo method,
+            ConstructorInfo constructor)
         {
             var instance = constructor.Invoke(new object[0]);
 
-            var result = ((Task<ScenarioResult>)method.Invoke(instance, new object[0]));
-
-            return () => new KeyValuePair<Type, Task<ScenarioResult>>(method.DeclaringType,
-                result.ContinueWith(task =>
+            var task = (((Task<ScenarioResult>) method.Invoke(instance, new object[0])))
+                .ContinueWith(t =>
                 {
                     DisposeIfNecessary(instance);
+                    return t.Result;
+                });
 
-                    return task.Result;
-                }));
+            return new[] { task };
         }
 
-        private static IEnumerable<Func<KeyValuePair<Type, Task<ScenarioResult>>>> FromEnumerableMethodInfo(
-            MethodInfo method, ConstructorInfo constructor)
+        private static IEnumerable<Task<ScenarioResult>> FromEnumerableMethodInfo(
+            MethodInfo method,
+            ConstructorInfo constructor)
         {
+            long refCount = 0;
+
             var instance = constructor.Invoke(new object[0]);
 
-            var results = (IEnumerable<Task<ScenarioResult>>)method.Invoke(instance, new object[0]);
+            var tasks = ((IEnumerable<Task<ScenarioResult>>) method.Invoke(instance, new object[0]))
+                .Select(task =>
+                {
+                    Interlocked.Increment(ref refCount);
 
-            return results.Select(result => new Func<KeyValuePair<Type, Task<ScenarioResult>>>(
-                () => new KeyValuePair<Type, Task<ScenarioResult>>(method.DeclaringType, result)));
+                    return task.ContinueWith(t =>
+                    {
+                        if(Interlocked.Decrement(ref refCount) == 0)
+                        {
+                            DisposeIfNecessary(instance);
+                        }
+
+                        return t.Result;
+                    });
+                });
+
+            return tasks;
         }
-
 
         private static void DisposeIfNecessary(object instance)
         {

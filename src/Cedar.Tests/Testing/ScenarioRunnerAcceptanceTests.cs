@@ -27,7 +27,7 @@
         {
             var results = await new ScenarioRunner(typeof(EnumerableTests).Assembly, false, "what", "plain").RunTests();
 
-            results.Count().Should().Be(5);
+            results.SelectMany(x => x).Count().Should().Be(5);
         }
     }
 }
