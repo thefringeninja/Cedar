@@ -50,7 +50,8 @@ namespace Cedar.Testing.Execution
         private async Task RunInternal()
         {
             var results = await RunTests();
-            await PrintResults(results.GroupBy(x => x.Key, x => x.Value));
+
+            await PrintResults(results);
         }
 
         private static async Task<Assembly> LoadTestAssembly(string assembly)
@@ -132,29 +133,31 @@ namespace Cedar.Testing.Execution
                 );
         }
 
-        public async Task<KeyValuePair<Type, ScenarioResult>[]> RunTests()
+        public async Task<ILookup<Type, ScenarioResult>> RunTests()
         {
             var assembly = await _loadAssembly.Task;
 
             var scenarios = FindScenarios.InAssemblies(assembly);
 
-            var results = await Task.WhenAll(scenarios.Select(RunScenario));
+            var flattened = (from g in scenarios
+                from scenario in g
+                select new
+                {
+                    g.Key,
+                    scenario
+                });
+            
+            var results = await Task.WhenAll(flattened.Select(async x => new
+            {
+                x.Key,
+                result = await x.scenario
+            }));
 
-            return results;
+            return results.ToLookup(x => x.Key, x => x.result);
         }
 
-        private static async Task<KeyValuePair<Type, ScenarioResult>> RunScenario(Func<KeyValuePair<Type, Task<ScenarioResult>>> runScenario)
+        private async Task PrintResults(ILookup<Type, ScenarioResult> results)
         {
-            var groupedScenarioResult = runScenario();
-
-            return new KeyValuePair<Type, ScenarioResult>(groupedScenarioResult.Key,
-                await groupedScenarioResult.Value);
-        }
-
-        private async Task PrintResults(IEnumerable<IGrouping<Type, ScenarioResult>> results)
-        {
-            results = results.ToList();
-
             foreach (var printer in GetPrinters())
             {
                 foreach (var category in results)
