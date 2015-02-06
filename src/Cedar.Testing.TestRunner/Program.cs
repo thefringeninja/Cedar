@@ -53,6 +53,13 @@
                 return;
             }
 
+            AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+            {
+                Console.WriteLine(e.ExceptionObject);
+
+                Environment.Exit(1);
+            };
+
             var program = new Program(options);
             program.Run();
         }
