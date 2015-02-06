@@ -14,7 +14,7 @@
         public Program(TestRunnerOptions options)
         {
             _options = options;
-            _appDomain = AppDomain.CreateDomain(options.Assembly, null, new AppDomainSetup
+            _appDomain = AppDomain.CreateDomain(options.Assembly, AppDomain.CurrentDomain.Evidence, new AppDomainSetup
             {
                 ApplicationBase = Path.GetDirectoryName(_options.Assembly),
             });
