@@ -3,6 +3,8 @@
     using System;
     using System.IO;
     using System.Reflection;
+    using System.Security;
+    using System.Security.Permissions;
     using Cedar.Testing.Execution;
     using PowerArgs;
 
@@ -17,7 +19,7 @@
             _appDomain = AppDomain.CreateDomain(options.Assembly, AppDomain.CurrentDomain.Evidence, new AppDomainSetup
             {
                 ApplicationBase = Path.GetDirectoryName(_options.Assembly),
-            });
+            }, new PermissionSet(PermissionState.Unrestricted));
         }
 
         public void Run()
