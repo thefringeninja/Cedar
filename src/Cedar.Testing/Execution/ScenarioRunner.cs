@@ -51,7 +51,15 @@ namespace Cedar.Testing.Execution
 
         public void Run()
         {
-            RunInternal().Wait();
+            try
+            {
+                RunInternal().Wait();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
         }
 
         private async Task RunInternal()

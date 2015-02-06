@@ -121,6 +121,7 @@
     <Compile Include="Execution\FindScenarios.cs" />
     <Compile Include="Execution\IScenarioRunner.cs" />
     <Compile Include="Execution\ScenarioRunner.cs" />
+    <Compile Include="Execution\TestAppDomain.cs" />
     <Compile Include="MessageEqualityComparer.cs" />
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Printing\Bootstrap\BootstrapPrinter.cs" />
