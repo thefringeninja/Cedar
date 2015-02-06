@@ -117,6 +117,7 @@
     <Compile Include="Any.cs" />
     <Compile Include="Authorization.cs" />
     <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="Execution\CategorizedScenario.cs" />
     <Compile Include="Execution\FindScenarios.cs" />
     <Compile Include="Execution\IScenarioRunner.cs" />
     <Compile Include="Execution\ScenarioRunner.cs" />

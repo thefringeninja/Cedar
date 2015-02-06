@@ -9,12 +9,12 @@ namespace Cedar.Testing.Execution
 
     public static class FindScenarios
     {
-        public static ILookup<Type, Task<ScenarioResult>> InAssemblies(params Assembly[] assemblies)
+        public static IEnumerable<CategorizedScenario> InAssemblies(params Assembly[] assemblies)
         {
             return (from assembly in assemblies
                 from type in assembly.GetTypes()
                 from result in InType(type)
-                select new { type, result }).ToLookup(x => x.type, x => x.result);
+                select new CategorizedScenario(type, result));
         }
 
         private static IEnumerable<Task<ScenarioResult>> InType(Type type)
