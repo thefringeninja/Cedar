@@ -3,11 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using TinyIoC;
 
     public class HandlerResolver : IHandlerResolver
     {
-        private readonly TinyIoCContainer _container = new TinyIoCContainer();
         private readonly Dictionary<Type, List<object>> _handlers = new Dictionary<Type, List<object>>(); 
 
         public HandlerResolver(params HandlerModule[] handlerModules)
@@ -16,10 +14,6 @@
             {
                 foreach(var registration in module.HandlerRegistrations)
                 {
-                    _container.Register(
-                        registration.RegistrationType,
-                        registration.HandlerInstance);
-
                     List<object> handlers;
                     if(!_handlers.TryGetValue(registration.RegistrationType, out handlers))
                     {
