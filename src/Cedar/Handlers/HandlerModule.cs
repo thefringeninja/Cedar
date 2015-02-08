@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -18,12 +17,14 @@
     /// <summary>
     /// Represents a collection of handlers pipelines.
     /// </summary>
-    public class HandlerModule : ICreateHandlerBuilder, IHandlerResolver
+    public class HandlerModule : ICreateHandlerBuilder
     {
-        private delegate Task NonGenericHandler(object message, CancellationToken ct);
+        private readonly List<HandlerRegistration> _handlerRegistrations = new List<HandlerRegistration>();
 
-        private readonly Dictionary<Type, List<NonGenericHandler>> _handlersByMessageType =
-            new Dictionary<Type, List<NonGenericHandler>>();
+        internal IEnumerable<HandlerRegistration> HandlerRegistrations
+        {
+            get { return _handlerRegistrations; }
+        }
 
         /// <summary>
         /// Starts to build a handler pipeline for the specified message type.
@@ -32,41 +33,17 @@
         /// <returns>A a handler builder to continue defining the pipeline.</returns>
         public IHandlerBuilder<TMessage> For<TMessage>() where TMessage : class
         {
-            var key = typeof(TMessage);
-            List<NonGenericHandler> handlers = _handlersByMessageType.ContainsKey(key) 
-                ? _handlersByMessageType[key]
-                : new List<NonGenericHandler>();
-
-            var handlerBuilder = new HandlerBuilder<TMessage>();
-            handlers.Add((message, ct) => handlerBuilder.Invoke((TMessage)message, ct));
-            _handlersByMessageType[key] = handlers;
-
-            return handlerBuilder;
+            return new HandlerBuilder<TMessage>(_handlerRegistrations.Add);
         }
-
-        /// <summary>
-        /// Gets the handlers for the specified message type.
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <returns>The collection of handlers. Null if none exist.</returns>
-        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
-        {
-            if (!_handlersByMessageType.ContainsKey(typeof(TMessage)))
-            {
-                return Enumerable.Empty<Handler<TMessage>>();
-            }
-            return _handlersByMessageType[typeof(TMessage)]
-                .Select(handler => new Handler<TMessage>((message, ct) => handler(message, ct)));
-        } 
 
         private class HandlerBuilder<TMessage> : IHandlerBuilder<TMessage> where TMessage : class
         {
+            private readonly Action<HandlerRegistration> _registerHandler;
             private readonly Stack<Pipe<TMessage>> _pipes = new Stack<Pipe<TMessage>>();
-            private Handler<TMessage> _handler;
 
-            internal Task Invoke(TMessage message, CancellationToken ct)
+            public HandlerBuilder(Action<HandlerRegistration> registerHandler)
             {
-                return _handler(message, ct);
+                _registerHandler = registerHandler;
             }
 
             public IHandlerBuilder<TMessage> Pipe(Pipe<TMessage> pipe)
@@ -77,14 +54,19 @@
 
             public Handler<TMessage> Handle(Handler<TMessage> handler)
             {
-                _handler = handler;
-
                 while (_pipes.Count > 0)
                 {
-                    var handlerMiddleware = _pipes.Pop();
-                    _handler = handlerMiddleware(_handler);
+                    var pipe = _pipes.Pop();
+                    handler = pipe(handler);
                 }
-                return _handler;
+
+                var registrationType = typeof(Handler<TMessage>);
+
+                _registerHandler(new HandlerRegistration(
+                    typeof(TMessage),
+                    registrationType,
+                    handler));
+                return handler;
             }
         }
     }

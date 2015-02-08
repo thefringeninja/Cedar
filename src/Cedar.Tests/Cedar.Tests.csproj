@@ -110,12 +110,13 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Logging.cs" />
+    <Compile Include="Handlers\HandlerResolverTests.cs" />
+    <Compile Include="TestLogger.cs" />
     <Compile Include="DefaultGetEventStoreJsonSerializer.cs" />
     <Compile Include="Domain\AggregateTests.cs" />
     <Compile Include="Domain\GetEventStoreClientRepositoryTests.cs" />
     <Compile Include="Domain\NEventStoreRepositoryTests.cs" />
-    <Compile Include="Handlers\ProcessManagerHandlerTests.cs" />
+    <Compile Include="ProcessManagers\ProcessManagerHandlerTests.cs" />
     <Compile Include="Handlers\ResolvedEventDispatcherTests.cs" />
     <Compile Include="MessageEqualityComparerTests.cs" />
     <Compile Include="TaskExtensionsTests.cs" />
@@ -125,7 +126,7 @@
     <Compile Include="Testing\QueryTests.cs" />
     <Compile Include="Testing\ScenarioRunnerAcceptanceTests.cs" />
     <Compile Include="Testing\ValueObjectTests.cs" />
-    <Compile Include="Handlers\MessageHandlerModuleTests.cs" />
+    <Compile Include="Handlers\HandlerModuleTests.cs" />
     <Compile Include="Handlers\DurableCommitDispatcherTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

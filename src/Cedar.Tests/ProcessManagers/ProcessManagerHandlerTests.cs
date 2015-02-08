@@ -37,7 +37,7 @@
 
         public ProcessManagerHandlerTests()
         {
-            Logging.Configure();
+            TestLogger.Configure();
 
             var source = new TaskCompletionSource<bool>();
             _nodeStarted = source.Task;

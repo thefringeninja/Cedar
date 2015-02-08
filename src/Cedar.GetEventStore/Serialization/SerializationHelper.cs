@@ -40,8 +40,8 @@
 
             var eventType = @event.GetType();
 
-            headers[DomainEventMessageHeaders.Type] = getClrType(eventType);
-            headers[DomainEventMessageHeaders.Timestamp] = DateTime.UtcNow;
+            headers[EventMessageHeaders.Type] = getClrType(eventType);
+            headers[EventMessageHeaders.Timestamp] = DateTime.UtcNow;
 
             var metadata = Encode(serializer.Serialize(headers));
 
@@ -68,7 +68,7 @@
         {
             headers = (IDictionary<string, object>)serializer.Deserialize(Decode(resolvedEvent.Event.Metadata), typeof(Dictionary<string, object>));
 
-            var type = Type.GetType((string)headers[DomainEventMessageHeaders.Type]);
+            var type = Type.GetType((string)headers[EventMessageHeaders.Type]);
 
             var @event = serializer.Deserialize(Decode(resolvedEvent.Event.Data), type);
 

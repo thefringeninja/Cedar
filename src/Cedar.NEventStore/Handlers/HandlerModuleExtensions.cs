@@ -7,6 +7,7 @@ namespace Cedar.NEventStore.Handlers
     using Cedar.Annotations;
     using Cedar.Handlers;
     using global::NEventStore;
+    using EventMessage = global::NEventStore.EventMessage;
 
     public static class HandlerModuleExtensions
     {

@@ -48,7 +48,7 @@ namespace Cedar.Handlers
             Condition.Requires(handlerResolvers, "handlerResolvers").IsNotNull();
             Condition.Requires(message, "message").IsNotNull();
 
-            IEnumerable<Handler<TMessage>> handlers = handlerResolvers.SelectMany(m => m.GetHandlersFor<TMessage>());
+            IEnumerable<Handler<TMessage>> handlers = handlerResolvers.SelectMany(m => m.ResolveAll<TMessage>());
             foreach(var handler in handlers)
             {
                 await handler(message, cancellationToken);
@@ -89,7 +89,7 @@ namespace Cedar.Handlers
             Condition.Requires(handlerResolvers, "handlerResolvers").IsNotNull();
             Condition.Requires(message, "message").IsNotNull();
 
-            Handler<TMessage> handler = handlerResolvers.SelectMany(m => m.GetHandlersFor<TMessage>()).Single();
+            Handler<TMessage> handler = handlerResolvers.SelectMany(m => m.ResolveAll<TMessage>()).Single();
             await handler(message, cancellationToken).NotOnCapturedContext();
         }
     }

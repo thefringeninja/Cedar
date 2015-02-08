@@ -19,13 +19,13 @@
         {
             using (IStoreEvents eventStore = Wireup.Init().UsingInMemoryPersistence().Build())
             {
-                var dispatchedEvents = new List<DomainEventMessage<TestEvent>>();
+                var dispatchedEvents = new List<EventMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(dispatchedEvents);
 
                 using(var host = new DurableCommitDispatcher(
                     new EventStoreClient(eventStore.Advanced),
                     new InMemoryCheckpointRepository(),
-                    handlerModule))
+                    new HandlerResolver(handlerModule)))
                 {
                     var projectedCommits = host
                         .ProjectedCommits
@@ -45,7 +45,7 @@
 
                         using(IEventStream stream = eventStore.CreateStream(streamId))
                         {
-                            stream.Add(new EventMessage { Body = new TestEvent() });
+                            stream.Add(new global::NEventStore.EventMessage { Body = new TestEvent() });
                             stream.CommitChanges(commitId);
                         }
                         host.PollNow();
@@ -66,13 +66,13 @@
         {
             using (IStoreEvents eventStore = Wireup.Init().UsingInMemoryPersistence().Build())
             {
-                var projectedEvents = new List<DomainEventMessage<TestEvent>>();
+                var projectedEvents = new List<EventMessage<TestEvent>>();
                 var handlerModule = new TestHandlerModule(projectedEvents);
 
                 using (var host = new DurableCommitDispatcher(
                     new EventStoreClient(eventStore.Advanced),
                     new InMemoryCheckpointRepository(),
-                    handlerModule.DispatchCommit))
+                    new HandlerResolver(handlerModule)))
                 {
                     var projectedCommits = host
                         .ProjectedCommits
@@ -92,7 +92,7 @@
 
                         using(IEventStream stream = eventStore.CreateStream(streamId))
                         {
-                            stream.Add(new EventMessage { Body = new TestEventThatThrows() });
+                            stream.Add(new global::NEventStore.EventMessage { Body = new TestEventThatThrows() });
                             stream.CommitChanges(commitId);
                         }
                         host.PollNow();
@@ -113,20 +113,20 @@
 
         private class TestHandlerModule : HandlerModule
         {
-            private readonly List<DomainEventMessage<TestEvent>> _eventsList;
+            private readonly List<EventMessage<TestEvent>> _eventsList;
 
-            public TestHandlerModule(List<DomainEventMessage<TestEvent>> eventsList)
+            public TestHandlerModule(List<EventMessage<TestEvent>> eventsList)
             {
                 _eventsList = eventsList;
 
-                For<DomainEventMessage<TestEvent>>()
+                For<EventMessage<TestEvent>>()
                     .Handle((message, _) =>
                     {
                         _eventsList.Add(message);
                         return Task.FromResult(0);
                     });
 
-                For<DomainEventMessage<TestEventThatThrows>>()
+                For<EventMessage<TestEventThatThrows>>()
                     .Handle((message, _) =>
                     {
                        throw new Exception();

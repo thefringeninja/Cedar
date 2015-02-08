@@ -11,7 +11,7 @@
 
     public abstract class ObservableProcessManager : IProcessManager
     {
-        private readonly ISubject<DomainEventMessage> _inbox;
+        private readonly ISubject<EventMessage> _inbox;
         private readonly string _id;
         private readonly string _correlationId;
         private int _version;
@@ -30,7 +30,7 @@
             _id = id;
             _correlationId = correlationId;
 
-            _inbox = new Subject<DomainEventMessage>();
+            _inbox = new Subject<EventMessage>();
             _commands = new List<object>();
             _events = new Subject<object>();
             _subscriptions = new List<IDisposable>();
@@ -55,7 +55,7 @@
             get { return _version; }
         }
 
-        public IObserver<DomainEventMessage> Inbox
+        public IObserver<EventMessage> Inbox
         {
             get { return _inbox; }
         }
@@ -80,9 +80,9 @@
             When(@on, e => Enumerable.Repeat(@do(e), 1));
         }
 
-        protected IObservable<DomainEventMessage<TMessage>> On<TMessage>() where TMessage : class
+        protected IObservable<EventMessage<TMessage>> On<TMessage>() where TMessage : class
         {
-            return _inbox.OfType<DomainEventMessage<TMessage>>();
+            return _inbox.OfType<EventMessage<TMessage>>();
         }
 
         protected IObservable<TMessage> OnEvent<TMessage>() where TMessage : class
@@ -90,14 +90,14 @@
             return On<TMessage>().Select(message => message.DomainEvent);
         }
 
-        protected IObservable<DomainEventMessage> OnAny()
+        protected IObservable<EventMessage> OnAny()
         {
-            return _inbox.OfType<DomainEventMessage>();
+            return _inbox.OfType<EventMessage>();
         }
 
         protected IObservable<dynamic> OnAnyEvent()
         {
-            return _inbox.OfType<DomainEventMessage>().Select(message => message.DomainEvent);
+            return _inbox.OfType<EventMessage>().Select(message => message.DomainEvent);
         }
 
         protected void CompleteWhen<TEvent>(IObservable<TEvent> @on)

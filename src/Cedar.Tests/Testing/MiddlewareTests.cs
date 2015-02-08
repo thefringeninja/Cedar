@@ -4,9 +4,7 @@
     using System.IO;
     using System.Net;
     using System.Net.Http;
-    using System.Text;
     using System.Threading.Tasks;
-    using Cedar.Testing.Printing.PlainText;
     using Microsoft.Owin;
     using Xunit;
     using MidFunc = System.Func<System.Func<System.Collections.Generic.IDictionary<string, object>,

@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public abstract class DomainEventMessage
+    public abstract class EventMessage
     {
         public readonly dynamic DomainEvent;
         public readonly IDictionary<string, object> Headers;
@@ -10,7 +10,7 @@
         public readonly string CheckpointToken;
         public readonly string StreamId;
 
-        protected DomainEventMessage(
+        protected EventMessage(
             string streamId,
             object domainEvent,
             int version,
@@ -30,12 +30,12 @@
         }
     }
 
-    public class DomainEventMessage<T> : DomainEventMessage
+    public class EventMessage<T> : EventMessage
         where T : class
     {
         public new readonly T DomainEvent;
 
-        public DomainEventMessage(
+        public EventMessage(
             string streamId,
             T domainEvent,
             int version,

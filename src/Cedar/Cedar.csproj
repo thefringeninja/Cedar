@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;TINYIOC_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\Cedar.xml</DocumentationFile>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;TINYIOC_INTERNAL</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Cedar.xml</DocumentationFile>
@@ -58,11 +58,13 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="App_Packages\LibLog.2.0\LibLog.cs" />
-    <Compile Include="Handlers\DomainEventMessage.cs" />
-    <Compile Include="Handlers\DomainEventMessageHeaders.cs" />
+    <Compile Include="App_Packages\LibLog.3.1\LibLog.cs" />
+    <Compile Include="Handlers\EventMessage.cs" />
+    <Compile Include="Handlers\EventMessageHeaders.cs" />
     <Compile Include="Handlers\HandlerBuilderExtensions.cs" />
     <Compile Include="Handlers\HandlerModuleExtensions.cs" />
+    <Compile Include="Handlers\HandlerRegistration.cs" />
+    <Compile Include="Handlers\HandlerResolver.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />
     <Compile Include="Internal\StringExtensions.cs" />
     <Compile Include="ProcessManagers\DispatchCommand.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="ProcessManagers\ProcessHandler.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TinyIoC.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

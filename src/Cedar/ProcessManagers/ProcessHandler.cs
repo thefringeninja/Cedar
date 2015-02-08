@@ -59,7 +59,7 @@ namespace Cedar.ProcessManagers
         }
 
         public ProcessHandler<TProcess, TCheckpoint> CorrelateBy<TMessage>(
-            Func<DomainEventMessage<TMessage>, string> getCorrelationId) where TMessage : class
+            Func<EventMessage<TMessage>, string> getCorrelationId) where TMessage : class
         {
             _dispatcher.CorrelateBy(getCorrelationId);
 
@@ -75,8 +75,7 @@ namespace Cedar.ProcessManagers
 
         public IHandlerResolver BuildHandlerResolver()
         {
-            return _dispatcher
-                .Aggregate(new HandlerModule(), HandleMessageType);
+            return new HandlerResolver(_dispatcher.Aggregate(new HandlerModule(), HandleMessageType));
         }
 
         private HandlerModule HandleMessageType(HandlerModule module, Type messageType)
@@ -98,9 +97,9 @@ namespace Cedar.ProcessManagers
             return module;
         }
 
-        public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
+        public IEnumerable<Handler<TMessage>> ResolveAll<TMessage>() where TMessage : class
         {
-            return _dispatcher.GetHandlersFor<TMessage>();
+            return _dispatcher.ResolveAll<TMessage>();
         }
 
         private class CheckpointedProcess
@@ -138,9 +137,9 @@ namespace Cedar.ProcessManagers
                 _activeProcesses = new ConcurrentDictionary<string, CheckpointedProcess>();
             }
 
-            public IEnumerable<Handler<TMessage>> GetHandlersFor<TMessage>() where TMessage : class
+            public IEnumerable<Handler<TMessage>> ResolveAll<TMessage>() where TMessage : class
             {
-                if(false == typeof(DomainEventMessage).IsAssignableFrom(typeof(TMessage))
+                if(false == typeof(EventMessage).IsAssignableFrom(typeof(TMessage))
                    || false == _byCorrelationId.ContainsKey(typeof(TMessage)))
                 {
                     yield break;
@@ -153,7 +152,7 @@ namespace Cedar.ProcessManagers
                         return;
                     }
 
-                    var domainEventMessage = (message as DomainEventMessage);
+                    var domainEventMessage = (message as EventMessage);
 
                     var correlationId = getCorrelationId(message);
 
@@ -219,10 +218,10 @@ namespace Cedar.ProcessManagers
             }
 
             public void CorrelateBy<TMessage>(
-                Func<DomainEventMessage<TMessage>, string> getCorrelationId) where TMessage : class
+                Func<EventMessage<TMessage>, string> getCorrelationId) where TMessage : class
             {
-                _byCorrelationId.Add(typeof(DomainEventMessage<TMessage>),
-                    message => getCorrelationId((DomainEventMessage<TMessage>) message));
+                _byCorrelationId.Add(typeof(EventMessage<TMessage>),
+                    message => getCorrelationId((EventMessage<TMessage>) message));
             }
         }
     }

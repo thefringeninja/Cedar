@@ -6,21 +6,22 @@ namespace Cedar.Handlers
     using FluentAssertions;
     using Xunit;
 
-    public class MessageHandlerModuleTests
+    public class HandlerModuleTests
     {
         [Fact]
         public void Can_handle_message()
         {
-            var handlerModule = new TestHandlerModule();
+            var module = new TestHandlerModule();
+            var resolver = new HandlerResolver(module);
 
-            IEnumerable<Handler<TestMessage>> handlersFor = handlerModule.GetHandlersFor<TestMessage>();
+            IEnumerable<Handler<TestMessage>> handlersFor = resolver.ResolveAll<TestMessage>();
             foreach (var handler in handlersFor)
             {
                 handler(new TestMessage(), CancellationToken.None);
             }
 
-            handlerModule.MiddlewareCalled.Should().BeTrue();
-            handlerModule.FinallyCalled.Should().BeTrue();
+            module.MiddlewareCalled.Should().BeTrue();
+            module.FinallyCalled.Should().BeTrue();
         }
 
         private class TestMessage

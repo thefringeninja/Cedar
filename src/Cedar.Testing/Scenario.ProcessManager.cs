@@ -239,11 +239,11 @@
                     return this;
                 }
 
-                private static DomainEventMessage WrapInEnvelopeIfNecessary(object @event)
+                private static EventMessage WrapInEnvelopeIfNecessary(object @event)
                 {
-                    return @event as DomainEventMessage
-                           ?? (DomainEventMessage) Activator.CreateInstance(
-                               typeof(DomainEventMessage<>).MakeGenericType(
+                    return @event as EventMessage
+                           ?? (EventMessage) Activator.CreateInstance(
+                               typeof(EventMessage<>).MakeGenericType(
                                    @event.GetType()),
                                new[] {"streamId", @event, 0, new Dictionary<string, object>(), null});
                 }

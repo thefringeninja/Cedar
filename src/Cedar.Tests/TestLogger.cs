@@ -4,7 +4,7 @@
     using NLog.Config;
     using NLog.Targets;
 
-    internal static class Logging
+    internal static class TestLogger
     {
         internal static void Configure()
         {

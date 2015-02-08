@@ -10,7 +10,7 @@
         string CorrelationId { get; }
         int Version { get; }
 
-        IObserver<DomainEventMessage> Inbox { get; }
+        IObserver<EventMessage> Inbox { get; }
         IEnumerable<object> Commands { get; }
         IObservable<object> Events { get; }
     }

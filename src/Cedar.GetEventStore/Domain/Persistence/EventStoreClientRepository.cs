@@ -91,7 +91,7 @@
                 {
                     updateHeaders(headers);
 
-                    headers[DomainEventMessageHeaders.CommitId] = commitId;
+                    headers[EventMessageHeaders.CommitId] = commitId;
                 }));
 
             var result = await _connection.AppendToStreamAsync(streamName, expectedVersion - 1, eventData);

@@ -16,17 +16,19 @@
 
     public class QueryTests
     {
-        private readonly SomeModule _handlerResolver;
+        private readonly IHandlerResolver _resolver;
+        private readonly SomeModule _module;
 
         public QueryTests()
         {
-            _handlerResolver = new SomeModule();
+            _module = new SomeModule();
+            _resolver = new HandlerResolver(_module);
         }
 
         [Fact]
         public async Task a_passing_query_test_should()
         {
-            var result = await Scenario.ForQuery(_handlerResolver, _handlerResolver.HttpApplication)
+            var result = await Scenario.ForQuery(_resolver, _module.Middleware)
                 .Given(new SomethingHappened(), new SomethingHappened())
                 .When(new HttpRequestMessage(HttpMethod.Get, "/query-response"))
                 .ThenShould(response => response.Headers.ContentType.MediaType == "application/json");
@@ -37,7 +39,7 @@
         [Fact]
         public async Task a_failing_query_test_should()
         {
-            var result = await Scenario.ForQuery(_handlerResolver, _handlerResolver.HttpApplication)
+            var result = await Scenario.ForQuery(_resolver, _module.Middleware)
                 .Given(new SomethingHappened())
                 .When(new HttpRequestMessage(HttpMethod.Get, "/query-response"))
                 .ThenShould(response => response.Headers.ContentType.MediaType != "application/json");
@@ -53,7 +55,7 @@
             {
                 _readModel = new ReadModel();
 
-                For<DomainEventMessage<SomethingHappened>>()
+                For<EventMessage<SomethingHappened>>()
                     .Handle(_ => _readModel.Count++);
 
             }
@@ -62,7 +64,7 @@
                 public int Count;
             }
             
-            public MidFunc HttpApplication
+            public MidFunc Middleware
             {
                 get
                 {

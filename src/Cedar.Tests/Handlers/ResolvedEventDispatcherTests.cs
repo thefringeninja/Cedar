@@ -55,7 +55,7 @@
         {
             await _nodeStarted;
 
-            var dispatchedEvents = new List<DomainEventMessage<TestEvent>>();
+            var dispatchedEvents = new List<EventMessage<TestEvent>>();
             var handlerModule = new TestHandlerModule(dispatchedEvents);
 
             var serializer = new DefaultGetEventStoreJsonSerializer();
@@ -63,7 +63,7 @@
             using(var host = new ResolvedEventDispatcher(
                 _connection, serializer,
                 new InMemoryCheckpointRepository(),
-                handlerModule, () => { }))
+                new HandlerResolver(handlerModule)))
             {
                 var projectedEvents = host
                     .ProjectedEvents.Replay();
@@ -98,12 +98,12 @@
             await _nodeStarted;
 
             var serializer = new DefaultGetEventStoreJsonSerializer();
-            var handlerModule = new TestHandlerModule(new List<DomainEventMessage<TestEvent>>());
+            var handlerModule = new TestHandlerModule(new List<EventMessage<TestEvent>>());
 
             using(var host = new ResolvedEventDispatcher(
                 _connection, serializer,
                 new InMemoryCheckpointRepository(),
-                handlerModule, () => { }))
+                new HandlerResolver(handlerModule)))
             {
                 var projectedEvents = host
                     .ProjectedEvents.Replay();
@@ -137,20 +137,20 @@
 
         private class TestHandlerModule : HandlerModule
         {
-            private readonly List<DomainEventMessage<TestEvent>> _eventsList;
+            private readonly List<EventMessage<TestEvent>> _eventsList;
 
-            public TestHandlerModule(List<DomainEventMessage<TestEvent>> eventsList)
+            public TestHandlerModule(List<EventMessage<TestEvent>> eventsList)
             {
                 _eventsList = eventsList;
 
-                For<DomainEventMessage<TestEvent>>()
+                For<EventMessage<TestEvent>>()
                     .Handle((message, _) =>
                     {
                         _eventsList.Add(message);
                         return Task.FromResult(0);
                     });
 
-                For<DomainEventMessage<TestEventThatThrows>>()
+                For<EventMessage<TestEventThatThrows>>()
                     .Handle((message, _) =>
                     {
                        throw new Exception();
