@@ -17,7 +17,7 @@
     /// <summary>
     /// Represents a collection of handlers pipelines.
     /// </summary>
-    public class HandlerModule : ICreateHandlerBuilder
+    public class HandlerModule
     {
         private readonly List<HandlerRegistration> _handlerRegistrations = new List<HandlerRegistration>();
 
