@@ -76,11 +76,6 @@
     <Compile Include="Handlers\IHandlerBuilder.cs" />
     <Compile Include="Handlers\HandlerModule.cs" />
     <Compile Include="Handlers\IHandlerResolver.cs" />
-    <Compile Include="Handlers\Messages.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Messages.resx</DependentUpon>
-    </Compile>
     <Compile Include="Internal\InterlockedBoolean.cs" />
     <Compile Include="Internal\InterlockedBooleanExtensions.cs" />
     <Compile Include="Internal\TaskExtensions.cs" />
@@ -125,10 +120,6 @@
     <EmbeddedResource Include="Domain\Persistence\ExceptionMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>ExceptionMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Handlers\Messages.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Messages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup />
