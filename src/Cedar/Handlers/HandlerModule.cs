@@ -60,12 +60,8 @@
                     handler = pipe(handler);
                 }
 
-                var registrationType = typeof(Handler<TMessage>);
+                _registerHandler(new HandlerRegistration(typeof(Handler<TMessage>), handler));
 
-                _registerHandler(new HandlerRegistration(
-                    typeof(TMessage),
-                    registrationType,
-                    handler));
                 return handler;
             }
         }
