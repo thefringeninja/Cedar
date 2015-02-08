@@ -5,7 +5,6 @@ namespace Cedar.Handlers
     using System.Threading;
     using System.Threading.Tasks;
     using Cedar.Annotations;
-    using Cedar.Internal;
     using CuttingEdge.Conditions;
 
     /// <summary>
@@ -53,44 +52,6 @@ namespace Cedar.Handlers
             {
                 await handler(message, cancellationToken);
             }
-        }
-
-        /// <summary>
-        ///     Resolves a single handler and dispatches the message
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="handlerResolver">The handler resolver.</param>
-        /// <param name="message">The message to be dispatched.</param>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        /// <returns>A <see cref="Task" />Task the represents the operation.</returns>
-        public static Task DispatchSingle<TMessage>(
-            [NotNull] this IHandlerResolver handlerResolver,
-            TMessage message,
-            CancellationToken cancellationToken)
-            where TMessage : class
-        {
-            return new[] {handlerResolver}.DispatchSingle(message, cancellationToken);
-        }
-
-        /// <summary>
-        ///     Resolves a single handler and dispatches the message
-        /// </summary>
-        /// <typeparam name="TMessage">The type of the message.</typeparam>
-        /// <param name="handlerResolvers">The collection of handler resolvers.</param>
-        /// <param name="message">The message to be dispatched.</param>
-        /// <param name="cancellationToken">A cancellation token.</param>
-        /// <returns>A <see cref="Task" />Task the represents the operation.</returns>
-        public static async Task DispatchSingle<TMessage>(
-            [NotNull] this IEnumerable<IHandlerResolver> handlerResolvers,
-            TMessage message,
-            CancellationToken cancellationToken)
-            where TMessage : class
-        {
-            Condition.Requires(handlerResolvers, "handlerResolvers").IsNotNull();
-            Condition.Requires(message, "message").IsNotNull();
-
-            Handler<TMessage> handler = handlerResolvers.SelectMany(m => m.ResolveAll<TMessage>()).Single();
-            await handler(message, cancellationToken).NotOnCapturedContext();
         }
     }
 }
