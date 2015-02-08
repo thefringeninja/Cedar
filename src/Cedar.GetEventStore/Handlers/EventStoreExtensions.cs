@@ -14,7 +14,7 @@
                 : null;
         }
 
-        public static Position? ParsePosition(this string checkpointToken)
+        internal static Position? ParsePosition(this string checkpointToken)
         {
             var position = default(Position?);
 
