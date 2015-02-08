@@ -120,16 +120,4 @@
   <data name="ExceptionHasOccuredWhenDispatchingACommit" xml:space="preserve">
     <value>Exception has occurred when dispatching a commit {0}.</value>
   </data>
-  <data name="NegativeDuration" xml:space="preserve">
-    <value>Duration cannot be negative.</value>
-  </data>
-  <data name="NegativeRetryInterval" xml:space="preserve">
-    <value>Retry interval cannot be negative.</value>
-  </data>
-  <data name="TransientExceptionExceededDuration" xml:space="preserve">
-    <value>A TransientException has occured {0} times and exceeded the retry policy duration of {0}.</value>
-  </data>
-  <data name="TransientExceptionOccured" xml:space="preserve">
-    <value>A TransientException has occured {0} times.</value>
-  </data>
 </root>
