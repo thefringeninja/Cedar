@@ -21,13 +21,13 @@
         }
 
         public static Task DispatchResolvedEvent(
-            [NotNull] this IEnumerable<IHandlerResolver> handlerModules,
+            [NotNull] this IHandlerResolver handlerResolver,
             [NotNull] ISerializer serializer,
             ResolvedEvent resolvedEvent,
             bool isSubscribedToAll,
             CancellationToken cancellationToken)
         {
-            Condition.Requires(handlerModules, "handlerModules").IsNotNull();
+            Condition.Requires(handlerResolver, "handlerResolver").IsNotNull();
             Condition.Requires(serializer, "serializer").IsNotNull();
 
             IDictionary<string, object> headers;
@@ -35,32 +35,13 @@
 
             return (Task) DispatchDomainEventMethod.MakeGenericMethod(@event.GetType()).Invoke(null, new[]
             {
-                handlerModules, serializer, @event, headers, resolvedEvent, isSubscribedToAll, cancellationToken
-            });
-        }
-
-        public static Task DispatchResolvedEvent(
-            [NotNull] this IHandlerResolver handlerModule,
-            [NotNull] ISerializer serializer,
-            ResolvedEvent resolvedEvent,
-            bool isSubscribedToAll,
-            CancellationToken cancellationToken)
-        {
-            Condition.Requires(handlerModule, "handlerModule").IsNotNull();
-            Condition.Requires(serializer, "serializer").IsNotNull();
-
-            IDictionary<string, object> headers;
-            var @event = serializer.DeserializeEventData(resolvedEvent, out headers);
-
-            return (Task) DispatchDomainEventMethod.MakeGenericMethod(@event.GetType()).Invoke(null, new[]
-            {
-                new[] {handlerModule}, serializer, @event, headers, resolvedEvent, isSubscribedToAll, cancellationToken
+                handlerResolver, serializer, @event, headers, resolvedEvent, isSubscribedToAll, cancellationToken
             });
         }
 
         [UsedImplicitly]
         private static Task DispatchDomainEvent<TDomainEvent>(
-            IEnumerable<IHandlerResolver> handlerModules,
+            IHandlerResolver handlerResolver,
             [NotNull] ISerializer serializer,
             TDomainEvent domainEvent,
             IDictionary<string, object> headers,
@@ -71,7 +52,7 @@
         {
             var message = GetEventStoreMessage.Create(domainEvent, headers, resolvedEvent, isSubscribedToAll);
 
-            return handlerModules.Dispatch(message, cancellationToken);
+            return handlerResolver.Dispatch(message, cancellationToken);
         }
     }
 }

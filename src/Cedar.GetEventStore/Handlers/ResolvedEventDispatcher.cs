@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Collections.Generic;
     using System.Reactive.PlatformServices;
     using System.Reactive.Subjects;
     using System.Threading;
@@ -83,22 +82,11 @@
             IEventStoreConnection eventStore,
             ISerializer serializer,
             ICheckpointRepository checkpoints,
-            [NotNull] IEnumerable<IHandlerResolver> handlerModules,
+            [NotNull] IHandlerResolver handlerResolver,
             Action onCaughtUp = null,
             string streamId = null,
             UserCredentials userCredentials = null)
-            : this(eventStore, serializer, checkpoints, handlerModules.DispatchResolvedEvent, onCaughtUp, streamId, userCredentials)
-        {}
-
-        public ResolvedEventDispatcher(
-            IEventStoreConnection eventStore,
-            ISerializer serializer,
-            ICheckpointRepository checkpoints,
-            [NotNull] IHandlerResolver handlerModule,
-            Action onCaughtUp = null,
-            string streamId = null,
-            UserCredentials userCredentials = null)
-            : this(eventStore, serializer, checkpoints, new[] {handlerModule}, onCaughtUp, streamId, userCredentials)
+            : this(eventStore, serializer, checkpoints, handlerResolver.DispatchResolvedEvent, onCaughtUp, streamId, userCredentials)
         {}
 
         public IObservable<ResolvedEvent> ProjectedEvents

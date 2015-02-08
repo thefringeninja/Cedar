@@ -1,7 +1,6 @@
 ﻿namespace Cedar.NEventStore.Handlers
 {
     using System;
-    using System.Collections.Generic;
     using System.Reactive.Subjects;
     using System.Threading;
     using System.Threading.Tasks;
@@ -34,7 +33,7 @@
         /// <param name="eventStoreClient">An event store client.</param>
         /// <param name="checkpointRepository">A checkpoint repository. Each instane of a <see cref="DurableCommitDispatcher"/>
         /// should have their own instance of a <see cref="ICheckpointRepository"/>.</param>
-        /// <param name="handlerModule">A handler module to dispatch the commit to.</param>
+        /// <param name="handlerResolver">A collection of handler modules to dispatch the commit to.</param>
         /// <exception cref="System.ArgumentNullException">
         /// eventStoreClient
         /// or
@@ -45,33 +44,10 @@
         public DurableCommitDispatcher(
             [NotNull] IEventStoreClient eventStoreClient,
             [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] IHandlerResolver handlerModule) :
-            this(eventStoreClient, checkpointRepository, new[] { handlerModule })
+            [NotNull] IHandlerResolver handlerResolver):
+            this(eventStoreClient, checkpointRepository, handlerResolver.DispatchCommit)
         {
-            Guard.EnsureNotNull(handlerModule, "handlerModule");
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DurableCommitDispatcher"/> class.
-        /// </summary>
-        /// <param name="eventStoreClient">An event store client.</param>
-        /// <param name="checkpointRepository">A checkpoint repository. Each instane of a <see cref="DurableCommitDispatcher"/>
-        /// should have their own instance of a <see cref="ICheckpointRepository"/>.</param>
-        /// <param name="handlerModules">A collection of handler modules to dispatch the commit to.</param>
-        /// <exception cref="System.ArgumentNullException">
-        /// eventStoreClient
-        /// or
-        /// checkpointRepository
-        /// or
-        /// dispatchCommit
-        /// </exception>
-        public DurableCommitDispatcher(
-            [NotNull] IEventStoreClient eventStoreClient,
-            [NotNull] ICheckpointRepository checkpointRepository,
-            [NotNull] IEnumerable<IHandlerResolver> handlerModules):
-            this(eventStoreClient, checkpointRepository, handlerModules.DispatchCommit)
-        {
-            Guard.EnsureNotNull(handlerModules, "handlerModule");
+            Guard.EnsureNotNull(handlerResolver, "handlerModule");
         }
 
         /// <summary>
