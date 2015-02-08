@@ -41,7 +41,7 @@
             private readonly Action<HandlerRegistration> _registerHandler;
             private readonly Stack<Pipe<TMessage>> _pipes = new Stack<Pipe<TMessage>>();
 
-            public HandlerBuilder(Action<HandlerRegistration> registerHandler)
+            internal HandlerBuilder(Action<HandlerRegistration> registerHandler)
             {
                 _registerHandler = registerHandler;
             }
