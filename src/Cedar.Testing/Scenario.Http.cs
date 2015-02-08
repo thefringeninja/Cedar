@@ -8,7 +8,6 @@
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Text;
-    using System.Threading.Tasks;
 
     static partial class Scenario
     {
@@ -16,7 +15,7 @@
         {
             private readonly HttpRequestMessage _request;
 
-            private readonly Task<byte[]> _body;
+            private readonly byte[] _body;
 
             internal HttpRequest(HttpRequestMessage request)
             {
@@ -27,11 +26,12 @@
                     return;
                 }
 
-                var source = new TaskCompletionSource<byte[]>();
+                using(var stream = new MemoryStream())
+                {
+                    request.Content.CopyToAsync(stream).Wait();
 
-                Task.Run(async () => source.SetResult(await request.Content.ReadAsByteArrayAsync()));
-
-                _body = source.Task;
+                    _body = stream.ToArray();
+                }
             }
 
             public HeaderCollection Headers
@@ -39,9 +39,9 @@
                 get { return new HeaderCollection(_request); }
             }
 
-            public async Task<Stream> Body()
+            public byte[] Body()
             {
-                return new MemoryStream(_body == null ? new byte[0]: await _body) { Position = 0 };
+                return _body;
             }
 
             public static implicit operator HttpRequestMessage(HttpRequest request)
@@ -76,7 +76,7 @@
                 if (_body != null)
                 {
                     builder.AppendLine().AppendLine();
-                    builder.AppendLine(Encoding.UTF8.GetString(_body.Result));
+                    builder.AppendLine(Encoding.UTF8.GetString(_body));
                 }
 
                 builder.AppendLine().AppendLine();
@@ -311,7 +311,7 @@
         {
             private readonly HttpResponseMessage _response;
 
-            private readonly Task<byte[]> _body;
+            private readonly byte[] _body;
 
             internal HttpResponse(HttpResponseMessage response)
             {
@@ -322,11 +322,12 @@
                     return;
                 }
 
-                var source = new TaskCompletionSource<byte[]>();
+                using(var stream = new MemoryStream())
+                {
+                    response.Content.CopyToAsync(stream).Wait();
 
-                Task.Run(async () => source.SetResult(await response.Content.ReadAsByteArrayAsync()));
-
-                _body = source.Task;
+                    _body = stream.ToArray();
+                }
             }
 
             public HeaderCollection Headers
@@ -339,9 +340,9 @@
                 get { return _response.StatusCode;  }
             }
 
-            public async Task<Stream> Body()
+            public byte[] Body()
             {
-                return new MemoryStream(_body == null ? new byte[0] : await _body) { Position = 0 };
+                return _body;
             }
 
             public static implicit operator HttpResponseMessage(HttpResponse response)
@@ -377,7 +378,7 @@
                 if (_body != null)
                 {
                     builder.AppendLine().AppendLine();
-                    builder.AppendLine(Encoding.UTF8.GetString(_body.Result));
+                    builder.AppendLine(Encoding.UTF8.GetString(_body));
                 }
 
                 builder.AppendLine().AppendLine();
