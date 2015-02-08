@@ -64,7 +64,7 @@
 
                 static ScenarioBuilder()
                 {
-                    DispatchDomainEventMethod = typeof(HandlerModuleExtensions)
+                    DispatchDomainEventMethod = typeof(HandlerResolverExtensions)
                         .GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Single(method => method.Name == "Dispatch" && method.GetParameters().First().ParameterType == typeof(IHandlerResolver));
                 }

@@ -62,7 +62,7 @@
     <Compile Include="Handlers\EventMessage.cs" />
     <Compile Include="Handlers\EventMessageHeaders.cs" />
     <Compile Include="Handlers\HandlerBuilderExtensions.cs" />
-    <Compile Include="Handlers\HandlerModuleExtensions.cs" />
+    <Compile Include="Handlers\HandlerResolverExtensions.cs" />
     <Compile Include="Handlers\HandlerRegistration.cs" />
     <Compile Include="Handlers\HandlerResolver.cs" />
     <Compile Include="Internal\EnumerableExtensions.cs" />

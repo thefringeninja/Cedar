@@ -12,7 +12,7 @@ namespace Cedar.Handlers
     ///     A set of extensions around <see cref="IHandlerResolver" /> or <see cref="IEnumerable{T}" />
     ///     that assist in dispatching a message.
     /// </summary>
-    public static class HandlerModuleExtensions
+    public static class HandlerResolverExtensions
     {
         /// <summary>
         ///     Resolves all handlers that can handle the message type and dispatches the message.
