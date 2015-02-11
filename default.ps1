@@ -58,7 +58,11 @@ task ILMerge -depends Compile {
 	$dllDir = "$srcDir\Cedar.GetEventStore\bin\Release"
 	$inputDlls = "$dllDir\Cedar.GetEventStore.dll"
 	@(	"CuttingEdge.Conditions",
-		"Newtonsoft.Json") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
+		"Newtonsoft.Json",
+		"System.Reactive.Core",
+		"System.Reactive.Interfaces",
+		"System.Reactive.Linq",`
+		"System.Reactive.PlatformServices") |% { $inputDlls = "$inputDlls $dllDir\$_.dll" }
 	Invoke-Expression "$ilmerge_path /targetplatform:v4 /internalize /allowDup /target:library /log /out:$mergedDir\Cedar.GetEventStore.dll $inputDlls"
 
 	$dllDir = "$srcDir\Cedar.Testing\bin\Release"
