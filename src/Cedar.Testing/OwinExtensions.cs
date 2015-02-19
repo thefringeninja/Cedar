@@ -32,7 +32,8 @@ namespace Cedar.Testing
             var handler = new OwinHttpMessageHandler(appFunc)
             {
                 CookieContainer = new CookieContainer(),
-                UseCookies = true // need this else the auth cookie won't be carried to subsequent requests
+                UseCookies = true, // need this else the auth cookie won't be carried to subsequent requests,
+                AllowAutoRedirect = true
             };
             return new HttpClient(handler, true)
             {

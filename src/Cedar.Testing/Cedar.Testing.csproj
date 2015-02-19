@@ -41,9 +41,9 @@
     <Reference Include="Microsoft.Owin">
       <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="OwinHttpMessageHandler">
-      <HintPath>..\packages\OwinHttpMessageHandler.1.1.0\lib\net45\OwinHttpMessageHandler.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="OwinHttpMessageHandler, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\OwinHttpMessageHandler.1.3.0\lib\net45\OwinHttpMessageHandler.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
