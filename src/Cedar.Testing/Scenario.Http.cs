@@ -85,7 +85,7 @@
                 var builder = new StringBuilder();
 
                 builder.Append(_request.Method.ToString().ToUpper()).Append(' ')
-                    .Append(_request.RequestUri.PathAndQuery).Append(' ')
+                    .Append(_request.RequestUri).Append(' ')
                     .Append("HTTP/").Append(_request.Version.ToString(2))
                     .AppendLine();
 
