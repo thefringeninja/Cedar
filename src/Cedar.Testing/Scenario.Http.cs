@@ -57,6 +57,7 @@
                 var copy = new HttpRequestMessage(original.Method, original.RequestUri);
 
                 original.Headers.ForEach(header => copy.Headers.Add(header.Key, header.Value));
+                original.Properties.ForEach(copy.Properties.Add);
 
                 if(original.Content != null)
                 {
