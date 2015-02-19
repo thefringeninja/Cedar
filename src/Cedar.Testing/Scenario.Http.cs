@@ -7,6 +7,7 @@
     using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
+    using System.Reflection;
     using System.Text;
 
     static partial class Scenario
@@ -46,7 +47,24 @@
 
             public static implicit operator HttpRequestMessage(HttpRequest request)
             {
-                return request == null ? null : request._request;
+                var original = request._request;
+
+                if(original == null)
+                {
+                    return null;
+                }
+
+                var copy = new HttpRequestMessage(original.Method, original.RequestUri);
+
+                original.Headers.ForEach(header => copy.Headers.Add(header.Key, header.Value));
+
+                if(original.Content != null)
+                {
+                    copy.Content = new ByteArrayContent(request._body);
+                    original.Content.Headers.ForEach(header => copy.Content.Headers.Add(header.Key, header.Value));
+                }
+
+                return copy;
             }
 
             public static implicit operator HttpRequest(HttpRequestMessage request)

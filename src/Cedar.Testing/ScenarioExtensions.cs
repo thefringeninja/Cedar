@@ -26,32 +26,40 @@
 
         public static Scenario.Middleware.IWhen When(
             this Scenario.Middleware.IWhen scenario,
-            Func<Task<HttpRequestMessage>> request)
+            Func<Task<HttpRequestMessage>> request,
+            Func<HttpResponseMessage, bool> canContinue = null,
+            TimeSpan? timeout = default(TimeSpan?))
         {
-            return scenario.When(_ => request());
+            return scenario.When(_ => request(), canContinue, timeout);
         }
 
         public static Scenario.Middleware.IWhen When(
             this Scenario.Middleware.IWhen scenario,
-            HttpRequestMessage when)
+            HttpRequestMessage when,
+            Func<HttpResponseMessage, bool> canContinue = null,
+            TimeSpan? timeout = default(TimeSpan?))
         {
-            return scenario.When(_ => when);
+            return scenario.When(_ => when, canContinue, timeout);
         }
 
         public static Scenario.Middleware.IWhen When(
             this Scenario.Middleware.IWhen scenario,
-            Func<HttpRequestMessage> when)
+            Func<HttpRequestMessage> when,
+            Func<HttpResponseMessage, bool> canContinue = null,
+            TimeSpan? timeout = default(TimeSpan?))
         {
-            return scenario.When(_ => when());
+            return scenario.When(_ => when(), canContinue, timeout);
         }
 
         public static Scenario.Middleware.IWhen When(
-            this Scenario.Middleware.IWhen scenario, 
-            Func<HttpResponseMessage, HttpRequestMessage> when)
+            this Scenario.Middleware.IWhen scenario,
+            Func<HttpResponseMessage, HttpRequestMessage> when,
+            Func<HttpResponseMessage, bool> canContinue = null,
+            TimeSpan? timeout = default(TimeSpan?))
         {
-            return scenario.When(response => Task.FromResult(when(response)));
+            return scenario.When(response => Task.FromResult(when(response)), canContinue, timeout);
         }
-
+        
         public static Scenario.Query.IThen When(
             this Scenario.Query.IWhen scenario,
             HttpRequestMessage when)

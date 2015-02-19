@@ -29,7 +29,10 @@
         {
             public interface IWhen : IScenario
             {
-                IWhen When(Func<HttpResponseMessage, Task<HttpRequestMessage>> when);
+                IWhen When(Func<HttpResponseMessage, Task<HttpRequestMessage>> when,
+                    Func<HttpResponseMessage, bool> canContinue = null,
+                    TimeSpan? timeout = default(TimeSpan?));
+
                 IWhen ThenShould(Expression<Func<HttpResponse, bool>> assertion);
             }
 
@@ -45,12 +48,17 @@
                 private bool _passed;
 
                 private readonly IList<
-                    Tuple<Func<HttpResponseMessage, Task<HttpRequestMessage>>, 
-                    IList<Expression<Func<HttpResponse, bool>>>>> _items;
+                    Tuple<
+                        Func<HttpResponseMessage, Task<HttpRequestMessage>>,
+                        Func<HttpResponseMessage, bool>,
+                        TimeSpan,
+                        IList<Expression<Func<HttpResponse, bool>>>
+                    >
+                > _items;
 
                 private IList<Expression<Func<HttpResponse, bool>>> CurrentAssertions
                 {
-                    get { return _items.Last().Item2; }
+                    get { return _items.Last().Item4; }
                 }
 
                 public ScenarioBuilder(MidFunc middleware, string name)
@@ -59,17 +67,26 @@
                     _name = name;
                     _timer = new Stopwatch();
                     _items = new List<
-                        Tuple<Func<HttpResponseMessage, Task<HttpRequestMessage>>,
-                            IList<Expression<Func<HttpResponse, bool>>>>>();
+                        Tuple<
+                            Func<HttpResponseMessage, Task<HttpRequestMessage>>,
+                            Func<HttpResponseMessage, bool>,
+                            TimeSpan,
+                            IList<Expression<Func<HttpResponse, bool>>>
+                        >
+                    >();
+
                     _expect = new List<object>();
                 }
 
-                public IWhen When(Func<HttpResponseMessage, Task<HttpRequestMessage>> when)
+                public IWhen When(
+                    Func<HttpResponseMessage, Task<HttpRequestMessage>> when, 
+                    Func<HttpResponseMessage, bool> canContinue = null, 
+                    TimeSpan? timeout = default(TimeSpan?))
                 {
                     IList<Expression<Func<HttpResponse, bool>>> assertions =
                         new List<Expression<Func<HttpResponse, bool>>>();
 
-                    _items.Add(Tuple.Create(when, assertions));
+                    _items.Add(Tuple.Create(when, canContinue ?? (_ => true), timeout ?? TimeSpan.FromSeconds(5), assertions));
 
                     return this;
                 }
@@ -96,18 +113,40 @@
                         {
                             HttpResponse lastResponse = null;
 
-                            foreach(var item in _items)
+                            foreach (var item in _items)
                             {
                                 var executeRequest = item.Item1;
-                                var assertions = item.Item2;
+                                var canContinue = item.Item2;
+                                var timeout = item.Item3;
+                                var assertions = item.Item4;
 
                                 HttpRequest request = await executeRequest(lastResponse);
 
                                 _expect.Add(request);
 
-                                lastResponse = await client.SendAsync(request);
+                                HttpResponseMessage response = null;
+
+                                var stopwatch = Stopwatch.StartNew();
+
+                                while(response == null
+                                      || (false == canContinue(response)))
+                                {
+                                    response = await client.SendAsync(request);
+
+                                    if(timeout <= stopwatch.Elapsed)
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                lastResponse = response;
 
                                 _expect.Add(lastResponse);
+
+                                if(false == canContinue(lastResponse))
+                                {
+                                    throw new ScenarioException("Timed out waiting for the response to match.");
+                                }
 
                                 assertions.ForEach(_expect.Add);
 

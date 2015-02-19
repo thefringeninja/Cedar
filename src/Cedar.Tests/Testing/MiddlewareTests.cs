@@ -1,7 +1,9 @@
 ﻿namespace Cedar.Testing
 {
+    using System;
     using System.Collections.Concurrent;
     using System.IO;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading.Tasks;
@@ -46,6 +48,53 @@
             Assert.False(result.Passed);
         }
 
+        [Fact]
+        public async Task a_passing_middleware_test_with_timeouts_should()
+        {
+            var inABit = DateTimeOffset.UtcNow.Add(TimeSpan.FromMilliseconds(200));
+
+            var result = await Scenario.ForMiddleware(Middleware)
+                .When(() => new HttpRequestMessage(HttpMethod.Put, "/some-resource")
+                {
+                    Content = new StringContent("stuff")
+                })
+                .ThenShould(response => response.StatusCode == HttpStatusCode.Created)
+                .When(response => new HttpRequestMessage(HttpMethod.Get, response.Headers.Location)
+                {
+                    Headers =
+                    {
+                        IfModifiedSince = inABit
+                    }
+                }, response => response.StatusCode != HttpStatusCode.NotModified)
+                .ThenShould(response => response.StatusCode == HttpStatusCode.OK);
+
+            Assert.True(result.Passed);
+        }
+
+        [Fact]
+        public async Task a_failing_middleware_test_with_timeouts_should()
+        {
+            var inABit = DateTimeOffset.UtcNow.Add(TimeSpan.FromSeconds(5));
+
+            var result = await Scenario.ForMiddleware(Middleware)
+                .When(() => new HttpRequestMessage(HttpMethod.Put, "/some-resource")
+                {
+                    Content = new StringContent("stuff")
+                })
+                .ThenShould(response => response.StatusCode == HttpStatusCode.Created)
+                .When(response => new HttpRequestMessage(HttpMethod.Get, response.Headers.Location)
+                {
+                    Headers =
+                    {
+                        IfModifiedSince = inABit
+                    }
+                }, response => response.StatusCode != HttpStatusCode.NotModified, TimeSpan.FromMilliseconds(10))
+                .ThenShould(response => response.StatusCode == HttpStatusCode.OK);
+
+            Assert.False(result.Passed);
+            Assert.IsType<ScenarioException>(result.Results);
+        }
+
         private static MidFunc Middleware
         {
             get
@@ -82,6 +131,22 @@
 
                     if(context.Request.Method == "GET")
                     {
+                        string[] dates;
+                        DateTimeOffset date;
+
+                        var now = DateTimeOffset.UtcNow;
+
+                        if(context.Request.Headers.TryGetValue("If-Modified-Since", out dates)
+                           && dates.Any()
+                           && DateTimeOffset.TryParse(dates.First(), out date)
+                           && date > now)
+                        {
+                            context.Response.StatusCode = 304;
+                            context.Response.ReasonPhrase = "Not Modified";
+
+                            return;
+                        }
+
                         context.Response.StatusCode = 200;
                         context.Response.ReasonPhrase = "OK";
 
