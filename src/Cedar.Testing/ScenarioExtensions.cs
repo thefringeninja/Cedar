@@ -24,28 +24,28 @@
             }
         }
 
-        public static Scenario.Middleware.IThen When(
+        public static Scenario.Middleware.IWhen When(
             this Scenario.Middleware.IWhen scenario,
             Func<Task<HttpRequestMessage>> request)
         {
             return scenario.When(_ => request());
         }
 
-        public static Scenario.Middleware.IThen When(
+        public static Scenario.Middleware.IWhen When(
             this Scenario.Middleware.IWhen scenario,
             HttpRequestMessage when)
         {
             return scenario.When(_ => when);
         }
 
-        public static Scenario.Middleware.IThen When(
+        public static Scenario.Middleware.IWhen When(
             this Scenario.Middleware.IWhen scenario,
             Func<HttpRequestMessage> when)
         {
             return scenario.When(_ => when());
         }
 
-        public static Scenario.Middleware.IThen When(
+        public static Scenario.Middleware.IWhen When(
             this Scenario.Middleware.IWhen scenario, 
             Func<HttpResponseMessage, HttpRequestMessage> when)
         {

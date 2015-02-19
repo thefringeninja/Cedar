@@ -27,13 +27,9 @@
 
         public static class Middleware
         {
-            public interface IWhen : IThen
+            public interface IWhen : IScenario
             {
-                IThen When(Func<HttpResponseMessage, Task<HttpRequestMessage>> when);
-            }
-
-            public interface IThen : IScenario
-            {
+                IWhen When(Func<HttpResponseMessage, Task<HttpRequestMessage>> when);
                 IWhen ThenShould(Expression<Func<HttpResponse, bool>> assertion);
             }
 
@@ -68,7 +64,7 @@
                     _expect = new List<object>();
                 }
 
-                public IThen When(Func<HttpResponseMessage, Task<HttpRequestMessage>> when)
+                public IWhen When(Func<HttpResponseMessage, Task<HttpRequestMessage>> when)
                 {
                     IList<Expression<Func<HttpResponse, bool>>> assertions =
                         new List<Expression<Func<HttpResponse, bool>>>();
